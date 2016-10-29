@@ -3,9 +3,23 @@ import time
 import cv2
 from threading import Thread
 import os
+from movementDetection import MovementDetection
+
 
 class DetectFace(Thread):
 
+    sensor = None
+
+    """
+        Class constructor. Receives a sensor (MovementDetection)
+    """
+    def __init__(self, sensor):
+        self.sensor = sensor
+        super(DetectFace, self).__init__()
+
+    """
+        Delete old pictures that were already classified.
+    """
     def deletePics(self):
         # Delete old pictures
         files = os.listdir("./")
@@ -14,6 +28,12 @@ class DetectFace(Thread):
                 os.remove(os.path.join("./", file))
         print('Pictures deleted.')
 
+    """
+        Run thread that detect faces. It detects faces when the sensor is 1 (up) which means there is some one at the
+        door. Then it calls the RecognizeFace class and if the person at the door is authorized to enter it opens the
+        door calling the Arduino.
+
+    """
     def run(self):
         save = False
 
@@ -22,34 +42,42 @@ class DetectFace(Thread):
 
         oldTime = a = int(round(time.time() * 1000))
         while True:
-            newTime = int(round(time.time() * 1000))
-            if newTime - oldTime > 3000:
-                oldTime = newTime
-                save = True
+            if self.sensor == 1:
+                newTime = int(round(time.time() * 1000))
+                if newTime - oldTime > 3000:
+                    oldTime = newTime
+                    save = True
 
-                self.deletePics()
-            else: save = False
+                    self.deletePics()
+                else:
+                    save = False
 
+                ret, img = cap.read()
+                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
+                faces = faceCascade.detectMultiScale(gray, 1.3, 5)
 
-            ret, img = cap.read()
-            gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-            faces = faceCascade.detectMultiScale(gray, 1.3, 5)
+                count = 0
+                print(np.shape(faces)[0])  # Number of faces
+                count = 0
+                for (x, y, w, h) in faces:
+                    cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
+                    roi_gray = gray[y:y + h, x:x + w]
+                    roi_color = img[y:y + h, x:x + h]
+                    if save:
+                        cv2.imwrite('fig' + str(count) + '.jpg', img[y:y + h, x: x + w])
+                        print('saved fig' + str(count) + '.jpg')
+                    count += 1
 
-            count = 0
-            print(np.shape(faces)[0])  # Number of faces
-            count = 0
-            for (x, y, w, h) in faces:
-                cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
-                roi_gray = gray[y:y + h, x:x + w]
-                roi_color = img[y:y + h, x:x + h]
-                if save:
-                    cv2.imwrite('fig' + str(count) + '.jpg', img[y:y + h, x: x + w])
-                    print('saved fig' + str(count) + '.jpg')
-                count += 1
-            cv2.imshow('img', img)
-            k = cv2.waitKey(30) & 0xff
-            if k == 27:
-                break
+                # recognize face
+
+                # Arduino
+
+                cv2.imshow('img', img)
+                k = cv2.waitKey(30) & 0xff
+                if k == 27:
+                    break
+            else:
+                time.sleep(1)
 
         cap.release()
         cv2.destroyAllWindows()
