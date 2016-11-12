@@ -1,9 +1,10 @@
-# import detectface
+# import detectFace
 # import movementDetection
 from firebaseConn import FirebaseConn
 
-# detect = detectface.DetectFace()
+# detect = detectFace.DetectFace()
 # sensor = movementDetection.MovementDetection()
 # sensor.start()
 # detect.start()
 fire = FirebaseConn()
+fire.get_time_by_name('Joe')
