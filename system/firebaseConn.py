@@ -27,7 +27,7 @@ class FirebaseConn:
         # Get a reference to the database service
         self.db = self.firebase.database()
 
-        print('Firebase Connection Started')
+        print('Firebase Connection Started\n')
         self.userUID = self.auth.current_user['localId']
 
         self.system_status = self.verify_db_existence()
@@ -88,7 +88,6 @@ class FirebaseConn:
 
         for i in range(1, len(db_users)):
             if db_users[i]['Data']['name'] == name:
-                print(db_users[i]['Data']['name'])
                 groups = []
                 for j in range(len(db_users[i]['Groups'])):
                     groups.append(db_users[i]['Groups']['g'+str(j+1)])
@@ -102,11 +101,9 @@ class FirebaseConn:
                         start = new_start
                     if new_end > end:
                         end = new_end
-                print('start: ' + str(start.time()) + ' end: ' + str(end.time()))
-                return [start, end]
-        print('Not in database')
 
-        return 'Not in database'
+        return [start, end]
+
 
 
 
