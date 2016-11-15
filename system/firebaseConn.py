@@ -102,8 +102,9 @@ class FirebaseConn:
                         start = new_start
                     if new_end > end:
                         end = new_end
-            print('start: ' + str(start.time()) + ' end: ' + str(end.time()))
-            return [start, end]
+                print('start: ' + str(start.time()) + ' end: ' + str(end.time()))
+                return [start, end]
+        print('Not in database')
 
         return 'Not in database'
 
