@@ -4,6 +4,7 @@ import cv2
 from threading import Thread
 import os
 from movementDetection import MovementDetection
+from faceRecognition import FaceRecognition
 
 
 class DetectFace(Thread):
@@ -15,6 +16,7 @@ class DetectFace(Thread):
     """
     def __init__(self, sensor):
         self.sensor = sensor
+        self.face = FaceRecognition()
         super(DetectFace, self).__init__()
 
     """
@@ -27,6 +29,17 @@ class DetectFace(Thread):
             if file.endswith(".jpg"):
                 os.remove(os.path.join("./", file))
         print('Pictures deleted.')
+
+    """
+        Tries to recognize faces in directory
+    """
+    def recognizeFace(self):
+        # Delete old pictures
+        files = os.listdir("./")
+        for f in files:
+            if f.endswith(".jpg"):
+                print('Predicting '+f)
+                self.face.predict(f)
 
     """
         Run thread that detect faces. It detects faces when the sensor is 1 (up) which means there is some one at the
@@ -69,6 +82,7 @@ class DetectFace(Thread):
                     count += 1
 
                 # recognize face
+                self.recognizeFace()
 
                 # Arduino
 

@@ -1,4 +1,5 @@
 from nampy import ArduinoApi, SerialManager
+import time
 
 ledPin = 7
 buttonPin = 8
