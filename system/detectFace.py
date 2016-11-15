@@ -2,10 +2,11 @@ import numpy as np
 import time
 import cv2
 from threading import Thread
+import thread
 import os
-from movementDetection import MovementDetection
+# from movementDetection import MovementDetection
 from faceRecognition import FaceRecognition
-
+from firebaseConn import FirebaseConn
 
 class DetectFace(Thread):
 
@@ -14,32 +15,42 @@ class DetectFace(Thread):
     """
         Class constructor. Receives a sensor (MovementDetection)
     """
-    def __init__(self, sensor):
-        self.sensor = sensor
+    def __init__(self):
+        self.sensor = 1
         self.face = FaceRecognition()
+        self.running_thread = False
+        self.fire = FirebaseConn()
         super(DetectFace, self).__init__()
 
     """
         Delete old pictures that were already classified.
     """
     def deletePics(self):
-        # Delete old pictures
         files = os.listdir("./")
         for file in files:
             if file.endswith(".jpg"):
                 os.remove(os.path.join("./", file))
-        print('Pictures deleted.')
 
     """
         Tries to recognize faces in directory
     """
     def recognizeFace(self):
-        # Delete old pictures
-        files = os.listdir("./")
-        for f in files:
-            if f.endswith(".jpg"):
-                print('Predicting '+f)
-                self.face.predict(f)
+        if not self.running_thread:
+            self.running_thread = True
+            self.times = None
+            files = os.listdir("./")
+            for f in files:
+                if f.endswith(".jpg"):
+                    print('Predicting '+f)
+                    [predicted, precision] = self.face.predict(f)
+                    if predicted is None:
+                        print('No match\n')
+                    else:
+                        self.times = self.fire.get_time_by_name(predicted)
+                        print(predicted + " with " + precision + " precision. Allowed to enter from "
+                              + str(self.times[0].time()) + " to " + str(self.times[1].time()) + "\n")
+
+            self.running_thread = False
 
     """
         Run thread that detect faces. It detects faces when the sensor is 1 (up) which means there is some one at the
@@ -70,7 +81,6 @@ class DetectFace(Thread):
                 faces = faceCascade.detectMultiScale(gray, 1.3, 5)
 
                 count = 0
-                print(np.shape(faces)[0])  # Number of faces
                 count = 0
                 for (x, y, w, h) in faces:
                     cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
@@ -78,11 +88,10 @@ class DetectFace(Thread):
                     roi_color = img[y:y + h, x:x + h]
                     if save:
                         cv2.imwrite('fig' + str(count) + '.jpg', img[y:y + h, x: x + w])
-                        print('saved fig' + str(count) + '.jpg')
                     count += 1
 
                 # recognize face
-                self.recognizeFace()
+                thread.start_new_thread(self.recognizeFace, ())
 
                 # Arduino
 
