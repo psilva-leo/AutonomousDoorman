@@ -31,16 +31,28 @@ class FaceRecognition:
     This process may take a few minutes.
     '''
     def train(self):
+        print('>>> Training classifier')
+
         # Pode detectiong and alignment
+        print('Aligning')
         align = "~/openface/util/align-dlib.py ~/openface/training-images/ align outerEyesAndNose " \
-                "~/openface/aligned-images/ --size 96 2>/dev/null"
+                "~/openface/aligned-images/ --size 96"
         subprocess.Popen(align, shell=True, stdout=subprocess.PIPE)
 
         # Representations from aligned images
-        rep = "~/openface/batch-represent/main.lua -outDir ~/openface/generated-embeddings/ " \
-              "-data ~/openface/aligned-images/ 2>/dev/null"
+        print('Representing')
+        rep = ["TERM=vt100","~/openface/batch-represent/main.lua -outDir ~/openface/generated-embeddings/ " \
+              "-data ~/openface/aligned-images/"]
         subprocess.Popen(rep, shell=True, stdout=subprocess.PIPE)
 
         # Train classifier
-        train = "~/openface/demos/classifier.py train ~/openface/generated-embeddings/ 2>/dev/null"
+        print('Training')
+        train = ["TERM=vt100", "~/openface/demos/classifier.py train ~/openface/generated-embeddings/"]
         subprocess.Popen(rep, shell=True, stdout=subprocess.PIPE)
+
+
+    def delete_classifier(self):
+        print('Deleting Classifier')
+        align = ['rm -rf ~/openface/aligned-images/', 'rm -rf ~/openface/generated-embeddings/']
+        subprocess.Popen(align, shell=True, stdout=subprocess.PIPE)
+
