@@ -153,7 +153,7 @@ Libraries needed:
     ```
 
 # Licensing
-    This project is under the MIT license.
+This project is under the MIT license.
 
     
     
