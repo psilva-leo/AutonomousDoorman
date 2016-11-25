@@ -24,8 +24,9 @@ class FirebaseConn:
         # Log the user in
         self.user = self.auth.sign_in_with_email_and_password(email, password)
 
-        # Get a reference to the database service
         self.db = self.firebase.database()
+
+        self.storage = self.firebase.storage()
 
         print('Firebase Connection Started\n')
         self.userUID = self.auth.current_user['localId']
@@ -104,6 +105,11 @@ class FirebaseConn:
 
         return [start, end]
 
+    def getPictures(self):
+        print(self.userUID)
+        # self.storage.child("images/example.jpg").put("1.jpg", self.user['idToken'])
+        print(self.storage.child("images/example.jpg").get_url(self.user['idToken']))
+        self.storage.child("images/example.jpg").download(filename='test.jpg', token=self.user['idToken'])
 
 
 

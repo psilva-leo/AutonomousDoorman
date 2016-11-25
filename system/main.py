@@ -1,8 +1,11 @@
 import detectFace
 # import movementDetection
-
-detect = detectFace.DetectFace()
+from firebaseConn import FirebaseConn
 # sensor = movementDetection.MovementDetection()
 # sensor.start()
+
+detect = detectFace.DetectFace()
 detect.start()
 
+# fire = FirebaseConn()
+# fire.getPictures()

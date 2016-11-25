@@ -36,6 +36,7 @@ class DetectFace(Thread):
     """
     def recognizeFace(self):
         if not self.running_thread:
+            self.save = False
             self.running_thread = True
             self.times = None
             files = os.listdir("./")
@@ -49,6 +50,8 @@ class DetectFace(Thread):
                         self.times = self.fire.get_time_by_name(predicted)
                         print(predicted + " with " + precision + " precision. Allowed to enter from "
                               + str(self.times[0].time()) + " to " + str(self.times[1].time()) + "\n")
+            self.deletePics()
+            self.save = True
 
             self.running_thread = False
 
@@ -59,34 +62,32 @@ class DetectFace(Thread):
 
     """
     def run(self):
-        save = False
-
+        self.save = True
         faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
         cap = cv2.VideoCapture(0)
 
-        oldTime = a = int(round(time.time() * 1000))
+        # oldTime = a = int(round(time.time() * 1000))
         while True:
             if self.sensor == 1:
-                newTime = int(round(time.time() * 1000))
-                if newTime - oldTime > 3000:
-                    oldTime = newTime
-                    save = True
-
-                    self.deletePics()
-                else:
-                    save = False
+                # newTime = int(round(time.time() * 1000))
+                # if newTime - oldTime > 3000:
+                #     oldTime = newTime
+                #     save = True
+                #
+                #     self.deletePics()
+                # else:
+                #     save = False
 
                 ret, img = cap.read()
                 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                 faces = faceCascade.detectMultiScale(gray, 1.3, 5)
 
                 count = 0
-                count = 0
                 for (x, y, w, h) in faces:
                     cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
                     roi_gray = gray[y:y + h, x:x + w]
                     roi_color = img[y:y + h, x:x + h]
-                    if save:
+                    if self.save:
                         cv2.imwrite('fig' + str(count) + '.jpg', img[y:y + h, x: x + w])
                     count += 1
 

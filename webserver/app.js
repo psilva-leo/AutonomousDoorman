@@ -1,5 +1,6 @@
 var express = require('express');
 var path = require('path');
+var Updates = require('./models/updates');
 
 var app = express();
 
@@ -13,6 +14,9 @@ app.get('/', function(req, res){
 	res.render('home');
 });
 
+app.get('/api/updates', function(req, res){
+	res.json(Updates.getUpdateVersion());
+});
 
 app.get('*', function(req, res){
 	res.render('404');
