@@ -66,18 +66,8 @@ class DetectFace(Thread):
         faceCascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
         cap = cv2.VideoCapture(0)
 
-        # oldTime = a = int(round(time.time() * 1000))
         while True:
             if self.sensor == 1:
-                # newTime = int(round(time.time() * 1000))
-                # if newTime - oldTime > 3000:
-                #     oldTime = newTime
-                #     save = True
-                #
-                #     self.deletePics()
-                # else:
-                #     save = False
-
                 ret, img = cap.read()
                 gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
                 faces = faceCascade.detectMultiScale(gray, 1.3, 5)
