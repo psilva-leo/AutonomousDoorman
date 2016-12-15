@@ -1,11 +1,17 @@
-import detectFace
-# import movementDetection
-from firebaseConn import FirebaseConn
-# sensor = movementDetection.MovementDetection()
-# sensor.start()
+import argparse
+from autonomousDoorman import AutonomousDoorman
 
-detect = detectFace.DetectFace()
-detect.start()
+debug_flag = False
 
-# fire = FirebaseConn()
-# fire.getPictures()
+parser = argparse.ArgumentParser()
+parser.add_argument('--debug', help='Add something')
+args = parser.parse_args()
+if args.debug is not None:
+    if str(args.debug).lower() == "true":
+        debug_flag = True
+    elif str(args.debug).lower() != "false":
+        print('ERROR: --debug argument accepts only True or False.')
+        exit()
+
+doorman = AutonomousDoorman(debug_flag)
+doorman.start()
