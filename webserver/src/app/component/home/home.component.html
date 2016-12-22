@@ -1,0 +1,15 @@
+<h1>
+  Home! {{title}}
+</h1>
+  <br>
+  <input type="text" placeholder="name" name="title" [(ngModel)]="title">
+  <br>
+  <button (click)="login()">log in</button>
+  <br>
+  {{tests?.length}}
+  <ul>
+    <li *ngFor="let test of tests">
+      {{test.name}}
+    </li>
+  </ul>
+
