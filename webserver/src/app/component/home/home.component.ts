@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import { Component, OnInit, AfterViewChecked } from '@angular/core';
 import { AngularFire, FirebaseListObservable } from "angularfire2";
 import { FirebaseService, Test } from '../../services/firebase.service'
 import { Observable } from 'rxjs/Observable';
@@ -10,14 +10,17 @@ import { Observable } from 'rxjs/Observable';
   providers: [FirebaseService]
 })
 
-export class HomeComponent implements OnInit{
+export class HomeComponent implements OnInit, AfterViewChecked{
   title : string;
   tests : Test[];
   clock : any;
   constructor(private firebase: FirebaseService){
-    console.log('constructor');
+    let body = document.getElementsByTagName('body')[0];
+    body.className = "";   //remove the classes
+    body.classList.add("nav-md");   //add the class
+
+    console.log('Home constructor');
     this.title = 'hey!';
-    // this.clock = firebase.todos;
   }
 
   ngOnInit(){
@@ -27,8 +30,11 @@ export class HomeComponent implements OnInit{
       );
   }
 
+  ngAfterViewChecked(){
+    console.log('preparing to load...');
+  }
   login(){
-    this.firebase.login();
+    this.firebase.login2();
   }
 
 }
