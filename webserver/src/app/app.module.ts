@@ -9,16 +9,21 @@ import { AppComponent } from './app.component';
 import { firebaseConfig } from "../environments/firebase.config";
 import { AngularFireModule, AuthProviders, AuthMethods } from 'angularfire2';
 import { routing } from './app.routing';
-import { HomeComponent } from './component/home/home.component';
-import { LoginComponent } from './component/login/login.component';
+import { HomeComponent } from './components/home/home.component';
+import { LoginComponent } from './components/login/login.component';
 import {AuthGuard} from "../shared/auth.guard";
 import {FirebaseService} from "./services/firebase.service";
-import { TestComponent } from './component/test/test.component';
+import { TestComponent } from './components/test/test.component';
 
 import { NAV_DROPDOWN_DIRECTIVES }      from '../shared/nav-dropdown.directive';
 import { SIDEBAR_TOGGLE_DIRECTIVES }    from '../shared/sidebar.directive';
 import { AsideToggleDirective }         from '../shared/aside.directive';
 import { BreadcrumbsComponent }         from '../shared/breadcrumb.component';
+import { HeaderComponent } from './components/layout/header/header.component';
+import { SidebarComponent } from './components/layout/sidebar/sidebar.component';
+import { FooterComponent } from './components/layout/footer/footer.component';
+import { AsidemenuComponent } from './components/layout/asidemenu/asidemenu.component';
+import { BreadcrumbComponent } from './components/layout/breadcrumb/breadcrumb.component';
 
 const myFirebaseAuthConfig = {
   provider: AuthProviders.Password,
@@ -35,6 +40,11 @@ const myFirebaseAuthConfig = {
     HomeComponent,
     LoginComponent,
     TestComponent,
+    HeaderComponent,
+    SidebarComponent,
+    FooterComponent,
+    AsidemenuComponent,
+    BreadcrumbComponent,
   ],
   imports: [
     BrowserModule,
