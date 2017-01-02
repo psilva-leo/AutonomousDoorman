@@ -15,6 +15,11 @@ import {AuthGuard} from "../shared/auth.guard";
 import {FirebaseService} from "./services/firebase.service";
 import { TestComponent } from './component/test/test.component';
 
+import { NAV_DROPDOWN_DIRECTIVES }      from '../shared/nav-dropdown.directive';
+import { SIDEBAR_TOGGLE_DIRECTIVES }    from '../shared/sidebar.directive';
+import { AsideToggleDirective }         from '../shared/aside.directive';
+import { BreadcrumbsComponent }         from '../shared/breadcrumb.component';
+
 const myFirebaseAuthConfig = {
   provider: AuthProviders.Password,
   method: AuthMethods.Password,
@@ -23,6 +28,10 @@ const myFirebaseAuthConfig = {
 @NgModule({
   declarations: [
     AppComponent,
+    NAV_DROPDOWN_DIRECTIVES,
+    BreadcrumbsComponent,
+    SIDEBAR_TOGGLE_DIRECTIVES,
+    AsideToggleDirective,
     HomeComponent,
     LoginComponent,
     TestComponent,

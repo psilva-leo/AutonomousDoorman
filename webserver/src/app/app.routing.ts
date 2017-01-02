@@ -9,6 +9,9 @@ import {AuthGuard} from "../shared/auth.guard";
 const appRoutes: Routes = [
   {
     path: '',
+    data: {
+      title: 'Home'
+    },
     canActivate: [AuthGuard],
     component: TestComponent
   },
