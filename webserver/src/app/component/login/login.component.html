@@ -6,7 +6,7 @@
     <div class="animate form login_form">
       <section class="login_content">
         <form>
-          <h1>Login Form</h1>
+          <h1>Login Form {{loggedIn | async}}</h1>
           <div>
             <input type="text" class="form-control" placeholder="Username" required name="loginUsername" [(ngModel)]="loginUsername" />
           </div>
@@ -14,7 +14,7 @@
             <input type="password" class="form-control" placeholder="Password" required name="loginPassword" [(ngModel)]="loginPassword"/>
           </div>
           <div>
-            <button class="btn btn-default submit" (click)="login(); false;">Log in</button>
+            <button class="btn btn-default submit" (click)="login2(); false;">Log in</button>
             <a class="reset_pass" href="#">Lost your password?</a>
             <button (click)="logout()">Log Out</button>
           </div>

@@ -8,25 +8,20 @@ import {Router} from "@angular/router";
   styleUrls: ['./login.component.css'],
   providers: [FirebaseService]
 })
-export class LoginComponent implements OnInit {
+export class LoginComponent {
 
   loginUsername: string;
   loginPassword: string;
   errorMessage: string;
+  loggedIn: any;
+
   constructor(private firebaseService: FirebaseService, private router:Router){
 
     let body = document.getElementsByTagName('body')[0];
     body.className = "";   //remove the classes
     body.classList.add("login");   //add the class
 
-    firebaseService.isLogged.subscribe(sucess => {
-      if(sucess != null){
-        console.log('loged in user');
-        // this.router.navigate(['/']);
-      }else{
-        console.log('no user loged in');
-      }
-    });
+    this.loggedIn = firebaseService.isLogged$;
 
     firebaseService.errorMessage$.subscribe(e => {
       this.errorMessage = e;
@@ -34,10 +29,13 @@ export class LoginComponent implements OnInit {
     });
   }
 
-  ngOnInit(){ }
 
   logout(){
     this.firebaseService.logout();
+  }
+
+  login2(){
+    this.firebaseService.login2();
   }
 
   login(){
