@@ -24,6 +24,7 @@ import { SidebarComponent } from './components/layout/sidebar/sidebar.component'
 import { FooterComponent } from './components/layout/footer/footer.component';
 import { AsidemenuComponent } from './components/layout/asidemenu/asidemenu.component';
 import { BreadcrumbComponent } from './components/layout/breadcrumb/breadcrumb.component';
+import { RegisterComponent } from './components/register/register.component';
 
 const myFirebaseAuthConfig = {
   provider: AuthProviders.Password,
@@ -45,6 +46,7 @@ const myFirebaseAuthConfig = {
     FooterComponent,
     AsidemenuComponent,
     BreadcrumbComponent,
+    RegisterComponent,
   ],
   imports: [
     BrowserModule,

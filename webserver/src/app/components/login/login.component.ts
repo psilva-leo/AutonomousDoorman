@@ -29,23 +29,28 @@ export class LoginComponent {
     });
   }
 
+  register(){
+    this.router.navigate(['register']);
+  }
 
   logout(){
     this.firebaseService.logout();
+    this.errorMessage = "";
   }
 
-  login2(){
-    this.firebaseService.login2();
+  forgotPasswprd(){
+    // TODO: Implement forgot password page
+    console.log('Forgot password');
   }
 
   login(){
     if(this.loginUsername == "" || typeof this.loginUsername  === "undefined"){
       console.log("Username needed");
-      this.errorMessage = "Username needed";
+      this.errorMessage = "Username required";
     } else {
       if(this.loginPassword == "" || typeof this.loginPassword  === "undefined"){
         console.log("Password needed");
-        this.errorMessage = "Password needed";
+        this.errorMessage = "Password required";
       } else {
         this.errorMessage = "";
         this.firebaseService.login(this.loginUsername, this.loginPassword);

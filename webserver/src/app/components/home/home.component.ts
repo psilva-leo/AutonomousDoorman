@@ -33,8 +33,6 @@ export class HomeComponent implements OnInit, AfterViewChecked{
   ngAfterViewChecked(){
     console.log('preparing to load...');
   }
-  login(){
-    this.firebase.login2();
-  }
+
 
 }

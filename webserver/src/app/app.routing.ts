@@ -5,6 +5,7 @@ import {HomeComponent} from './components/home/home.component';
 import {LoginComponent} from './components/login/login.component';
 import {TestComponent} from './components/test/test.component';
 import {AuthGuard} from "../shared/auth.guard";
+import {RegisterComponent} from "./components/register/register.component";
 
 const appRoutes: Routes = [
   {
@@ -25,8 +26,8 @@ const appRoutes: Routes = [
     component: TestComponent
   },
   {
-    path: '#signup',
-    component: LoginComponent
+    path: 'register',
+    component: RegisterComponent
   }
 ];
 
