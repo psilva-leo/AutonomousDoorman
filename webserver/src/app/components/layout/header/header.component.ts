@@ -25,6 +25,10 @@ export class HeaderComponent implements OnInit {
     this.status.isopen = !this.status.isopen;
   }
 
+  logout(){
+    console.log('logged out');
+    this.firebaseService.logout();
+  }
   ngOnInit() {
   }
 

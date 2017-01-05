@@ -10,11 +10,15 @@ import {RegisterComponent} from "./components/register/register.component";
 const appRoutes: Routes = [
   {
     path: '',
-    data: {
+    redirectTo: '/dashboard', pathMatch: 'full',
+  },
+  {
+    path: 'dashboard',
+    data:{
       title: 'Home'
     },
     canActivate: [AuthGuard],
-    component: TestComponent
+    component: HomeComponent
   },
   {
     path: 'login',

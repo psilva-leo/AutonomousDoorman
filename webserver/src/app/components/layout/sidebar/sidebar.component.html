@@ -10,6 +10,14 @@
         UI Elements
       </li>
       <li class="nav-item nav-dropdown" routerLinkActive="open">
+        <a class="nav-link nav-dropdown-toggle" href="#"><i class="fa fa-home"></i> Venues</a>
+        <ul class="nav-dropdown-items">
+          <li class="nav-item" *ngFor="let venue of venuesKeys">
+            <a class="nav-link" routerLinkActive="active" [routerLink]="['/dashboard/'+venue]"><i class="fa fa-home"></i>{{venue}}</a>
+          </li>
+        </ul>
+      </li>
+      <li class="nav-item nav-dropdown" routerLinkActive="open">
         <a class="nav-link nav-dropdown-toggle" href="#"><i class="icon-puzzle"></i> Components</a>
         <ul class="nav-dropdown-items">
           <li class="nav-item">

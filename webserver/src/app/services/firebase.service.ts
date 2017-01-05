@@ -109,11 +109,34 @@ export class FirebaseService{
   findAllLessons():Observable<Test[]> {
     return  this.db.list('test');
   }
+
+  findVenues():Observable<Test[]> {
+    return  this.db.list(this.userInfo.uid);
+  }
+  findLogs():Observable<Log[]> {
+    return  this.db.list(this.userInfo.uid+'/Logs');
+  }
 }
 
 export interface Test{
   name: string;
   id: string;
+}
+
+export interface Date{
+  year: string;
+  month: string;
+  day: string;
+  time: string;
+}
+
+export interface Log{
+  name: string;
+  id: string;
+  date: Date;
+  extra: string;
+  venue: string;
+  allowedBy: string;
 }
 
 export interface UserInfo{
