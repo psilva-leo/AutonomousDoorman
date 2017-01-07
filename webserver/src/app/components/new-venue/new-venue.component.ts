@@ -36,6 +36,15 @@ export class NewVenueComponent implements OnInit {
     this.groups.push({name: "", error: "", start: "08:00", end: "18:00"});
   }
 
+  deleteGroup(index){
+    if(this.groups.length > 1){
+      this.groups.splice(index, 1);
+    }else{
+      this.groups[0].error = "One group must be created";
+    }
+
+  }
+
   submit(){
     let fail = false;
     if(this.venue.name == ""){

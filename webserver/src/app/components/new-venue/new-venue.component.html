@@ -26,28 +26,44 @@
               <br>
 
               <div class="form-group row" *ngFor="let group of groups; let i = index; trackBy:trackByIndex">
-                <div class="card-header">
-                  <strong>Group {{i+1}}</strong>
-                </div>
-                <div class="card-block">
-                  <label class="col-md-3 form-control-label" for="text-input">Name</label>
-                  <div class="col-md-9">
-                    <input type="text" name="group {{i}}" [(ngModel)]="groups[i].name" class="form-control" placeholder="group name">
-                    <span style="color: red" class="help-block">{{groups[i].error}}</span>
+                <div class="card">
+                  <div class="card-header">
+                    <strong>Group {{i+1}}</strong>
+                    <div class="card-actions">
+                      <a (click)="deleteGroup(i)">
+                        <i class="fa fa-close"></i>
+                      </a>
+                    </div>
                   </div>
+                  <div class="card-block">
+                    <label class="col-md-3 form-control-label" for="text-input">Name</label>
+                    <div class="col-md-9">
+                      <input type="text" name="group {{i}}" [(ngModel)]="groups[i].name" class="form-control" placeholder="group name">
+                      <span style="color: red" class="help-block">{{groups[i].error}}</span>
+                    </div>
 
-                  <br><br>
-                  <label class="col-md-3 form-control-label" for="text-input">Start</label>
-                  <div class="col-md-9">
-                    <input type="time" name="start" [(ngModel)]="groups[i].start"/>
-                  </div>
-                  <br><br>
-                  <label class="col-md-3 form-control-label" for="text-input">Finish</label>
-                  <div class="col-md-9">
-                    <input type="time" name="finish" [(ngModel)]="groups[i].end"/>
+                    <br><br>
+                    <br>
+                    <label class="col-md-3 form-control-label" for="text-input">Start</label>
+                    <div class="col-md-9">
+                      <input type="time" name="start" [(ngModel)]="groups[i].start"/>
+                    </div>
+                    <br><br>
+                    <label class="col-md-3 form-control-label" for="text-input">Finish</label>
+                    <div class="col-md-9">
+                      <input type="time" name="finish" [(ngModel)]="groups[i].end"/>
+                    </div>
                   </div>
                 </div>
               </div>
+
+
+
+
+
+
+
+
 
 
               <button (click)="addGroup()" type="submit" class="btn btn-sm btn-primary"><i class="fa fa-plus-square-o"></i> Add group</button>
