@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FirebaseService, Test } from '../../services/firebase.service'
+import { FirebaseService, MemberInfo } from '../../services/firebase.service'
 import {Router} from "@angular/router";
 
 @Component({
@@ -13,15 +13,12 @@ export class LoginComponent {
   loginUsername: string;
   loginPassword: string;
   errorMessage: string;
-  loggedIn: any;
 
   constructor(private firebaseService: FirebaseService, private router:Router){
 
     let body = document.getElementsByTagName('body')[0];
     body.className = "";   //remove the classes
     body.classList.add("login");   //add the class
-
-    this.loggedIn = firebaseService.isLogged$;
 
     firebaseService.errorMessage$.subscribe(e => {
       this.errorMessage = e;

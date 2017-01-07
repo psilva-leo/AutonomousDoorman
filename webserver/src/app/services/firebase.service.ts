@@ -106,21 +106,79 @@ export class FirebaseService{
       });
   }
 
-  findAllLessons():Observable<Test[]> {
+  findAllLessons():Observable<MemberInfo[]> {
     return  this.db.list('test');
   }
 
-  findVenues():Observable<Test[]> {
-    return  this.db.list(this.userInfo.uid);
+  findVenues():Observable<any> {
+    return  this.db.list(this.userInfo.uid+'/Venues');
   }
+
   findLogs():Observable<Log[]> {
     return  this.db.list(this.userInfo.uid+'/Logs');
   }
+
+  createMember(venue: string, groups: Group[], memberInfo: MemberInfo){
+    let data = {
+      Members: { },
+    };
+    data.Members[memberInfo.id] = {
+      Groups: { },
+      Data: { },
+    };
+
+    for(let i=0; i<groups.length; i++){
+      data.Members[memberInfo.id]['Groups']['g'+(i+1)] = 'TestGroup';
+      data.Members[memberInfo.id]['Data'] = {
+        email: memberInfo.email,
+        name: memberInfo.name,
+      };
+    }
+
+    this.db.object(this.userInfo.uid+'/Venues/'+venue).update(data);
+  }
+
+  createvenue(venue: string, groups: Group[]){
+    let data = {
+      Groups: { },
+    };
+
+    for(let i=0; i<groups.length; i++){
+      data.Groups[groups[i].name] = {
+        Members: {
+          1: 'true',
+        },
+        Time: {
+          end: groups[i].end,
+          start: groups[i].start,
+        }
+      };
+    }
+
+    this.db.object(this.userInfo.uid+'/Venues/'+venue).update(data);
+
+    let memberInfo = {
+      name: this.userInfo.displayName,
+      email: this.userInfo.email,
+      id: "1",
+    };
+
+    this.createMember(venue, groups, memberInfo);
+
+  }
 }
 
-export interface Test{
+export interface MemberInfo{
   name: string;
+  email: string;
   id: string;
+}
+
+export interface Group{
+  name: string;
+  error: string;
+  start: any;
+  end: any;
 }
 
 export interface Date{

@@ -5,14 +5,24 @@
 
 <!-- Main content -->
 <main class="main">
-
-
   <app-breadcrumb></app-breadcrumb>
 
-
-  <!-- AQUI -->
   <div class="container-fluid">
     <div class="animated fadeIn">
+
+      <div class="card-columns col-2">
+        <div class="card">
+          <div class="card-header">
+            Accessed this week per avenue
+          </div>
+          <div class="card-block">
+            <div class="chart-wrapper">
+              <canvas baseChart class="chart" [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions" [legend]="barChartLegend" [chartType]="barChartType" (chartClick)="chartClicked($event)"></canvas>
+            </div>
+          </div>
+        </div>
+      </div>
+
       <!--/.row-->
       <div class="row">
         <div class="col-md-12">
@@ -80,8 +90,7 @@
     </div>
 
   </div>
-  <!-- AQUI -->
-  <!-- /.conainer-fluid -->
+
 </main>
 
 <app-asidemenu></app-asidemenu>

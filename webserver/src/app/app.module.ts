@@ -25,6 +25,10 @@ import { FooterComponent } from './components/layout/footer/footer.component';
 import { AsidemenuComponent } from './components/layout/asidemenu/asidemenu.component';
 import { BreadcrumbComponent } from './components/layout/breadcrumb/breadcrumb.component';
 import { RegisterComponent } from './components/register/register.component';
+import { VenueDetailComponent } from './components/venue-detail/venue-detail.component';
+import { NotFoundComponent } from './components/not-found/not-found.component';
+import {StatisticsService} from "./services/statistics.service";
+import { NewVenueComponent } from './components/new-venue/new-venue.component';
 
 const myFirebaseAuthConfig = {
   provider: AuthProviders.Password,
@@ -47,6 +51,9 @@ const myFirebaseAuthConfig = {
     AsidemenuComponent,
     BreadcrumbComponent,
     RegisterComponent,
+    VenueDetailComponent,
+    NotFoundComponent,
+    NewVenueComponent,
   ],
   imports: [
     BrowserModule,
@@ -57,7 +64,7 @@ const myFirebaseAuthConfig = {
     Ng2BootstrapModule,
     ChartsModule,
   ],
-  providers: [AuthGuard, FirebaseService],
+  providers: [AuthGuard, FirebaseService, StatisticsService],
   bootstrap: [AppComponent]
 })
 export class AppModule { }

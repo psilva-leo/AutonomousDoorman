@@ -1,5 +1,6 @@
 import { Component, OnInit } from '@angular/core';
 import {FirebaseService, UserInfo} from "../../../services/firebase.service";
+import {StatisticsService} from "../../../services/statistics.service";
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -10,7 +11,7 @@ export class HeaderComponent implements OnInit {
   public status: { isopen: boolean } = { isopen: false };
   userInfo: UserInfo;
 
-  constructor(private firebaseService: FirebaseService) {
+  constructor(private firebaseService: FirebaseService, private statisticsService: StatisticsService) {
     this.getUserInfo();
   }
 
@@ -23,6 +24,10 @@ export class HeaderComponent implements OnInit {
     $event.preventDefault();
     $event.stopPropagation();
     this.status.isopen = !this.status.isopen;
+  }
+
+  test(){
+    this.statisticsService.calculateWeekly();
   }
 
   logout(){

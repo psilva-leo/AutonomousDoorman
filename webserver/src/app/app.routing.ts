@@ -6,6 +6,9 @@ import {LoginComponent} from './components/login/login.component';
 import {TestComponent} from './components/test/test.component';
 import {AuthGuard} from "../shared/auth.guard";
 import {RegisterComponent} from "./components/register/register.component";
+import {VenueDetailComponent} from "./components/venue-detail/venue-detail.component";
+import {NotFoundComponent} from "./components/not-found/not-found.component";
+import {NewVenueComponent} from "./components/new-venue/new-venue.component";
 
 const appRoutes: Routes = [
   {
@@ -18,7 +21,41 @@ const appRoutes: Routes = [
       title: 'Home'
     },
     canActivate: [AuthGuard],
-    component: HomeComponent
+    children: [
+      {
+        path: '',
+        component: HomeComponent
+      },
+      {
+        data:{
+          title: 'New Venue'
+        },
+        path: 'newvenue',
+        component: NewVenueComponent,
+      }
+    ],
+  },
+  {
+    data:{
+      title: 'New Venue'
+    },
+    canActivate: [AuthGuard],
+    path: 'newvenue',
+    component: NewVenueComponent,
+  },
+  {
+    path: 'dashboard/venues',
+    children: [
+      {
+        path: '',
+        component: VenueDetailComponent,
+      },
+      {
+        path: ':id',
+        component: VenueDetailComponent,
+      }
+    ]
+
   },
   {
     path: 'login',
@@ -32,6 +69,10 @@ const appRoutes: Routes = [
   {
     path: 'register',
     component: RegisterComponent
+  },
+  {
+    path: '**',
+    component: NotFoundComponent,
   }
 ];
 

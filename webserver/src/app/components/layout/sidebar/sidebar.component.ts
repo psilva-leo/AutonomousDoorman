@@ -22,7 +22,6 @@ export class SidebarComponent implements OnInit {
           for (let i = 0; i < this.venues.length; i++) {
             this.venuesKeys.push(this.venues[i].$key);
           }
-          console.log(this.venuesKeys);
         }
       );
   }
