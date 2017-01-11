@@ -25,7 +25,6 @@ export class BreadcrumbsComponent {
                 childrenRoutes.forEach(route => {
                     if(route.outlet === 'primary') {
                         let routeSnapshot = route.snapshot;
-                        console.log(route.snapshot.data);
                         url += '/' + routeSnapshot.url.map(segment => segment.path).join('/');
                         this.breadcrumbs.push({
                             label: route.snapshot.data,

@@ -118,7 +118,15 @@ export class FirebaseService{
     return  this.db.list(this.userInfo.uid+'/Logs');
   }
 
-  createMember(venue: string, groups: Group[], memberInfo: MemberInfo){
+  findMembers(venue: string):Observable<any> {
+    return  this.db.list(this.userInfo.uid+'/Venues/'+venue+'/Members');
+  }
+
+  findGroups(venue: string):Observable<any> {
+    return  this.db.list(this.userInfo.uid+'/Venues/'+venue+'/Groups');
+  }
+
+  createInitialMember(venue: string, groups: Group[], memberInfo: MemberInfo){
     let data = {
       Members: { },
     };
@@ -127,15 +135,40 @@ export class FirebaseService{
       Data: { },
     };
 
+    data.Members[memberInfo.id]['Data'] = {
+      email: memberInfo.email,
+      name: memberInfo.name,
+    };
     for(let i=0; i<groups.length; i++){
-      data.Members[memberInfo.id]['Groups']['g'+(i+1)] = 'TestGroup';
-      data.Members[memberInfo.id]['Data'] = {
-        email: memberInfo.email,
-        name: memberInfo.name,
-      };
+      data.Members[memberInfo.id]['Groups'][i] = {id: groups[i].name};
     }
 
     this.db.object(this.userInfo.uid+'/Venues/'+venue).update(data);
+  }
+
+  addExistingMemberToGroup(venue: string, group: string, memberInfo: MemberInfo){
+    this.findGroups(venue).subscribe(groups => {
+      let data = { };
+      for(let i=0; i<groups.length; i++){
+        if(groups[i].$key == group){
+          data[groups[i]['Members'].length] = {id: memberInfo.id};
+          this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Groups/'+group+'/Members').update(data);
+          break;
+        }
+      }
+    });
+
+    this.findMembers(venue).subscribe(members => {
+      let data ={ };
+      for(let i=0; i<members.length; i++){
+        if(members[i].$key == memberInfo.id){
+          data[members[i]['Groups'].length] = {id: group};
+          this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Members/'+
+            memberInfo.id+'/Groups').update(data);
+          break;
+        }
+      }
+    });
   }
 
   createvenue(venue: string, groups: Group[]){
@@ -146,7 +179,9 @@ export class FirebaseService{
     for(let i=0; i<groups.length; i++){
       data.Groups[groups[i].name] = {
         Members: {
-          1: 'true',
+          0: {
+           id: 1,
+          },
         },
         Time: {
           end: groups[i].end,
@@ -163,7 +198,7 @@ export class FirebaseService{
       id: "1",
     };
 
-    this.createMember(venue, groups, memberInfo);
+    this.createInitialMember(venue, groups, memberInfo);
 
   }
 }

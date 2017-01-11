@@ -1,1 +1,14 @@
-<router-outlet></router-outlet>
+<span defaultOverlayTarget></span>
+<h1>angular2-modal{{version}}</h1>
+<h2>Basic Modal sample</h2>
+<button (click)="onClick()">Alert</button>
+<br>
+<h2>Custom Modal example:</h2>
+<button (click)="openCustom()">Custom Modal</button>
+<p>
+  <b>IMPORTANT:</b>
+  Since 'AdditionCalculateWindow' is never explicitly used (in a template)
+  we must tell angular about it by adding it to the <strong>entryComponents</strong> property in the module meta.
+</p>
+
+<h2>See systemjs.config.js implementation for UMD vs module loading</h2>

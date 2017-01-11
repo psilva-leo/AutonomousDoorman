@@ -3,6 +3,8 @@ import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
+import { ModalModule } from 'angular2-modal';
+import { BootstrapModalModule } from 'angular2-modal/plugins/bootstrap';
 import { Ng2BootstrapModule }           from 'ng2-bootstrap/ng2-bootstrap';
 import { ChartsModule }                 from 'ng2-charts/ng2-charts';
 import { AppComponent } from './app.component';
@@ -29,6 +31,7 @@ import { VenueDetailComponent } from './components/venue-detail/venue-detail.com
 import { NotFoundComponent } from './components/not-found/not-found.component';
 import {StatisticsService} from "./services/statistics.service";
 import { NewVenueComponent } from './components/new-venue/new-venue.component';
+import { AddUserModalComponent } from './components/add-user-modal/add-user-modal.component';
 
 const myFirebaseAuthConfig = {
   provider: AuthProviders.Password,
@@ -54,6 +57,7 @@ const myFirebaseAuthConfig = {
     VenueDetailComponent,
     NotFoundComponent,
     NewVenueComponent,
+    AddUserModalComponent,
   ],
   imports: [
     BrowserModule,
@@ -63,8 +67,11 @@ const myFirebaseAuthConfig = {
     routing,
     Ng2BootstrapModule,
     ChartsModule,
+    ModalModule.forRoot(),
+    BootstrapModalModule,
   ],
   providers: [AuthGuard, FirebaseService, StatisticsService],
-  bootstrap: [AppComponent]
+  bootstrap: [AppComponent],
+  entryComponents: [ AddUserModalComponent ],
 })
 export class AppModule { }

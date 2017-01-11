@@ -17,7 +17,6 @@ export class SidebarComponent implements OnInit {
       .subscribe(
         venues => {
           this.venues = venues;
-          console.log(this.venues);
           this.venuesKeys = [];
           for (let i = 0; i < this.venues.length; i++) {
             this.venuesKeys.push(this.venues[i].$key);
@@ -26,7 +25,6 @@ export class SidebarComponent implements OnInit {
       );
   }
 
-  ngOnInit() {
-  }
+  ngOnInit(){ }
 
 }

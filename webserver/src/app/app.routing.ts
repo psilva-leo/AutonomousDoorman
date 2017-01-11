@@ -41,9 +41,10 @@ const appRoutes: Routes = [
     },
     canActivate: [AuthGuard],
     path: 'newvenue',
-    component: NewVenueComponent,
+    component: VenueDetailComponent,
   },
   {
+    canActivate: [AuthGuard],
     path: 'dashboard/venues',
     children: [
       {

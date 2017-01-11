@@ -8,10 +8,10 @@ import {FirebaseService, Group} from "../../services/firebase.service";
 })
 export class NewVenueComponent implements OnInit {
 
-
   venue: Venue;
   groups: Group[];
   venues: string[];
+
   constructor(private firebaseService: FirebaseService){
     this.venue = {name: "", error: ""};
     this.groups = [{name: "", error: "", start: "08:00", end: "18:00"}];
@@ -35,6 +35,7 @@ export class NewVenueComponent implements OnInit {
   addGroup(){
     this.groups.push({name: "", error: "", start: "08:00", end: "18:00"});
   }
+
 
   deleteGroup(index){
     if(this.groups.length > 1){
@@ -76,6 +77,8 @@ export class NewVenueComponent implements OnInit {
     if(!fail){
       this.firebaseService.createvenue(this.venue.name, this.groups);
       console.log('New venue created');
+      alert('Group created!');
+      this.reset();
     }else{
       console.log('Error creating Venue');
     }
@@ -83,9 +86,11 @@ export class NewVenueComponent implements OnInit {
 
   reset(){
     this.venue.name = "";
+    this.venue.error = "";
 
     for(let i=0; i<this.groups.length; i++){
       this.groups[i].name = "";
+      this.groups[i].error = "";
     }
   }
 

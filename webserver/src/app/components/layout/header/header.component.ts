@@ -17,7 +17,6 @@ export class HeaderComponent implements OnInit {
 
   getUserInfo(){
     this.userInfo = this.firebaseService.getUserInfo();
-    console.log(this.userInfo);
   }
 
   public toggleDropdown($event:MouseEvent):void {

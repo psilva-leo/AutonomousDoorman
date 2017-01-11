@@ -50,7 +50,7 @@ export class StatisticsService{
     const venuesKeys = [];
 
     // Setting count to 0 for each venues
-    console.log('length: '+this.venues.length);
+    // console.log('length: '+this.venues.length);
     for(let i=0; i<this.venues.length; i++){
       count[this.venues[i].$key] = 0;
       venuesKeys.push(this.venues[i].$key);
@@ -68,17 +68,15 @@ export class StatisticsService{
 
       let daymil = 24*60*60*1000;
       let timeDiff = Date.now() - date.getTime();
-      console.log('timeDiff: '+timeDiff);
       if(timeDiff/daymil <= 7){
         count[venue] += 1;
 
         // Check for entrance due to allowed by group membership
         if(allowedBy.split(' ')[0] == 'Group'){
-          console.log('Allowed by '+allowedBy.split(' ')[1]);
+          // console.log('Allowed by '+allowedBy.split(' ')[1]);
         }
       }
     }
-    console.log(count);
     let countArray = [];
 
     for(let i=0; i<venuesKeys.length; i++){
