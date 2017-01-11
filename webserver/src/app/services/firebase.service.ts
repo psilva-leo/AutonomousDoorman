@@ -15,6 +15,10 @@ export class FirebaseService{
   private _isLoggedSubject = new Subject<boolean>();
   isLogged$ = this._isLoggedSubject.asObservable();
 
+  private venues: any;
+  private members: any;
+  private groups: any;
+
 
   constructor(private db:AngularFireDatabase, private auth: AngularFireAuth, private router:Router){
 
@@ -24,6 +28,9 @@ export class FirebaseService{
       photoURL: "",
       uid: "",
     };
+
+    this.members = {};
+    this.groups = {};
 
     auth.subscribe(user => {
       this.user = user;
@@ -35,6 +42,19 @@ export class FirebaseService{
         this.userInfo.uid = this.user.auth.uid;
         this.userInfo.photoURL= this.user.auth.photoURL;
       }
+
+      this.findVenues().subscribe(venues => {
+        this.venues = venues;
+
+        for(let i=0; i<venues.length; i++){
+          console.log(venues);
+          this.members[venues[i].$key] = venues[i]['Members'];
+          this.groups[venues[i].$key] = venues[i]['Groups'];
+          console.log(this.members[venues[i].$key]);
+        }
+        console.log(this.members);
+        console.log(this.groups);
+      });
     });
 
   }
@@ -106,9 +126,6 @@ export class FirebaseService{
       });
   }
 
-  findAllLessons():Observable<MemberInfo[]> {
-    return  this.db.list('test');
-  }
 
   findVenues():Observable<any> {
     return  this.db.list(this.userInfo.uid+'/Venues');
@@ -126,7 +143,7 @@ export class FirebaseService{
     return  this.db.list(this.userInfo.uid+'/Venues/'+venue+'/Groups');
   }
 
-  createInitialMember(venue: string, groups: Group[], memberInfo: MemberInfo){
+  createInitialMember(venue: string, groups: Group[], memberInfo: Member){
     let data = {
       Members: { },
     };
@@ -146,7 +163,29 @@ export class FirebaseService{
     this.db.object(this.userInfo.uid+'/Venues/'+venue).update(data);
   }
 
-  addExistingMemberToGroup(venue: string, group: string, memberInfo: MemberInfo){
+  createAndAddMember(venue: string, group: string, memberInfo: Member){
+    let data = { };
+    memberInfo.id = this.members[venue].length;
+    data[memberInfo.id] = {
+      Data: {
+        name: memberInfo.name,
+        email: memberInfo.email,
+      },
+      Groups: {
+        0: {
+          id: group,
+        }
+      }
+    };
+    console.log(venue);
+    this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Members/').update(data);
+
+    data = { };
+    data[this.groups[venue][group]['Members'].length] = {id: memberInfo.id};
+    this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Groups/'+group+'/Members/').update(data);
+  }
+
+  addExistingMemberToGroup(venue: string, group: string, memberInfo: Member){
     this.findGroups(venue).subscribe(groups => {
       let data = { };
       for(let i=0; i<groups.length; i++){
@@ -163,8 +202,7 @@ export class FirebaseService{
       for(let i=0; i<members.length; i++){
         if(members[i].$key == memberInfo.id){
           data[members[i]['Groups'].length] = {id: group};
-          this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Members/'+
-            memberInfo.id+'/Groups').update(data);
+          this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Members/'+memberInfo.id+'/Groups').update(data);
           break;
         }
       }
@@ -196,6 +234,7 @@ export class FirebaseService{
       name: this.userInfo.displayName,
       email: this.userInfo.email,
       id: "1",
+      groups: [],
     };
 
     this.createInitialMember(venue, groups, memberInfo);
@@ -203,11 +242,13 @@ export class FirebaseService{
   }
 }
 
-export interface MemberInfo{
+export interface Member{
   name: string;
   email: string;
   id: string;
+  groups: string[];
 }
+
 
 export interface Group{
   name: string;

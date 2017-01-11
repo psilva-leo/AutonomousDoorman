@@ -1,17 +1,18 @@
-import {Component, OnInit, OnChanges, SimpleChanges} from '@angular/core';
-import {ActivatedRoute, Router} from "@angular/router";
-import {FirebaseService, MemberInfo} from "../../services/firebase.service";
+import {Component, OnInit} from '@angular/core';
+import {ActivatedRoute} from "@angular/router";
+import {Overlay, overlayConfigFactory} from 'angular2-modal';
+import {Modal, BSModalContext} from 'angular2-modal/plugins/bootstrap';
+import {AddUserModalComponent} from "../add-user-modal/add-user-modal.component";
+import {FirebaseService, Member} from "../../services/firebase.service";
 
 @Component({
   selector: 'app-venue-detail',
   templateUrl: './venue-detail.component.html',
-  styleUrls: ['./venue-detail.component.scss']
+  styleUrls: ['./venue-detail.component.scss'],
+  providers: [Modal],
 })
-export class VenueDetailComponent implements OnInit, OnChanges{
-  ngOnChanges(changes: SimpleChanges): void {
-    console.log('changes');
-    console.log(changes);
-  }
+
+export class VenueDetailComponent implements OnInit{
 
   venueName: string;
   venue: Venue;
@@ -20,11 +21,11 @@ export class VenueDetailComponent implements OnInit, OnChanges{
   members: {};
   membersId: string[];
 
-  newMember: MemberInfo;
+  newMember: Member;
   createMember: boolean[];
-  constructor(private firebaseService: FirebaseService, private route: ActivatedRoute) {
+  constructor(private firebaseService: FirebaseService, private route: ActivatedRoute, private modal: Modal) {
     this.createMember = [];
-    this.newMember = {name: "", email: "", id: ""};
+    this.newMember = {name: "", email: "", id: "", groups: []};
     this.groups = [];
     this.groupMembers = {};
 
@@ -42,6 +43,7 @@ export class VenueDetailComponent implements OnInit, OnChanges{
             this.members[members[i].$key]['groups'] = [];
             this.members[members[i].$key]['name'] = members[i]['Data'].name;
             this.members[members[i].$key]['email'] = members[i]['Data'].email;
+            this.members[members[i].$key]['id'] = members[i].$key;
             this.membersId.push(members[i].$key);
             for (let j = 0; j < members[i]['Groups'].length; j++) {
               this.members[members[i].$key]['groups'].push(members[i]['Groups'][j].id);
@@ -68,15 +70,48 @@ export class VenueDetailComponent implements OnInit, OnChanges{
         console.log(this.groupMembers);
       });
     });
-
-
   }
 
   trackByIndex(index: number, obj: any): any {
     return index;
   }
 
+  openCustom(index) {
+    let possibleMembers: Member[];
+    possibleMembers = [];
+
+    for(let i=0; i<this.membersId.length; i++){
+      let dontAdd = false;
+      console.log(this.groups[index]);
+      for(let j=0; j<this.members[this.membersId[i]].groups.length; j++){
+        if(this.members[this.membersId[i]].groups[j] == this.groups[index]){
+          dontAdd = true;
+        }
+      }
+      if(!dontAdd){
+        console.log(this.members[this.membersId[i]]);
+        let tmp: Member;
+        tmp = {
+          email: this.members[this.membersId[i]].email,
+          name: this.members[this.membersId[i]].name,
+          id: this.members[this.membersId[i]].id,
+          groups: [],
+        };
+
+        for(let j=0; j<this.members[this.membersId[i]].groups.length; j++){
+          tmp.groups.push(this.members[this.membersId[i]].groups[j]);
+        }
+        possibleMembers.push(tmp);
+      }
+    }
+    console.log(possibleMembers);
+
+    return this.modal.open(AddUserModalComponent,  overlayConfigFactory({ venueName: this.venueName, groupName: this.groups[index],
+      groupMembers: possibleMembers}, BSModalContext));
+  }
+
   addMember(index){
+    console.log(this.groups[index]);
     if(typeof this.createMember[index] !== 'undefined'){
       this.createMember[index] = true;
     }else{
@@ -106,13 +141,6 @@ export class VenueDetailComponent implements OnInit, OnChanges{
   }
 
 
-}
-
-interface Member{
-  email: string;
-  name: string;
-  id: string;
-  groups: string[];
 }
 
 interface Venue{

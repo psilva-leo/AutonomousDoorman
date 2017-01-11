@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import { FirebaseService, MemberInfo } from '../../services/firebase.service'
+import { FirebaseService, Member } from '../../services/firebase.service'
 import {Router} from "@angular/router";
 
 @Component({

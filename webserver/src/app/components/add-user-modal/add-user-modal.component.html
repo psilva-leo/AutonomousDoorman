@@ -1,12 +1,46 @@
 <div class="container-fluid custom-modal-container">
   <div class="row custom-modal-header">
     <div class="col-sm-12">
-      <h3>Add Member</h3>
+      <h3>Add Member to {{context.groupName}}</h3>
     </div>
   </div>
   <div class="row" [ngClass]="{'myclass' : shouldUseMyClass}">
     <div class="col-xs-12">
-      <div class="card-block">
+      <!-- Members -->
+      <div style="text-align: center" class="card-block" *ngIf="context.groupMembers.length >= 1">
+        <strong>Add existing members to group</strong>
+        <br>
+        <br>
+        <div *ngFor="let member of context.groupMembers; let i = index; trackBy:trackByIndex">
+          <div class="col-sm-6 card" (click)="addMemberToGroup(member)">
+
+            <div class="callout callout-warning m-0 py-1 lighten">
+              <div class="avatar float-xs-right">
+                <img src="assets/img/avatars/7.jpg" class="img-avatar" alt="admin@bootstrapmaster.com">
+              </div>
+              <div>
+                <strong>{{member.name}}</strong>
+              </div>
+              <span class="text-muted">{{member.email}}</span>
+              <br>
+              <small class="text-muted">registered at</small>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div style="text-align: center">
+        <strong>Create a new member to add</strong>
+        <br>
+        <br>
+        <button class="btn btn-primary" (click)="showCreateBtn()" *ngIf="context.groupMembers.length>= 1">{{createBtn}}</button>
+        <br>
+        <br>
+        <span>{{confirmationMessage}}</span>
+      </div>
+
+      <!-- User input -->
+      <div style="text-align: center" class="card-block" *ngIf="showCreate || context.groupMembers.length == 0">
         <form action="" method="post">
           <div class="form-group">
             <div class="input-group">
@@ -16,17 +50,18 @@
           </div>
           <div class="form-group">
             <div class="input-group">
-                              <span class="input-group-addon"><i class="fa fa-envelope"></i>
-                              </span>
+              <span class="input-group-addon"><i class="fa fa-envelope"></i></span>
               <input type="email" [(ngModel)]="newMember.email" name="email" class="form-control" placeholder="Email">
             </div>
           </div>
-
+          <!-- Bottom -->
           <div class="form-group form-actions">
-            <button type="submit" (click)="submit(i, {name: members[2].name, email: members[2].email, id: 2})" class="btn btn-sm btn-success">Submit</button>
+            <button type="button" (click)="submit(groupName, member)" class="btn btn-sm btn-success">Submit</button>
           </div>
         </form>
+
       </div>
+
     </div>
   </div>
 </div>`

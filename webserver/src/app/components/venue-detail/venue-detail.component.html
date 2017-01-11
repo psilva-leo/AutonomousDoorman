@@ -5,6 +5,7 @@
 
 <!-- Main content -->
 <main class="main">
+  <span defaultOverlayTarget></span>
   <app-breadcrumb></app-breadcrumb>
 
   <div class="container-fluid">
@@ -43,7 +44,7 @@
         <div class="card">
           <div class="card-header">
             <strong>{{group}}</strong>
-            <a (click)="addMember(i)" class="btn float-xs-right"><i class="fa fa-plus-square-o"></i> Add Member</a>
+            <a (click)="openCustom(i)" class="btn float-xs-right"><i class="fa fa-plus-square-o"></i> Add Member</a>
           </div>
           <div class="card-block">
             <div class="row">

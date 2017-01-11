@@ -1,6 +1,8 @@
 import { Component, OnInit } from '@angular/core';
 import { DialogRef, ModalComponent, CloseGuard } from 'angular2-modal';
-import { BSModalContext } from 'angular2-modal/plugins/bootstrap';
+import { Modal, BSModalContext } from 'angular2-modal/plugins/bootstrap';
+import {FirebaseService, Member} from "../../services/firebase.service";
+import {Router} from "@angular/router";
 
 @Component({
   selector: 'app-add-user-modal',
@@ -13,12 +15,35 @@ export class AddUserModalComponent implements OnInit, CloseGuard, ModalComponent
   context: CustomModalContext;
 
   public wrongAnswer: boolean;
-  newMember: {name: string, email: string};
+  newMember: Member;
+  showCreate: boolean;
+  createBtn: string;
+  confirmationMessage: string;
 
-  constructor(public dialog: DialogRef<CustomModalContext>) {
-    this.newMember = {name: "", email: ""};
+  constructor(public dialog: DialogRef<CustomModalContext>, private firebaseSerice: FirebaseService,
+              private modal: Modal, private router: Router) {
+
+    this.newMember = {name: "", email: "", id: "", groups: []};
     this.context = dialog.context;
+    console.log(this.context);
     this.wrongAnswer = true;
+    this.showCreate = false;
+    this.createBtn = "Create Member";
+    this.confirmationMessage = "";
+  }
+
+  trackByIndex(index: number, obj: any): any {
+    return index;
+  }
+
+  showCreateBtn(){
+    this.showCreate = !this.showCreate;
+    if(this.showCreate){
+      this.createBtn = "Close Member";
+    }else{
+      this.createBtn = "Create Member";
+    }
+    this.confirmationMessage = "";
   }
 
   onKeyUp(value) {
@@ -26,6 +51,23 @@ export class AddUserModalComponent implements OnInit, CloseGuard, ModalComponent
     this.dialog.close();
   }
 
+  addMemberToGroup(member){
+    console.log('clicked');
+    console.log(member);
+    this.firebaseSerice.addExistingMemberToGroup(this.context.venueName, this.context.groupName, member);
+  }
+
+  createNewMember(){
+    console.log('create new member: '+this.newMember.name+" "+this.newMember.email);
+    this.firebaseSerice.createAndAddMember(this.context.venueName, this.context.groupName, this.newMember);
+  }
+
+  submit(){
+    this.createNewMember();
+    this.showCreateBtn(); // To close the creation form
+    this.confirmationMessage = this.newMember.name + " successfully added to " + this.context.groupName;
+    this.newMember = {name: "", email: "", id: "", groups: []};
+  }
 
   beforeDismiss(): boolean{
     return true;
@@ -41,6 +83,7 @@ export class AddUserModalComponent implements OnInit, CloseGuard, ModalComponent
 }
 
 export class CustomModalContext extends BSModalContext {
-  public num1: number;
-  public num2: number;
+  public venueName: string;
+  public groupName: string;
+  public groupMembers: any;
 }
