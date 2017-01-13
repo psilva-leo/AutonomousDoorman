@@ -32,6 +32,7 @@ import { NotFoundComponent } from './components/not-found/not-found.component';
 import {StatisticsService} from "./services/statistics.service";
 import { NewVenueComponent } from './components/new-venue/new-venue.component';
 import { AddUserModalComponent } from './components/add-user-modal/add-user-modal.component';
+import { CreateUserModalComponent } from './components/create-user-modal/create-user-modal.component';
 
 const myFirebaseAuthConfig = {
   provider: AuthProviders.Password,
@@ -58,6 +59,7 @@ const myFirebaseAuthConfig = {
     NotFoundComponent,
     NewVenueComponent,
     AddUserModalComponent,
+    CreateUserModalComponent,
   ],
   imports: [
     BrowserModule,
@@ -72,6 +74,6 @@ const myFirebaseAuthConfig = {
   ],
   providers: [AuthGuard, FirebaseService, StatisticsService],
   bootstrap: [AppComponent],
-  entryComponents: [ AddUserModalComponent ],
+  entryComponents: [ AddUserModalComponent, CreateUserModalComponent ],
 })
 export class AppModule { }

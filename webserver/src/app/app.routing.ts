@@ -17,9 +17,6 @@ const appRoutes: Routes = [
   },
   {
     path: 'dashboard',
-    data:{
-      title: 'Home'
-    },
     canActivate: [AuthGuard],
     children: [
       {
@@ -27,20 +24,14 @@ const appRoutes: Routes = [
         component: HomeComponent
       },
       {
-        data:{
-          title: 'New Venue'
-        },
-        path: 'newvenue',
+        path: 'new-venue',
         component: NewVenueComponent,
       }
     ],
   },
   {
-    data:{
-      title: 'New Venue'
-    },
     canActivate: [AuthGuard],
-    path: 'newvenue',
+    path: 'new-venue',
     component: VenueDetailComponent,
   },
   {

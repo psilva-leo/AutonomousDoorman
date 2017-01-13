@@ -7678,7 +7678,7 @@ base-chart.chart {
     .sidebar .sidebar-footer {
       margin-left: -200px; }
   .breadcrumb-menu {
-    display: none; }
+    display: inline; }
   .main {
     width: 100% !important;
     padding: 0 !important;
