@@ -63,10 +63,24 @@ export class AddUserModalComponent implements OnInit, CloseGuard, ModalComponent
   }
 
   submit(){
-    this.createNewMember();
-    this.showCreateBtn(); // To close the creation form
-    this.confirmationMessage = this.newMember.name + " successfully added to " + this.context.groupName;
-    this.newMember = {name: "", email: "", id: "", groups: []};
+
+    this.newMember.name = this.newMember.name.trim();
+    this.newMember.email = this.newMember.email.trim();
+    if(this.newMember.name != "" && typeof this.newMember.name != "undefined"
+      && this.newMember.email != "" && typeof this.newMember.email != "undefined"){
+      if(this.newMember.email.indexOf('@') == -1){
+        this.confirmationMessage = "Error: Email not formatted correctly.";
+      }else{
+        this.createNewMember();
+        this.showCreateBtn(); // To close the creation form
+        this.confirmationMessage = this.newMember.name + " successfully added to " + this.context.groupName;
+        this.newMember = {name: "", email: "", id: "", groups: []};
+      }
+
+    }else{
+      this.confirmationMessage = "Error: Could mot create member because the name or email are blank";
+    }
+
   }
 
   beforeDismiss(): boolean{

@@ -93,10 +93,23 @@ var AddUserModalComponent = (function () {
         this.firebaseSerice.createAndAddMember(this.context.venueName, this.context.groupName, this.newMember);
     };
     AddUserModalComponent.prototype.submit = function () {
-        this.createNewMember();
-        this.showCreateBtn(); // To close the creation form
-        this.confirmationMessage = this.newMember.name + " successfully added to " + this.context.groupName;
-        this.newMember = { name: "", email: "", id: "", groups: [] };
+        this.newMember.name = this.newMember.name.trim();
+        this.newMember.email = this.newMember.email.trim();
+        if (this.newMember.name != "" && typeof this.newMember.name != "undefined"
+            && this.newMember.email != "" && typeof this.newMember.email != "undefined") {
+            if (this.newMember.email.indexOf('@') == -1) {
+                this.confirmationMessage = "Error: Email not formatted correctly.";
+            }
+            else {
+                this.createNewMember();
+                this.showCreateBtn(); // To close the creation form
+                this.confirmationMessage = this.newMember.name + " successfully added to " + this.context.groupName;
+                this.newMember = { name: "", email: "", id: "", groups: [] };
+            }
+        }
+        else {
+            this.confirmationMessage = "Error: Could mot create member because the name or email are blank";
+        }
     };
     AddUserModalComponent.prototype.beforeDismiss = function () {
         return true;
@@ -2183,7 +2196,7 @@ module.exports = "<router-outlet></router-outlet>\n"
 /***/ 885:
 /***/ function(module, exports) {
 
-module.exports = "<div class=\"container-fluid custom-modal-container\">\n  <div class=\"row custom-modal-header\">\n    <div class=\"col-sm-12\">\n      <h3>Add Member to {{context.groupName}}</h3>\n    </div>\n  </div>\n  <div class=\"row\" [ngClass]=\"{'myclass' : shouldUseMyClass}\">\n    <div class=\"col-xs-12\">\n      <!-- Members -->\n      <div style=\"text-align: center\" class=\"card-block\" *ngIf=\"context.groupMembers.length >= 1\">\n        <strong>Add existing members to group</strong>\n        <br>\n        <br>\n        <div *ngFor=\"let member of context.groupMembers; let i = index; trackBy:trackByIndex\">\n          <div class=\"col-sm-6 card\" (click)=\"addMemberToGroup(member)\">\n\n            <div class=\"callout callout-warning m-0 py-1 lighten\">\n              <div class=\"avatar float-xs-right\">\n                <img src=\"assets/img/avatars/7.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n              </div>\n              <div>\n                <strong>{{member.name}}</strong>\n              </div>\n              <span class=\"text-muted\">{{member.email}}</span>\n              <br>\n              <small class=\"text-muted\">registered at</small>\n            </div>\n          </div>\n        </div>\n      </div>\n\n      <div style=\"text-align: center\">\n        <strong>Create a new member to add</strong>\n        <br>\n        <br>\n        <button class=\"btn btn-primary\" (click)=\"showCreateBtn()\" *ngIf=\"context.groupMembers.length>= 1\">{{createBtn}}</button>\n        <br>\n        <br>\n        <span>{{confirmationMessage}}</span>\n      </div>\n\n      <!-- User input -->\n      <div style=\"text-align: center\" class=\"card-block\" *ngIf=\"showCreate || context.groupMembers.length == 0\">\n        <form action=\"\" method=\"post\">\n          <div class=\"form-group\">\n            <div class=\"input-group\">\n              <span class=\"input-group-addon\"><i class=\"fa fa-user\"></i></span>\n              <input type=\"text\" [(ngModel)]=\"newMember.name\" name=\"username\" class=\"form-control\" placeholder=\"Username\">\n            </div>\n          </div>\n          <div class=\"form-group\">\n            <div class=\"input-group\">\n              <span class=\"input-group-addon\"><i class=\"fa fa-envelope\"></i></span>\n              <input type=\"email\" [(ngModel)]=\"newMember.email\" name=\"email\" class=\"form-control\" placeholder=\"Email\">\n            </div>\n          </div>\n          <!-- Bottom -->\n          <div class=\"form-group form-actions\">\n            <button type=\"button\" (click)=\"submit(groupName, member)\" class=\"btn btn-sm btn-success\">Submit</button>\n          </div>\n        </form>\n\n      </div>\n\n    </div>\n  </div>\n</div>`\n"
+module.exports = "<div class=\"container-fluid custom-modal-container\">\n  <div class=\"row custom-modal-header\">\n    <div class=\"col-sm-12\">\n      <h3>Add Member to {{context.groupName}}</h3>\n    </div>\n  </div>\n  <div class=\"row\" [ngClass]=\"{'myclass' : shouldUseMyClass}\">\n    <div class=\"col-xs-12\">\n      <!-- Members -->\n      <div style=\"text-align: center\" class=\"card-block\" *ngIf=\"context.groupMembers.length >= 1\">\n        <strong>Add existing members to group</strong>\n        <br>\n        <br>\n        <div *ngFor=\"let member of context.groupMembers; let i = index; trackBy:trackByIndex\">\n          <div class=\"col-sm-6 card\" (click)=\"addMemberToGroup(member)\">\n\n            <div class=\"callout callout-warning m-0 py-1 lighten\">\n              <div class=\"avatar float-xs-right\">\n                <img src=\"assets/img/avatars/7.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n              </div>\n              <div>\n                <strong>{{member.name}}</strong>\n              </div>\n              <span class=\"text-muted\">{{member.email}}</span>\n              <br>\n              <small class=\"text-muted\">registered at</small>\n            </div>\n          </div>\n        </div>\n      </div>\n\n      <div style=\"text-align: center\">\n        <strong>Create a new member to add</strong>\n        <br>\n        <br>\n        <button class=\"btn btn-primary\" (click)=\"showCreateBtn()\" *ngIf=\"context.groupMembers.length>= 1\">{{createBtn}}</button>\n        <br>\n        <br>\n        <span>{{confirmationMessage}}</span>\n      </div>\n\n      <!-- User input -->\n      <div style=\"text-align: center\" class=\"card-block\" *ngIf=\"showCreate || context.groupMembers.length == 0\">\n        <form action=\"\" method=\"post\">\n          <div class=\"form-group\">\n            <div class=\"input-group\">\n              <span class=\"input-group-addon\"><i class=\"fa fa-user\"></i></span>\n              <input type=\"text\" [(ngModel)]=\"newMember.name\" name=\"username\" class=\"form-control\" placeholder=\"Username\">\n            </div>\n          </div>\n          <div class=\"form-group\">\n            <div class=\"input-group\">\n              <span class=\"input-group-addon\"><i class=\"fa fa-envelope\"></i></span>\n              <input type=\"text\" [(ngModel)]=\"newMember.email\" name=\"email\" class=\"form-control\" placeholder=\"Email\">\n            </div>\n          </div>\n          <!-- Bottom -->\n          <div class=\"form-group form-actions\">\n            <button type=\"button\" (click)=\"submit(groupName, member)\" class=\"btn btn-sm btn-success\">Submit</button>\n          </div>\n        </form>\n\n      </div>\n\n    </div>\n  </div>\n</div>`\n"
 
 /***/ },
 
