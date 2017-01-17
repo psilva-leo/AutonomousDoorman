@@ -1,6 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import {FirebaseService, UserInfo} from "../../../services/firebase.service";
 import {StatisticsService} from "../../../services/statistics.service";
+import {TranslateService} from "ng2-translate";
 @Component({
   selector: 'app-header',
   templateUrl: './header.component.html',
@@ -11,8 +12,17 @@ export class HeaderComponent implements OnInit {
   public status: { isopen: boolean } = { isopen: false };
   userInfo: UserInfo;
 
-  constructor(private firebaseService: FirebaseService, private statisticsService: StatisticsService) {
+  constructor(private firebaseService: FirebaseService, private statisticsService: StatisticsService,
+              private translate: TranslateService) {
+
     this.getUserInfo();
+    translate.addLangs(['en', 'pt-br']);
+    translate.setDefaultLang('en');
+    translate.use('en');
+  }
+
+  changeLanguage(lang: string) {
+    this.translate.use(lang);
   }
 
   getUserInfo(){

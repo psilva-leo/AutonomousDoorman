@@ -9,10 +9,12 @@ import {RegisterComponent} from "./components/register/register.component";
 import {VenueDetailComponent} from "./components/venue-detail/venue-detail.component";
 import {NotFoundComponent} from "./components/not-found/not-found.component";
 import {NewVenueComponent} from "./components/new-venue/new-venue.component";
+import {LandingPageComponent} from "./components/landing-page/landing-page.component";
 
 const appRoutes: Routes = [
   {
     path: '',
+    // component: LandingPageComponent,
     redirectTo: '/dashboard', pathMatch: 'full',
   },
   {

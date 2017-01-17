@@ -4,6 +4,7 @@ import { FormsModule } from '@angular/forms';
 import { HttpModule } from '@angular/http';
 
 import { ModalModule } from 'angular2-modal';
+import {TranslateModule} from 'ng2-translate';
 import { BootstrapModalModule } from 'angular2-modal/plugins/bootstrap';
 import { Ng2BootstrapModule }           from 'ng2-bootstrap/ng2-bootstrap';
 import { ChartsModule }                 from 'ng2-charts/ng2-charts';
@@ -33,6 +34,7 @@ import {StatisticsService} from "./services/statistics.service";
 import { NewVenueComponent } from './components/new-venue/new-venue.component';
 import { AddUserModalComponent } from './components/add-user-modal/add-user-modal.component';
 import { CreateUserModalComponent } from './components/create-user-modal/create-user-modal.component';
+import { LandingPageComponent } from './components/landing-page/landing-page.component';
 
 const myFirebaseAuthConfig = {
   provider: AuthProviders.Password,
@@ -60,6 +62,7 @@ const myFirebaseAuthConfig = {
     NewVenueComponent,
     AddUserModalComponent,
     CreateUserModalComponent,
+    LandingPageComponent,
   ],
   imports: [
     BrowserModule,
@@ -70,6 +73,7 @@ const myFirebaseAuthConfig = {
     Ng2BootstrapModule,
     ChartsModule,
     ModalModule.forRoot(),
+    TranslateModule.forRoot(),
     BootstrapModalModule,
   ],
   providers: [AuthGuard, FirebaseService, StatisticsService],
