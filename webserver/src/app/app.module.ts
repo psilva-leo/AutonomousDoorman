@@ -1,12 +1,12 @@
 import { BrowserModule } from '@angular/platform-browser';
 import { NgModule } from '@angular/core';
 import { FormsModule } from '@angular/forms';
-import { HttpModule } from '@angular/http';
+import {HttpModule, Http} from '@angular/http';
 
 import { ModalModule } from 'angular2-modal';
-import {TranslateModule} from 'ng2-translate';
+import {TranslateModule, TranslateLoader, TranslateStaticLoader} from 'ng2-translate/';
 import { BootstrapModalModule } from 'angular2-modal/plugins/bootstrap';
-import { Ng2BootstrapModule }           from 'ng2-bootstrap/ng2-bootstrap';
+import { Ng2BootstrapModule }           from 'ng2-bootstrap';
 import { ChartsModule }                 from 'ng2-charts/ng2-charts';
 import { AppComponent } from './app.component';
 import { firebaseConfig } from "../environments/firebase.config";
@@ -41,6 +41,10 @@ const myFirebaseAuthConfig = {
   method: AuthMethods.Password,
 };
 
+export function createTranslateLoader(http: Http) {
+  return new TranslateStaticLoader(http, './assets/i18n', '.json');
+}
+
 @NgModule({
   declarations: [
     AppComponent,
@@ -73,11 +77,16 @@ const myFirebaseAuthConfig = {
     Ng2BootstrapModule,
     ChartsModule,
     ModalModule.forRoot(),
-    TranslateModule.forRoot(),
+    TranslateModule.forRoot({
+      provide: TranslateLoader,
+      useFactory: (createTranslateLoader),
+      deps: [Http]
+    }),
     BootstrapModalModule,
   ],
   providers: [AuthGuard, FirebaseService, StatisticsService],
   bootstrap: [AppComponent],
   entryComponents: [ AddUserModalComponent, CreateUserModalComponent ],
+  exports: [TranslateModule],
 })
 export class AppModule { }

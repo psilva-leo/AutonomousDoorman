@@ -1,0 +1,21 @@
+{
+  "home" : "Home",
+  "about" : "Sobre",
+  "contact" : "Contato",
+  "venue": "Localização",
+  "venues": "Localizações",
+  "new-venue": "Nova Localização",
+  "venue-name": "Nome da Localização",
+  "name": "nome",
+  "email": "Email",
+  "username": "Usuário",
+  "user": "Usuário",
+  "weekly-access": "Acessos da semana por localização",
+  "allowed": "Permitido por",
+  "activity": "Atividade",
+  "group": "Grupo",
+  "registered": "Registrado em",
+  "logout": "Sair",
+  "logs": "Registros",
+  "members": "Membros"
+}

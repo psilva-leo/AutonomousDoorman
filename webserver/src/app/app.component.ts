@@ -9,10 +9,18 @@ import {TranslateService} from 'ng2-translate';
 
 export class AppComponent{
   constructor(private translate: TranslateService) {
-    translate.addLangs(['en', 'pt-br']);
+    let languages = ['en', 'pt'];
+    translate.addLangs(languages);
     translate.setDefaultLang('en');
-    translate.use('en');
+
+    let browserlang = translate.getBrowserLang();
+    if(languages.indexOf(browserlang) > -1){
+      translate.use(browserlang);
+    }else{
+      translate.use('en');
+    }
   }
+
   changeLang(lang: string) {
     this.translate.use(lang);
   }
