@@ -35,6 +35,7 @@ import { NewVenueComponent } from './components/new-venue/new-venue.component';
 import { AddUserModalComponent } from './components/add-user-modal/add-user-modal.component';
 import { CreateUserModalComponent } from './components/create-user-modal/create-user-modal.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
+import {PopoverModule} from "ng2-popover";
 
 const myFirebaseAuthConfig = {
   provider: AuthProviders.Password,
@@ -83,6 +84,7 @@ export function createTranslateLoader(http: Http) {
       deps: [Http]
     }),
     BootstrapModalModule,
+    PopoverModule,
   ],
   providers: [AuthGuard, FirebaseService, StatisticsService],
   bootstrap: [AppComponent],

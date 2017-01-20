@@ -4,6 +4,7 @@ import {Subject}    from 'rxjs/Subject';
 import 'rxjs/add/operator/catch';
 import {Observable} from "rxjs/Observable";
 import {Router} from "@angular/router";
+import * as firebase from 'firebase';
 
 @Injectable()
 export class FirebaseService{
@@ -18,10 +19,10 @@ export class FirebaseService{
   private venues: any;
   private members: any;
   private groups: any;
+  private storage: any;
 
 
   constructor(private db:AngularFireDatabase, private auth: AngularFireAuth, private router:Router){
-
     this.userInfo = {
       displayName: "",
       email: "",
@@ -40,6 +41,7 @@ export class FirebaseService{
         this.userInfo.displayName = this.user.auth.displayName;
         this.userInfo.email = this.user.auth.email;
         this.userInfo.uid = this.user.auth.uid;
+        console.log(this.userInfo.uid);
         this.userInfo.photoURL= this.user.auth.photoURL;
       }
 
@@ -57,6 +59,12 @@ export class FirebaseService{
       });
     });
 
+    this.storage = firebase.storage().ref();
+
+  }
+
+  getPhotoUrl(photourl){
+    return this.storage.child(photourl).getDownloadURL();
   }
 
   getAuthenticated(): Observable<any> { return this.auth; }
@@ -110,7 +118,7 @@ export class FirebaseService{
       this.auth.login({email: email, password: password})
         .then(() => {
         if(this.user != null){
-          this.user.auth.updateProfile({displayName: username, photoURL: null});
+          this.user.auth.updateProfile({displayName: username, photoURL: this.user.auth.uid+'/Profile/1.jpg'});
           this.logout();
           let timer = Observable.timer(1000);
           timer.subscribe(x => {
@@ -155,6 +163,7 @@ export class FirebaseService{
     data.Members[memberInfo.id]['Data'] = {
       email: memberInfo.email,
       name: memberInfo.name,
+      photourl: memberInfo.photourl,
     };
     for(let i=0; i<groups.length; i++){
       data.Members[memberInfo.id]['Groups'][i] = {id: groups[i].name};
@@ -170,6 +179,7 @@ export class FirebaseService{
       Data: {
         name: memberInfo.name,
         email: memberInfo.email,
+        photourl: memberInfo.photourl,
       },
       Groups: {
         0: {
@@ -234,6 +244,7 @@ export class FirebaseService{
       name: this.userInfo.displayName,
       email: this.userInfo.email,
       id: "1",
+      photourl: this.userInfo.uid+'/1/1.jpg',
       groups: [],
     };
 
@@ -246,6 +257,7 @@ export interface Member{
   name: string;
   email: string;
   id: string;
+  photourl: string;
   groups: string[];
 }
 

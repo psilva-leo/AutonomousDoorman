@@ -1,3 +1,6 @@
+<link href="assets/spinia/css/bootstrap.min.css" rel="stylesheet">
+<link href="assets/spinia/css/style.css" rel="stylesheet">
+
 <app-header></app-header>
 
 
@@ -11,103 +14,178 @@
   <div class="container-fluid">
     <div class="animated fadeIn">
 
-      <!-- All Members -->
-      <div class="card">
-        <div class="card-header">
-          <strong>All {{venueName}}'s Members</strong>
-          <a class="btn float-xs-right"><i class="fa fa-plus-square-o"></i> Add Member</a>
-          <a class="btn float-xs-right"><i class="fa fa-plus-square-o"></i> Add Group</a>
-        </div>
-        <div class="card-block">
-          <div class="row">
-            <div *ngFor="let id of membersId; let i = index; trackBy:trackByIndex">
-              <div class="col-sm-4 card">
-                <div class="callout callout-info m-0 py-1">
-                  <div class="avatar float-xs-right">
-                    <img src="assets/img/avatars/7.jpg" class="img-avatar" alt="admin@bootstrapmaster.com">
-                  </div>
-                  <div>
-                    <strong>{{members[id].name}}</strong>
-                  </div>
-                  <span class="text-muted">{{members[id].email}}</span>
-                  <br>
-                  <small class="text-muted">registered at</small>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-      </div>
 
-      <!-- Groups -->
       <div *ngFor="let group of groups; let i = index; trackBy:trackByIndex">
-        <div class="card">
-          <div class="card-header">
-            <strong>{{group}}</strong>
-            <a (click)="openCustom(i)" class="btn float-xs-right"><i class="fa fa-plus-square-o"></i> Add Member</a>
-          </div>
-          <div class="card-block">
-            <div class="row">
-              <div *ngFor="let groupMember of groupMembers[group]">
-                <div class="col-sm-4 card">
-                  <div class="callout callout-warning m-0 py-1">
-                    <div class="avatar float-xs-right">
-                      <img src="assets/img/avatars/7.jpg" class="img-avatar" alt="admin@bootstrapmaster.com">
-                    </div>
-                    <div>
-                      <strong>{{members[groupMember].name}}</strong>
-                    </div>
-                    <span class="text-muted">{{members[groupMember].email}}</span>
-                    <br>
-                    <small class="text-muted">registered at</small>
+        <div *ngIf="i%3 == 0" class="row">
+          <div *ngFor="let group of groups; let j = index; trackBy:trackByIndex">
+            <div *ngIf="j>=i && j<i+3" class="col-md-4">
+              <div class="ibox">
+                <div class="ibox-title">
+                  <a (click)="openCustom(i)"><span class="label label-primary pull-right"><i class="fa fa-plus"></i></span></a>
+                  <h5>{{group}}</h5>
+                </div>
+                <div class="ibox-content">
+                  <div class="team-members row">
+                    <span *ngFor="let groupMember of groupMembers[group]">
+                      <a popover="{{members[groupMember].email}}" popoverTitle="{{members[groupMember].name}}" popoverPlacement="auto right"
+                         [popoverOnHover]="true" [popoverCloseOnClickOutside]="true" [popoverCloseOnMouseOutside]="false"
+                         [popoverDisabled]="false" [popoverAnimation]="true">
+                        <img alt="member" class="img-circle" src="{{members[groupMember].photourl}}"></a>
+                    </span>
+
+
                   </div>
+                  <!--<h4>Info about Design Team</h4>-->
+                  <!--<p>-->
+                  <!--Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc.-->
+                  <!--</p>-->
+
+                  <div class="row  m-t-sm">
+                    <div class="col-sm-4 col-xs-4">
+                      <div class="font-bold">START</div>
+                      08:00
+                    </div>
+                    <div class="col-sm-4 col-xs-4">
+                      <div class="font-bold">END</div>
+                      18:00
+                    </div>
+                    <div class="col-sm-4 col-xs-4">
+                      <div class="font-bold">MEMBERS</div>
+                      8
+                    </div>
+                  </div>
+
                 </div>
               </div>
             </div>
-
-            <br>
-            <br>
-
-            <!-- Add Member -->
-            <div class="col-sm-4" *ngIf="createMember[i]">
-              <div class="card">
-                <div class="card-header">
-                  New Member
-                  <div class="card-actions">
-                    <a (click)="deleteMember(i)" class="nav-link">
-                      <i class="fa fa-close"></i>
-                    </a>
-                  </div>
-                </div>
-                <div class="card-block">
-                  <form action="" method="post">
-                    <div class="form-group">
-                      <div class="input-group">
-                              <span class="input-group-addon"><i class="fa fa-user"></i>
-                              </span>
-                        <input type="text" [(ngModel)]="newMember.name" name="username" class="form-control" placeholder="Username">
-                      </div>
-                    </div>
-                    <div class="form-group">
-                      <div class="input-group">
-                              <span class="input-group-addon"><i class="fa fa-envelope"></i>
-                              </span>
-                        <input type="email" [(ngModel)]="newMember.email" name="email" class="form-control" placeholder="Email">
-                      </div>
-                    </div>
-
-                    <div class="form-group form-actions">
-                      <button type="submit" (click)="submit(i, {name: members[2].name, email: members[2].email, id: 2})" class="btn btn-sm btn-success">Submit</button>
-                    </div>
-                  </form>
-                </div>
-              </div>
-            </div>
-
           </div>
         </div>
-        <!--/col-->
       </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+      <!--&lt;!&ndash; All Members &ndash;&gt;-->
+      <!--<div class="card">-->
+        <!--<div class="card-header">-->
+          <!--<strong>All {{venueName}}'s Members</strong>-->
+          <!--<a class="btn float-xs-right"><i class="fa fa-plus-square-o"></i> Add Member</a>-->
+          <!--<a class="btn float-xs-right"><i class="fa fa-plus-square-o"></i> Add Group</a>-->
+        <!--</div>-->
+        <!--<div class="card-block">-->
+          <!--<div class="row">-->
+            <!--<div *ngFor="let id of membersId; let i = index; trackBy:trackByIndex">-->
+              <!--<div class="col-sm-4 card">-->
+                <!--<div class="callout callout-info m-0 py-1">-->
+                  <!--<div class="avatar float-xs-right">-->
+                    <!--<img src="assets/img/avatars/7.jpg" class="img-avatar" alt="admin@bootstrapmaster.com">-->
+                  <!--</div>-->
+                  <!--<div>-->
+                    <!--<strong>{{members[id].name}}</strong>-->
+                  <!--</div>-->
+                  <!--<span class="text-muted">{{members[id].email}}</span>-->
+                  <!--<br>-->
+                  <!--<small class="text-muted">registered at</small>-->
+                <!--</div>-->
+              <!--</div>-->
+            <!--</div>-->
+          <!--</div>-->
+        <!--</div>-->
+      <!--</div>-->
+
+      <!--&lt;!&ndash; Groups &ndash;&gt;-->
+      <!--<div *ngFor="let group of groups; let i = index; trackBy:trackByIndex">-->
+        <!--<div class="card">-->
+          <!--<div class="card-header">-->
+            <!--<strong>{{group}}</strong>-->
+            <!--<a (click)="openCustom(i)" class="btn float-xs-right"><i class="fa fa-plus-square-o"></i> Add Member</a>-->
+          <!--</div>-->
+          <!--<div class="card-block">-->
+            <!--<div class="row">-->
+              <!--<div *ngFor="let groupMember of groupMembers[group]">-->
+                <!--<div class="col-sm-4 card">-->
+                  <!--<div class="callout callout-warning m-0 py-1">-->
+                    <!--<div class="avatar float-xs-right">-->
+                      <!--<img src="assets/img/avatars/7.jpg" class="img-avatar" alt="admin@bootstrapmaster.com">-->
+                    <!--</div>-->
+                    <!--<div>-->
+                      <!--<strong>{{members[groupMember].name}}</strong>-->
+                    <!--</div>-->
+                    <!--<span class="text-muted">{{members[groupMember].email}}</span>-->
+                    <!--<br>-->
+                    <!--<small class="text-muted">registered at</small>-->
+                  <!--</div>-->
+                <!--</div>-->
+              <!--</div>-->
+            <!--</div>-->
+
+            <!--<br>-->
+            <!--<br>-->
+
+            <!--&lt;!&ndash; Add Member &ndash;&gt;-->
+            <!--<div class="col-sm-4" *ngIf="createMember[i]">-->
+              <!--<div class="card">-->
+                <!--<div class="card-header">-->
+                  <!--New Member-->
+                  <!--<div class="card-actions">-->
+                    <!--<a (click)="deleteMember(i)" class="nav-link">-->
+                      <!--<i class="fa fa-close"></i>-->
+                    <!--</a>-->
+                  <!--</div>-->
+                <!--</div>-->
+                <!--<div class="card-block">-->
+                  <!--<form action="" method="post">-->
+                    <!--<div class="form-group">-->
+                      <!--<div class="input-group">-->
+                              <!--<span class="input-group-addon"><i class="fa fa-user"></i>-->
+                              <!--</span>-->
+                        <!--<input type="text" [(ngModel)]="newMember.name" name="username" class="form-control" placeholder="Username">-->
+                      <!--</div>-->
+                    <!--</div>-->
+                    <!--<div class="form-group">-->
+                      <!--<div class="input-group">-->
+                              <!--<span class="input-group-addon"><i class="fa fa-envelope"></i>-->
+                              <!--</span>-->
+                        <!--<input type="email" [(ngModel)]="newMember.email" name="email" class="form-control" placeholder="Email">-->
+                      <!--</div>-->
+                    <!--</div>-->
+
+                    <!--<div class="form-group form-actions">-->
+                      <!--<button type="submit" (click)="submit(i, {name: members[2].name, email: members[2].email, photourl: members[2].photourl, id: 2})" class="btn btn-sm btn-success">Submit</button>-->
+                    <!--</div>-->
+                  <!--</form>-->
+                <!--</div>-->
+              <!--</div>-->
+            <!--</div>-->
+
+          <!--</div>-->
+        <!--</div>-->
+        <!--&lt;!&ndash;/col&ndash;&gt;-->
+      <!--</div>-->
 
 
     </div>

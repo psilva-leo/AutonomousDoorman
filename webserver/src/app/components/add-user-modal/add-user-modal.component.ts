@@ -23,7 +23,7 @@ export class AddUserModalComponent implements OnInit, CloseGuard, ModalComponent
   constructor(public dialog: DialogRef<CustomModalContext>, private firebaseSerice: FirebaseService,
               private modal: Modal, private router: Router) {
 
-    this.newMember = {name: "", email: "", id: "", groups: []};
+    this.newMember = {name: "", email: "", id: "", photourl: "", groups: []};
     this.context = dialog.context;
     console.log(this.context);
     this.wrongAnswer = true;
@@ -74,7 +74,7 @@ export class AddUserModalComponent implements OnInit, CloseGuard, ModalComponent
         this.createNewMember();
         this.showCreateBtn(); // To close the creation form
         this.confirmationMessage = this.newMember.name + " successfully added to " + this.context.groupName;
-        this.newMember = {name: "", email: "", id: "", groups: []};
+        this.newMember = {name: "", email: "", id: "", photourl: "", groups: []};
       }
 
     }else{

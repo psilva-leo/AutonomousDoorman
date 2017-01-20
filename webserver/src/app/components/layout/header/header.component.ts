@@ -11,6 +11,7 @@ export class HeaderComponent implements OnInit {
 
   public status: { isopen: boolean } = { isopen: false };
   userInfo: UserInfo;
+  userPhoto: string;
 
   constructor(private firebaseService: FirebaseService, private statisticsService: StatisticsService,
               private translate: TranslateService) {
@@ -24,6 +25,10 @@ export class HeaderComponent implements OnInit {
 
   getUserInfo(){
     this.userInfo = this.firebaseService.getUserInfo();
+    this.userPhoto = '/assets/img/loading_profile.png';
+    this.firebaseService.getPhotoUrl(this.userInfo.photoURL).then(url => {
+      this.userPhoto = url;
+    });
   }
 
   public toggleDropdown($event:MouseEvent):void {

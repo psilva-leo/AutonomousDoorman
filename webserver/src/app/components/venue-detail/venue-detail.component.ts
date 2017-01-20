@@ -25,7 +25,7 @@ export class VenueDetailComponent implements OnInit{
   createMember: boolean[];
   constructor(private firebaseService: FirebaseService, private route: ActivatedRoute, private modal: Modal) {
     this.createMember = [];
-    this.newMember = {name: "", email: "", id: "", groups: []};
+    this.newMember = {name: "", email: "", id: "", photourl: "", groups: []};
     this.groups = [];
     this.groupMembers = {};
 
@@ -43,6 +43,10 @@ export class VenueDetailComponent implements OnInit{
             this.members[members[i].$key]['groups'] = [];
             this.members[members[i].$key]['name'] = members[i]['Data'].name;
             this.members[members[i].$key]['email'] = members[i]['Data'].email;
+            this.members[members[i].$key]['photourl'] = '/assets/img/loading_profile.png';
+            this.firebaseService.getPhotoUrl(members[i]['Data'].photourl).then(url => {
+              this.members[members[i].$key]['photourl'] = url;
+            });
             this.members[members[i].$key]['id'] = members[i].$key;
             this.membersId.push(members[i].$key);
             for (let j = 0; j < members[i]['Groups'].length; j++) {
@@ -95,6 +99,7 @@ export class VenueDetailComponent implements OnInit{
           email: this.members[this.membersId[i]].email,
           name: this.members[this.membersId[i]].name,
           id: this.members[this.membersId[i]].id,
+          photourl: this.members[this.membersId[i]].photourl,
           groups: [],
         };
 

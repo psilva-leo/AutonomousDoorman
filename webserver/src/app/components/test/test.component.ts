@@ -34,6 +34,10 @@ export class TestComponent implements OnInit {
       .open();
   }
 
+  test(){
+    console.log('test');
+  }
+
   openCustom() {
     return this.modal.open(AddUserModalComponent,  overlayConfigFactory({ num1: 2, num2: 3 }, BSModalContext));
   }
