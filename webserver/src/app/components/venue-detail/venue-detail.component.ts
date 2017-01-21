@@ -1,9 +1,10 @@
-import {Component, OnInit} from '@angular/core';
+import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
 import {Overlay, overlayConfigFactory} from 'angular2-modal';
 import {Modal, BSModalContext} from 'angular2-modal/plugins/bootstrap';
 import {AddUserModalComponent} from "../add-user-modal/add-user-modal.component";
 import {FirebaseService, Member} from "../../services/firebase.service";
+import {Observable, Subject} from "rxjs";
 
 @Component({
   selector: 'app-venue-detail',
@@ -23,16 +24,16 @@ export class VenueDetailComponent implements OnInit{
 
   newMember: Member;
   createMember: boolean[];
-  constructor(private firebaseService: FirebaseService, private route: ActivatedRoute, private modal: Modal) {
+  constructor(private firebaseService: FirebaseService, private route: ActivatedRoute, private modal: Modal,
+              private ref: ChangeDetectorRef) {
     this.createMember = [];
     this.newMember = {name: "", email: "", id: "", photourl: "", groups: []};
     this.groups = [];
     this.groupMembers = {};
 
+
     this.route.params.subscribe(params => {
       this.venueName = params['id'];
-
-
 
       this.firebaseService.findMembers(this.venueName).subscribe(members => {
         this.members = {};
@@ -44,11 +45,13 @@ export class VenueDetailComponent implements OnInit{
             this.members[members[i].$key]['name'] = members[i]['Data'].name;
             this.members[members[i].$key]['email'] = members[i]['Data'].email;
             this.members[members[i].$key]['photourl'] = '/assets/img/loading_profile.png';
-            this.firebaseService.getPhotoUrl(members[i]['Data'].photourl).then(url => {
-              this.members[members[i].$key]['photourl'] = url;
-            });
             this.members[members[i].$key]['id'] = members[i].$key;
-            this.membersId.push(members[i].$key);
+            this.firebaseService.getPhotoUrl(members[i]['Data']['photourl']).then(url => {
+              this.members[members[i].$key]['photourl'] = url;
+              this.membersId.push(members[i].$key);
+              this.ref.detectChanges();
+            });
+
             for (let j = 0; j < members[i]['Groups'].length; j++) {
               this.members[members[i].$key]['groups'].push(members[i]['Groups'][j].id);
             }

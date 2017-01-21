@@ -41,7 +41,6 @@ export class FirebaseService{
         this.userInfo.displayName = this.user.auth.displayName;
         this.userInfo.email = this.user.auth.email;
         this.userInfo.uid = this.user.auth.uid;
-        console.log(this.userInfo.uid);
         this.userInfo.photoURL= this.user.auth.photoURL;
       }
 
@@ -63,7 +62,11 @@ export class FirebaseService{
 
   }
 
-  getPhotoUrl(photourl){
+  getURL(photourl: string):Observable<string> {
+    return this.storage.child(photourl).getDownloadURL();
+  }
+
+  getPhotoUrl(photourl: string){
     return this.storage.child(photourl).getDownloadURL();
   }
 

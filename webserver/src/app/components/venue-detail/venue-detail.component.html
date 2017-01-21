@@ -14,6 +14,10 @@
   <div class="container-fluid">
     <div class="animated fadeIn">
 
+      <button (click)="change()">{{test$ | async}}</button>
+
+      <span >{{errorMessage$ | async}}</span>
+      <span >{{test$ | async}}</span>
 
       <div *ngFor="let group of groups; let i = index; trackBy:trackByIndex">
         <div *ngIf="i%3 == 0" class="row">

@@ -1,4 +1,4 @@
-import { Component, OnInit } from '@angular/core';
+import {Component, OnInit, NgZone, ChangeDetectorRef} from '@angular/core';
 import {FirebaseService, UserInfo} from "../../../services/firebase.service";
 import {StatisticsService} from "../../../services/statistics.service";
 import {TranslateService} from "ng2-translate";
@@ -14,7 +14,7 @@ export class HeaderComponent implements OnInit {
   userPhoto: string;
 
   constructor(private firebaseService: FirebaseService, private statisticsService: StatisticsService,
-              private translate: TranslateService) {
+              private translate: TranslateService, private ref: ChangeDetectorRef) {
 
     this.getUserInfo();
   }
@@ -28,6 +28,7 @@ export class HeaderComponent implements OnInit {
     this.userPhoto = '/assets/img/loading_profile.png';
     this.firebaseService.getPhotoUrl(this.userInfo.photoURL).then(url => {
       this.userPhoto = url;
+      this.ref.detectChanges();
     });
   }
 
