@@ -43,7 +43,6 @@ export class HomeComponent implements OnInit {
   filterLogs(){
     this.filteredLogs = this.logs.filter(log => {
       if(this.logPeriod != 'all') {
-
         let multiplier: number;
         switch (this.logPeriod) {
           case "day":
@@ -86,6 +85,8 @@ export class HomeComponent implements OnInit {
     weekPeriod.className = "btn btn-sm btn-white";
     let monthPeriod = document.getElementById("monthPeriod");
     monthPeriod.className = "btn btn-sm btn-white";
+    let allPeriod = document.getElementById("allPeriod");
+    allPeriod.className = "btn btn-sm btn-white";
 
     switch(period){
       case "day":
@@ -99,6 +100,10 @@ export class HomeComponent implements OnInit {
       case "month":
         this.logPeriod = "month";
         monthPeriod.className += "active";
+        break;
+      case "all":
+        this.logPeriod = "all";
+        allPeriod.className += "active";
         break;
     }
     this.filterLogs();
