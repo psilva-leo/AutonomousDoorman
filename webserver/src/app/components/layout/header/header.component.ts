@@ -1,4 +1,4 @@
-import {Component, OnInit, NgZone, ChangeDetectorRef} from '@angular/core';
+import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
 import {FirebaseService, UserInfo} from "../../../services/firebase.service";
 import {StatisticsService} from "../../../services/statistics.service";
 import {TranslateService} from "ng2-translate";
@@ -46,6 +46,8 @@ export class HeaderComponent implements OnInit {
     console.log('logged out');
     this.firebaseService.logout();
   }
+
+
   ngOnInit() {
   }
 

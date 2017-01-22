@@ -1,86 +1,81 @@
-<app-header></app-header>
+<div class="container-fluid custom-modal-container">
+  <div class="row modal-header">
+    <div class="col-sm-12" style="padding-top: 10px">
+      <h3>Add new Venue
+        <a (click)="closeModal()" class="btn float-xs-right">
+          <i class="fa fa-close"></i>
+        </a>
+      </h3>
 
-
-<app-sidebar></app-sidebar>
-
-<!-- Main content -->
-<main class="main">
-  <app-breadcrumb></app-breadcrumb>
-
-  <div class="container-fluid">
-    <div class="animated fadeIn">
-      <div class="row">
-        <div class="card">
-          <div class="card-header">
-            <strong>New Venue</strong>
-          </div>
-          <div class="card-block">
-            <form #form="ngForm" action="" method="post" enctype="multipart/form-data" class="form-horizontal ">
-              <div class="form-group row">
-                <label class="col-md-3 form-control-label" for="text-input">Venue Name</label>
-                <div class="col-md-9">
-                  <input type="text" name="text-input" [(ngModel)]="venue.name" class="form-control" placeholder="venue name">
-                  <span style="color: red" class="help-block">{{venue.error}}</span>
-                </div>
-              </div>
-              <br>
-
-              <div class="form-group row" *ngFor="let group of groups; let i = index; trackBy:trackByIndex">
-                <div class="card">
-                  <div class="card-header">
-                    <strong>Group {{i+1}}</strong>
-                    <div class="card-actions">
-                      <a (click)="deleteGroup(i)" class="nav-link">
-                        <i class="fa fa-close"></i>
-                      </a>
-                    </div>
-                  </div>
-                  <div class="card-block">
-                    <label class="col-md-3 form-control-label" for="text-input">Name</label>
-                    <div class="col-md-9">
-                      <input type="text" name="group {{i}}" [(ngModel)]="groups[i].name" class="form-control" placeholder="group name">
-                      <span style="color: red" class="help-block">{{groups[i].error}}</span>
-                    </div>
-
-                    <br><br>
-                    <br>
-                    <label class="col-md-3 form-control-label" for="text-input">Start</label>
-                    <div class="col-md-9">
-                      <input type="time" name="start" [(ngModel)]="groups[i].start"/>
-                    </div>
-                    <br><br>
-                    <label class="col-md-3 form-control-label" for="text-input">Finish</label>
-                    <div class="col-md-9">
-                      <input type="time" name="finish" [(ngModel)]="groups[i].end"/>
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-
-              <button (click)="addGroup()" type="submit" class="btn btn-sm btn-primary"><i class="fa fa-plus-square-o"></i> Add group</button>
-
-
-              <div class="form-group row">
-                <div class="col-md-9">
-                  <p class="form-control-static">You will be added as a member of the groups.
-                    You can delete yourself of them after adding other people to the groups.</p>
-                </div>
-              </div>
-            </form>
-          </div>
-          <div class="card-footer">
-            <button (click)="submit()" type="submit" class="btn btn-sm btn-primary"><i class="fa fa-dot-circle-o"></i> Submit</button>
-            <button type="reset" (click)="reset()" class="btn btn-sm btn-danger"><i class="fa fa-ban"></i> Reset</button>
-          </div>
-        </div>
-        <!--/col-->
-      </div>
     </div>
   </div>
+  <div class="row" [ngClass]="{'myclass' : shouldUseMyClass}">
+    <div class="col-xs-12">
 
-</main>
 
-<app-asidemenu></app-asidemenu>
 
-<app-footer></app-footer>
+      <div class="card-block">
+        <form #form="ngForm" action="" method="post" enctype="multipart/form-data" class="form-horizontal ">
+          <div class="form-group row">
+            <label class="col-md-3 form-control-label" for="text-input">Venue Name</label>
+            <div class="col-md-9">
+              <input type="text" name="text-input" [(ngModel)]="venue.name" class="form-control" placeholder="venue name">
+              <span style="color: red" class="help-block">{{venue.error}}</span>
+            </div>
+          </div>
+          <br>
+
+          <div class="form-group row" *ngFor="let group of groups; let i = index; trackBy:trackByIndex">
+            <div class="card">
+              <div class="card-header">
+                <strong>Group {{i+1}}</strong>
+                <div class="card-actions">
+                  <a (click)="deleteGroup(i)" class="nav-link">
+                    <i class="fa fa-close"></i>
+                  </a>
+                </div>
+              </div>
+              <div class="card-block">
+                <label class="col-md-3 form-control-label" for="text-input">Name</label>
+                <div class="col-md-9">
+                  <input type="text" name="group {{i}}" [(ngModel)]="groups[i].name" class="form-control" placeholder="group name">
+                  <span style="color: red" class="help-block">{{groups[i].error}}</span>
+                </div>
+
+                <br><br>
+                <br>
+                <div class="col-md-6">
+                  <label class="form-control-label" for="text-input">Start</label>
+                  &nbsp;&nbsp;
+                  <input type="time" name="start" [(ngModel)]="groups[i].start"/>
+                </div>
+                <div class="col-md-6">
+                  <label class="form-control-label" for="text-input">Finish</label>
+                  &nbsp;&nbsp;
+                  <input type="time" name="finish" [(ngModel)]="groups[i].end"/>
+                </div>
+              </div>
+            </div>
+          </div>
+
+
+          <button (click)="addGroup()" type="submit" class="btn btn-sm btn-primary"><i class="fa fa-plus-square-o"></i> Add group</button>
+
+
+          <div class="form-group row">
+            <div class="col-md-9">
+              <p class="form-control-static">You will be added as a member of the groups.
+                You can delete yourself of them after adding other people to the groups.</p>
+            </div>
+          </div>
+        </form>
+      </div>
+      <div class="card-footer">
+        <button (click)="submit()" type="submit" class="btn btn-sm btn-primary"><i class="fa fa-dot-circle-o"></i> Submit</button>
+        <button type="reset" (click)="reset()" class="btn btn-sm btn-danger"><i class="fa fa-ban"></i> Reset</button>
+      </div>
+
+
+    </div>
+  </div>
+</div>`

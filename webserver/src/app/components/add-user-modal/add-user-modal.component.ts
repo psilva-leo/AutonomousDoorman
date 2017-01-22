@@ -25,7 +25,8 @@ export class AddUserModalComponent implements OnInit, CloseGuard, ModalComponent
 
     this.newMember = {name: "", email: "", id: "", photourl: "", groups: []};
     this.context = dialog.context;
-    console.log(this.context);
+    this.context.isBlocking = false;
+
     this.wrongAnswer = true;
     this.showCreate = false;
     this.createBtn = "Create Member";

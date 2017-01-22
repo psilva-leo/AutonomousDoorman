@@ -27,11 +27,11 @@ module.exports = __webpack_require__(544);
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_angular2_modal__ = __webpack_require__(31);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__ = __webpack_require__(183);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__services_firebase_service__ = __webpack_require__(42);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_router__ = __webpack_require__(56);
-/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AddUserModalComponent; });
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_angular2_modal__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__ = __webpack_require__(101);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__services_firebase_service__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_router__ = __webpack_require__(43);
+/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return NewVenueComponent; });
 /* unused harmony export CustomModalContext */
 var __extends = (this && this.__extends) || function (d, b) {
     for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
@@ -52,81 +52,107 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
-var AddUserModalComponent = (function () {
-    function AddUserModalComponent(dialog, firebaseSerice, modal, router) {
+var NewVenueComponent = (function () {
+    function NewVenueComponent(dialog, firebaseService, modal, router) {
+        var _this = this;
         this.dialog = dialog;
-        this.firebaseSerice = firebaseSerice;
+        this.firebaseService = firebaseService;
         this.modal = modal;
         this.router = router;
-        this.newMember = { name: "", email: "", id: "", photourl: "", groups: [] };
         this.context = dialog.context;
-        console.log(this.context);
-        this.wrongAnswer = true;
-        this.showCreate = false;
-        this.createBtn = "Create Member";
-        this.confirmationMessage = "";
+        this.context.isBlocking = false;
+        this.context.showClose = true;
+        this.venue = { name: "", error: "" };
+        this.groups = [{ name: "", error: "", start: "08:00", end: "18:00" }];
+        this.firebaseService.findVenues()
+            .subscribe(function (venues) {
+            console.log(_this.venues);
+            _this.venues = [];
+            for (var i = 0; i < venues.length; i++) {
+                _this.venues.push(venues[i].$key);
+            }
+        });
     }
-    AddUserModalComponent.prototype.trackByIndex = function (index, obj) {
+    NewVenueComponent.prototype.trackByIndex = function (index, obj) {
         return index;
     };
-    AddUserModalComponent.prototype.showCreateBtn = function () {
-        this.showCreate = !this.showCreate;
-        if (this.showCreate) {
-            this.createBtn = "Close Member";
+    NewVenueComponent.prototype.addGroup = function () {
+        this.groups.push({ name: "", error: "", start: "08:00", end: "18:00" });
+    };
+    NewVenueComponent.prototype.deleteGroup = function (index) {
+        if (this.groups.length > 1) {
+            this.groups.splice(index, 1);
         }
         else {
-            this.createBtn = "Create Member";
+            this.groups[0].error = "One group must be created";
         }
-        this.confirmationMessage = "";
     };
-    AddUserModalComponent.prototype.onKeyUp = function (value) {
-        console.log(this.newMember);
-        this.dialog.close();
-    };
-    AddUserModalComponent.prototype.addMemberToGroup = function (member) {
-        console.log('clicked');
-        console.log(member);
-        this.firebaseSerice.addExistingMemberToGroup(this.context.venueName, this.context.groupName, member);
-    };
-    AddUserModalComponent.prototype.createNewMember = function () {
-        console.log('create new member: ' + this.newMember.name + " " + this.newMember.email);
-        this.firebaseSerice.createAndAddMember(this.context.venueName, this.context.groupName, this.newMember);
-    };
-    AddUserModalComponent.prototype.submit = function () {
-        this.newMember.name = this.newMember.name.trim();
-        this.newMember.email = this.newMember.email.trim();
-        if (this.newMember.name != "" && typeof this.newMember.name != "undefined"
-            && this.newMember.email != "" && typeof this.newMember.email != "undefined") {
-            if (this.newMember.email.indexOf('@') == -1) {
-                this.confirmationMessage = "Error: Email not formatted correctly.";
+    NewVenueComponent.prototype.submit = function () {
+        var fail = false;
+        if (this.venue.name == "") {
+            fail = true;
+            this.venue.error = "Venue name required";
+        }
+        else {
+            this.venue.error = "";
+        }
+        console.log('venues length: ' + this.venues.length);
+        for (var i = 0; i < this.venues.length; i++) {
+            console.log(this.venues[i]);
+            if (this.venue.name == this.venues[i]) {
+                fail = true;
+                this.venue.error = "Name already in use";
+            }
+        }
+        for (var i = 0; i < this.groups.length; i++) {
+            if (this.groups[i].name == "") {
+                fail = true;
+                this.groups[i].error = "Group name required";
             }
             else {
-                this.createNewMember();
-                this.showCreateBtn(); // To close the creation form
-                this.confirmationMessage = this.newMember.name + " successfully added to " + this.context.groupName;
-                this.newMember = { name: "", email: "", id: "", photourl: "", groups: [] };
+                this.groups[i].error = "";
             }
         }
+        if (!fail) {
+            this.firebaseService.createvenue(this.venue.name, this.groups);
+            console.log('New venue created');
+            alert('Group created!');
+            this.reset();
+        }
         else {
-            this.confirmationMessage = "Error: Could mot create member because the name or email are blank";
+            console.log('Error creating Venue');
         }
     };
-    AddUserModalComponent.prototype.beforeDismiss = function () {
+    NewVenueComponent.prototype.reset = function () {
+        this.venue.name = "";
+        this.venue.error = "";
+        for (var i = 0; i < this.groups.length; i++) {
+            this.groups[i].name = "";
+            this.groups[i].error = "";
+        }
+    };
+    NewVenueComponent.prototype.closeModal = function () {
+        this.dialog.dismiss();
+    };
+    NewVenueComponent.prototype.onKeyUp = function (value) {
+        this.dialog.close();
+    };
+    NewVenueComponent.prototype.beforeDismiss = function () {
         return true;
     };
-    AddUserModalComponent.prototype.beforeClose = function () {
-        return this.wrongAnswer;
+    NewVenueComponent.prototype.beforeClose = function () {
+        return true;
     };
-    AddUserModalComponent.prototype.ngOnInit = function () { };
-    AddUserModalComponent = __decorate([
+    NewVenueComponent.prototype.ngOnInit = function () { };
+    NewVenueComponent = __decorate([
         __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
-            selector: 'app-add-user-modal',
-            template: __webpack_require__(897),
-            styles: [__webpack_require__(880)],
+            selector: 'app-new-venue',
+            template: __webpack_require__(907),
+            styles: [__webpack_require__(888)]
         }), 
         __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_angular2_modal__["e" /* DialogRef */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_angular2_modal__["e" /* DialogRef */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_3__services_firebase_service__["a" /* FirebaseService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__services_firebase_service__["a" /* FirebaseService */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__["a" /* Modal */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__["a" /* Modal */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_4__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__angular_router__["a" /* Router */]) === 'function' && _d) || Object])
-    ], AddUserModalComponent);
-    return AddUserModalComponent;
+    ], NewVenueComponent);
+    return NewVenueComponent;
     var _a, _b, _c, _d;
 }());
 var CustomModalContext = (function (_super) {
@@ -136,7 +162,7 @@ var CustomModalContext = (function (_super) {
     }
     return CustomModalContext;
 }(__WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__["b" /* BSModalContext */]));
-//# sourceMappingURL=C:/Users/psilv/PycharmProjects/AutonomousDoorman/webserver/src/add-user-modal.component.js.map
+//# sourceMappingURL=C:/Users/psilv/PycharmProjects/AutonomousDoorman/webserver/src/new-venue.component.js.map
 
 /***/ },
 
@@ -150,8 +176,8 @@ var CustomModalContext = (function (_super) {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_Subject___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_Subject__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_catch__ = __webpack_require__(323);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_catch___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_catch__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_router__ = __webpack_require__(56);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__firebase_service__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_router__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__firebase_service__ = __webpack_require__(38);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return StatisticsService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -238,7 +264,7 @@ var StatisticsService = (function () {
 
 /***/ },
 
-/***/ 42:
+/***/ 38:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
@@ -250,8 +276,8 @@ var StatisticsService = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_catch___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs_add_operator_catch__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_Observable__ = __webpack_require__(1);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_rxjs_Observable___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_4_rxjs_Observable__);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__angular_router__ = __webpack_require__(56);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_firebase__ = __webpack_require__(139);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__angular_router__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_firebase__ = __webpack_require__(140);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_firebase___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_6_firebase__);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return FirebaseService; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
@@ -497,7 +523,125 @@ var FirebaseService = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_firebase_service__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_angular2_modal__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__ = __webpack_require__(101);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__services_firebase_service__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_router__ = __webpack_require__(43);
+/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AddUserModalComponent; });
+/* unused harmony export CustomModalContext */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
+var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
+    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
+    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
+    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
+    return c > 3 && r && Object.defineProperty(target, key, r), r;
+};
+var __metadata = (this && this.__metadata) || function (k, v) {
+    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
+};
+
+
+
+
+
+var AddUserModalComponent = (function () {
+    function AddUserModalComponent(dialog, firebaseSerice, modal, router) {
+        this.dialog = dialog;
+        this.firebaseSerice = firebaseSerice;
+        this.modal = modal;
+        this.router = router;
+        this.newMember = { name: "", email: "", id: "", photourl: "", groups: [] };
+        this.context = dialog.context;
+        this.context.isBlocking = false;
+        this.wrongAnswer = true;
+        this.showCreate = false;
+        this.createBtn = "Create Member";
+        this.confirmationMessage = "";
+    }
+    AddUserModalComponent.prototype.trackByIndex = function (index, obj) {
+        return index;
+    };
+    AddUserModalComponent.prototype.showCreateBtn = function () {
+        this.showCreate = !this.showCreate;
+        if (this.showCreate) {
+            this.createBtn = "Close Member";
+        }
+        else {
+            this.createBtn = "Create Member";
+        }
+        this.confirmationMessage = "";
+    };
+    AddUserModalComponent.prototype.onKeyUp = function (value) {
+        console.log(this.newMember);
+        this.dialog.close();
+    };
+    AddUserModalComponent.prototype.addMemberToGroup = function (member) {
+        console.log('clicked');
+        console.log(member);
+        this.firebaseSerice.addExistingMemberToGroup(this.context.venueName, this.context.groupName, member);
+    };
+    AddUserModalComponent.prototype.createNewMember = function () {
+        console.log('create new member: ' + this.newMember.name + " " + this.newMember.email);
+        this.firebaseSerice.createAndAddMember(this.context.venueName, this.context.groupName, this.newMember);
+    };
+    AddUserModalComponent.prototype.submit = function () {
+        this.newMember.name = this.newMember.name.trim();
+        this.newMember.email = this.newMember.email.trim();
+        if (this.newMember.name != "" && typeof this.newMember.name != "undefined"
+            && this.newMember.email != "" && typeof this.newMember.email != "undefined") {
+            if (this.newMember.email.indexOf('@') == -1) {
+                this.confirmationMessage = "Error: Email not formatted correctly.";
+            }
+            else {
+                this.createNewMember();
+                this.showCreateBtn(); // To close the creation form
+                this.confirmationMessage = this.newMember.name + " successfully added to " + this.context.groupName;
+                this.newMember = { name: "", email: "", id: "", photourl: "", groups: [] };
+            }
+        }
+        else {
+            this.confirmationMessage = "Error: Could mot create member because the name or email are blank";
+        }
+    };
+    AddUserModalComponent.prototype.beforeDismiss = function () {
+        return true;
+    };
+    AddUserModalComponent.prototype.beforeClose = function () {
+        return this.wrongAnswer;
+    };
+    AddUserModalComponent.prototype.ngOnInit = function () { };
+    AddUserModalComponent = __decorate([
+        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
+            selector: 'app-add-user-modal',
+            template: __webpack_require__(897),
+            styles: [__webpack_require__(880)],
+        }), 
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_angular2_modal__["e" /* DialogRef */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_angular2_modal__["e" /* DialogRef */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_3__services_firebase_service__["a" /* FirebaseService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__services_firebase_service__["a" /* FirebaseService */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__["a" /* Modal */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__["a" /* Modal */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_4__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__angular_router__["a" /* Router */]) === 'function' && _d) || Object])
+    ], AddUserModalComponent);
+    return AddUserModalComponent;
+    var _a, _b, _c, _d;
+}());
+var CustomModalContext = (function (_super) {
+    __extends(CustomModalContext, _super);
+    function CustomModalContext() {
+        _super.apply(this, arguments);
+    }
+    return CustomModalContext;
+}(__WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__["b" /* BSModalContext */]));
+//# sourceMappingURL=C:/Users/psilv/PycharmProjects/AutonomousDoorman/webserver/src/add-user-modal.component.js.map
+
+/***/ },
+
+/***/ 424:
+/***/ function(module, exports, __webpack_require__) {
+
+"use strict";
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_firebase_service__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__services_statistics_service__ = __webpack_require__(262);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs__ = __webpack_require__(510);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_rxjs___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_3_rxjs__);
@@ -565,13 +709,13 @@ var HomeComponent = (function () {
 
 /***/ },
 
-/***/ 424:
+/***/ 425:
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_firebase_service__ = __webpack_require__(42);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_router__ = __webpack_require__(56);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_firebase_service__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_router__ = __webpack_require__(43);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return LoginComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -641,114 +785,6 @@ var LoginComponent = (function () {
 
 /***/ },
 
-/***/ 425:
-/***/ function(module, exports, __webpack_require__) {
-
-"use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_firebase_service__ = __webpack_require__(42);
-/* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return NewVenueComponent; });
-var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
-    var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
-    if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
-    else for (var i = decorators.length - 1; i >= 0; i--) if (d = decorators[i]) r = (c < 3 ? d(r) : c > 3 ? d(target, key, r) : d(target, key)) || r;
-    return c > 3 && r && Object.defineProperty(target, key, r), r;
-};
-var __metadata = (this && this.__metadata) || function (k, v) {
-    if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
-};
-
-
-var NewVenueComponent = (function () {
-    function NewVenueComponent(firebaseService) {
-        var _this = this;
-        this.firebaseService = firebaseService;
-        this.venue = { name: "", error: "" };
-        this.groups = [{ name: "", error: "", start: "08:00", end: "18:00" }];
-        this.firebaseService.findVenues()
-            .subscribe(function (venues) {
-            console.log(_this.venues);
-            _this.venues = [];
-            for (var i = 0; i < venues.length; i++) {
-                _this.venues.push(venues[i].$key);
-            }
-        });
-    }
-    NewVenueComponent.prototype.trackByIndex = function (index, obj) {
-        return index;
-    };
-    NewVenueComponent.prototype.addGroup = function () {
-        this.groups.push({ name: "", error: "", start: "08:00", end: "18:00" });
-    };
-    NewVenueComponent.prototype.deleteGroup = function (index) {
-        if (this.groups.length > 1) {
-            this.groups.splice(index, 1);
-        }
-        else {
-            this.groups[0].error = "One group must be created";
-        }
-    };
-    NewVenueComponent.prototype.submit = function () {
-        var fail = false;
-        if (this.venue.name == "") {
-            fail = true;
-            this.venue.error = "Venue name required";
-        }
-        else {
-            this.venue.error = "";
-        }
-        console.log('venues length: ' + this.venues.length);
-        for (var i = 0; i < this.venues.length; i++) {
-            console.log(this.venues[i]);
-            if (this.venue.name == this.venues[i]) {
-                fail = true;
-                this.venue.error = "Name already in use";
-            }
-        }
-        for (var i = 0; i < this.groups.length; i++) {
-            if (this.groups[i].name == "") {
-                fail = true;
-                this.groups[i].error = "Group name required";
-            }
-            else {
-                this.groups[i].error = "";
-            }
-        }
-        if (!fail) {
-            this.firebaseService.createvenue(this.venue.name, this.groups);
-            console.log('New venue created');
-            alert('Group created!');
-            this.reset();
-        }
-        else {
-            console.log('Error creating Venue');
-        }
-    };
-    NewVenueComponent.prototype.reset = function () {
-        this.venue.name = "";
-        this.venue.error = "";
-        for (var i = 0; i < this.groups.length; i++) {
-            this.groups[i].name = "";
-            this.groups[i].error = "";
-        }
-    };
-    NewVenueComponent.prototype.ngOnInit = function () {
-    };
-    NewVenueComponent = __decorate([
-        __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_0__angular_core__["Component"])({
-            selector: 'app-new-venue',
-            template: __webpack_require__(907),
-            styles: [__webpack_require__(888)]
-        }), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1__services_firebase_service__["a" /* FirebaseService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1__services_firebase_service__["a" /* FirebaseService */]) === 'function' && _a) || Object])
-    ], NewVenueComponent);
-    return NewVenueComponent;
-    var _a;
-}());
-//# sourceMappingURL=C:/Users/psilv/PycharmProjects/AutonomousDoorman/webserver/src/new-venue.component.js.map
-
-/***/ },
-
 /***/ 426:
 /***/ function(module, exports, __webpack_require__) {
 
@@ -789,8 +825,8 @@ var NotFoundComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_firebase_service__ = __webpack_require__(42);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_router__ = __webpack_require__(56);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_firebase_service__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_router__ = __webpack_require__(43);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return RegisterComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -864,10 +900,17 @@ var RegisterComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_angular2_modal__ = __webpack_require__(31);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__ = __webpack_require__(183);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__add_user_modal_add_user_modal_component__ = __webpack_require__(261);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_angular2_modal__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__ = __webpack_require__(101);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__services_firebase_service__ = __webpack_require__(38);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__angular_router__ = __webpack_require__(43);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return TestComponent; });
+/* unused harmony export CustomModalContext */
+var __extends = (this && this.__extends) || function (d, b) {
+    for (var p in b) if (b.hasOwnProperty(p)) d[p] = b[p];
+    function __() { this.constructor = d; }
+    d.prototype = b === null ? Object.create(b) : (__.prototype = b.prototype, new __());
+};
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
     if (typeof Reflect === "object" && typeof Reflect.decorate === "function") r = Reflect.decorate(decorators, target, key, desc);
@@ -881,23 +924,97 @@ var __metadata = (this && this.__metadata) || function (k, v) {
 
 
 
+
 var TestComponent = (function () {
-    function TestComponent(modal) {
+    function TestComponent(dialog, firebaseService, modal, router) {
+        var _this = this;
+        this.dialog = dialog;
+        this.firebaseService = firebaseService;
         this.modal = modal;
+        this.router = router;
+        this.context = dialog.context;
+        this.context.isBlocking = false;
+        this.context.showClose = true;
+        this.venue = { name: "", error: "" };
+        this.groups = [{ name: "", error: "", start: "08:00", end: "18:00" }];
+        this.firebaseService.findVenues()
+            .subscribe(function (venues) {
+            console.log(_this.venues);
+            _this.venues = [];
+            for (var i = 0; i < venues.length; i++) {
+                _this.venues.push(venues[i].$key);
+            }
+        });
     }
-    TestComponent.prototype.onClick = function () {
-        this.modal.alert()
-            .size('lg')
-            .showClose(true)
-            .title('A simple Alert style modal window')
-            .body("\n            <h4>Alert is a classic (title/body/footer) 1 button modal window that \n            does not block.</h4>\n            <b>Configuration:</b>\n            <ul>\n                <li>Non blocking (click anywhere outside to dismiss)</li>\n                <li>Size large</li>\n                <li>Dismissed with default keyboard key (ESC)</li>\n                <li>Close wth button click</li>\n                <li>HTML content</li>\n            </ul>")
-            .open();
+    TestComponent.prototype.trackByIndex = function (index, obj) {
+        return index;
     };
-    TestComponent.prototype.test = function () {
-        console.log('test');
+    TestComponent.prototype.addGroup = function () {
+        this.groups.push({ name: "", error: "", start: "08:00", end: "18:00" });
     };
-    TestComponent.prototype.openCustom = function () {
-        return this.modal.open(__WEBPACK_IMPORTED_MODULE_3__add_user_modal_add_user_modal_component__["a" /* AddUserModalComponent */], __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_angular2_modal__["n" /* overlayConfigFactory */])({ num1: 2, num2: 3 }, __WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__["b" /* BSModalContext */]));
+    TestComponent.prototype.deleteGroup = function (index) {
+        if (this.groups.length > 1) {
+            this.groups.splice(index, 1);
+        }
+        else {
+            this.groups[0].error = "One group must be created";
+        }
+    };
+    TestComponent.prototype.submit = function () {
+        var fail = false;
+        if (this.venue.name == "") {
+            fail = true;
+            this.venue.error = "Venue name required";
+        }
+        else {
+            this.venue.error = "";
+        }
+        console.log('venues length: ' + this.venues.length);
+        for (var i = 0; i < this.venues.length; i++) {
+            console.log(this.venues[i]);
+            if (this.venue.name == this.venues[i]) {
+                fail = true;
+                this.venue.error = "Name already in use";
+            }
+        }
+        for (var i = 0; i < this.groups.length; i++) {
+            if (this.groups[i].name == "") {
+                fail = true;
+                this.groups[i].error = "Group name required";
+            }
+            else {
+                this.groups[i].error = "";
+            }
+        }
+        if (!fail) {
+            this.firebaseService.createvenue(this.venue.name, this.groups);
+            console.log('New venue created');
+            alert('Group created!');
+            this.reset();
+        }
+        else {
+            console.log('Error creating Venue');
+        }
+    };
+    TestComponent.prototype.reset = function () {
+        this.venue.name = "";
+        this.venue.error = "";
+        for (var i = 0; i < this.groups.length; i++) {
+            this.groups[i].name = "";
+            this.groups[i].error = "";
+        }
+    };
+    TestComponent.prototype.closeModal = function () {
+        this.dialog.dismiss();
+    };
+    TestComponent.prototype.onKeyUp = function (value) {
+        this.dialog.close();
+    };
+    TestComponent.prototype.beforeDismiss = function () {
+        return true;
+    };
+    TestComponent.prototype.beforeClose = function () {
+        return true;
     };
     TestComponent.prototype.ngOnInit = function () { };
     TestComponent = __decorate([
@@ -907,11 +1024,18 @@ var TestComponent = (function () {
             styles: [__webpack_require__(895)],
             providers: [__WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__["a" /* Modal */]],
         }), 
-        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__["a" /* Modal */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__["a" /* Modal */]) === 'function' && _a) || Object])
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_angular2_modal__["e" /* DialogRef */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_angular2_modal__["e" /* DialogRef */]) === 'function' && _a) || Object, (typeof (_b = typeof __WEBPACK_IMPORTED_MODULE_3__services_firebase_service__["a" /* FirebaseService */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_3__services_firebase_service__["a" /* FirebaseService */]) === 'function' && _b) || Object, (typeof (_c = typeof __WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__["a" /* Modal */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__["a" /* Modal */]) === 'function' && _c) || Object, (typeof (_d = typeof __WEBPACK_IMPORTED_MODULE_4__angular_router__["a" /* Router */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_4__angular_router__["a" /* Router */]) === 'function' && _d) || Object])
     ], TestComponent);
     return TestComponent;
-    var _a;
+    var _a, _b, _c, _d;
 }());
+var CustomModalContext = (function (_super) {
+    __extends(CustomModalContext, _super);
+    function CustomModalContext() {
+        _super.apply(this, arguments);
+    }
+    return CustomModalContext;
+}(__WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__["b" /* BSModalContext */]));
 //# sourceMappingURL=C:/Users/psilv/PycharmProjects/AutonomousDoorman/webserver/src/test.component.js.map
 
 /***/ },
@@ -921,11 +1045,11 @@ var TestComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(56);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_angular2_modal__ = __webpack_require__(31);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_angular2_modal_plugins_bootstrap__ = __webpack_require__(183);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__add_user_modal_add_user_modal_component__ = __webpack_require__(261);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__services_firebase_service__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_angular2_modal__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_angular2_modal_plugins_bootstrap__ = __webpack_require__(101);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__add_user_modal_add_user_modal_component__ = __webpack_require__(423);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__services_firebase_service__ = __webpack_require__(38);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return VenueDetailComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1075,11 +1199,11 @@ var VenueDetailComponent = (function () {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_router__ = __webpack_require__(56);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_router__ = __webpack_require__(43);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs_Rx__ = __webpack_require__(510);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_rxjs_Rx___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_1_rxjs_Rx__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_services_firebase_service__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__app_services_firebase_service__ = __webpack_require__(38);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return AuthGuard; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1216,9 +1340,9 @@ var AppComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_core__ = __webpack_require__(0);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__angular_forms__ = __webpack_require__(28);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__angular_http__ = __webpack_require__(400);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_angular2_modal__ = __webpack_require__(31);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_4_angular2_modal__ = __webpack_require__(29);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5_ng2_translate___ = __webpack_require__(321);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_angular2_modal_plugins_bootstrap__ = __webpack_require__(183);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_6_angular2_modal_plugins_bootstrap__ = __webpack_require__(101);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_ng2_bootstrap__ = __webpack_require__(873);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7_ng2_bootstrap___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_7_ng2_bootstrap__);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_8_ng2_charts_ng2_charts__ = __webpack_require__(875);
@@ -1227,10 +1351,10 @@ var AppComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_10__environments_firebase_config__ = __webpack_require__(672);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_11_angularfire2__ = __webpack_require__(273);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_12__app_routing__ = __webpack_require__(663);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__components_home_home_component__ = __webpack_require__(423);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__components_login_login_component__ = __webpack_require__(424);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_13__components_home_home_component__ = __webpack_require__(424);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_14__components_login_login_component__ = __webpack_require__(425);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_15__shared_auth_guard__ = __webpack_require__(430);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__services_firebase_service__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_16__services_firebase_service__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_17__components_test_test_component__ = __webpack_require__(428);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_18__shared_nav_dropdown_directive__ = __webpack_require__(676);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_19__shared_sidebar_directive__ = __webpack_require__(677);
@@ -1245,8 +1369,8 @@ var AppComponent = (function () {
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_28__components_venue_detail_venue_detail_component__ = __webpack_require__(429);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_29__components_not_found_not_found_component__ = __webpack_require__(426);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_30__services_statistics_service__ = __webpack_require__(262);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_31__components_new_venue_new_venue_component__ = __webpack_require__(425);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_32__components_add_user_modal_add_user_modal_component__ = __webpack_require__(261);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_31__components_new_venue_new_venue_component__ = __webpack_require__(261);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_32__components_add_user_modal_add_user_modal_component__ = __webpack_require__(423);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_33__components_create_user_modal_create_user_modal_component__ = __webpack_require__(664);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_34__components_landing_page_landing_page_component__ = __webpack_require__(665);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_35_ng2_popover__ = __webpack_require__(876);
@@ -1366,15 +1490,15 @@ var AppModule = (function () {
 /***/ function(module, exports, __webpack_require__) {
 
 "use strict";
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_router__ = __webpack_require__(56);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_home_home_component__ = __webpack_require__(423);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_login_login_component__ = __webpack_require__(424);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_router__ = __webpack_require__(43);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__components_home_home_component__ = __webpack_require__(424);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__components_login_login_component__ = __webpack_require__(425);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__components_test_test_component__ = __webpack_require__(428);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_4__shared_auth_guard__ = __webpack_require__(430);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_5__components_register_register_component__ = __webpack_require__(427);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_6__components_venue_detail_venue_detail_component__ = __webpack_require__(429);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_7__components_not_found_not_found_component__ = __webpack_require__(426);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__components_new_venue_new_venue_component__ = __webpack_require__(425);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_8__components_new_venue_new_venue_component__ = __webpack_require__(261);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return routing; });
 
 
@@ -1592,6 +1716,9 @@ var AsidemenuComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1_angular2_modal__ = __webpack_require__(29);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__ = __webpack_require__(101);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_3__new_venue_new_venue_component__ = __webpack_require__(261);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return BreadcrumbComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1603,9 +1730,16 @@ var __metadata = (this && this.__metadata) || function (k, v) {
     if (typeof Reflect === "object" && typeof Reflect.metadata === "function") return Reflect.metadata(k, v);
 };
 
+
+
+
 var BreadcrumbComponent = (function () {
-    function BreadcrumbComponent() {
+    function BreadcrumbComponent(modal) {
+        this.modal = modal;
     }
+    BreadcrumbComponent.prototype.openNewVenueModal = function () {
+        return this.modal.open(__WEBPACK_IMPORTED_MODULE_3__new_venue_new_venue_component__["a" /* NewVenueComponent */], __webpack_require__.i(__WEBPACK_IMPORTED_MODULE_1_angular2_modal__["n" /* overlayConfigFactory */])({}, __WEBPACK_IMPORTED_MODULE_2_angular2_modal_plugins_bootstrap__["b" /* BSModalContext */]));
+    };
     BreadcrumbComponent.prototype.ngOnInit = function () {
     };
     BreadcrumbComponent = __decorate([
@@ -1614,9 +1748,10 @@ var BreadcrumbComponent = (function () {
             template: __webpack_require__(902),
             styles: [__webpack_require__(884)]
         }), 
-        __metadata('design:paramtypes', [])
+        __metadata('design:paramtypes', [(typeof (_a = typeof __WEBPACK_IMPORTED_MODULE_1_angular2_modal__["l" /* Modal */] !== 'undefined' && __WEBPACK_IMPORTED_MODULE_1_angular2_modal__["l" /* Modal */]) === 'function' && _a) || Object])
     ], BreadcrumbComponent);
     return BreadcrumbComponent;
+    var _a;
 }());
 //# sourceMappingURL=C:/Users/psilv/PycharmProjects/AutonomousDoorman/webserver/src/breadcrumb.component.js.map
 
@@ -1662,7 +1797,7 @@ var FooterComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_firebase_service__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_firebase_service__ = __webpack_require__(38);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2__services_statistics_service__ = __webpack_require__(262);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_3_ng2_translate__ = __webpack_require__(321);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return HeaderComponent; });
@@ -1734,7 +1869,7 @@ var HeaderComponent = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_firebase_service__ = __webpack_require__(42);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__services_firebase_service__ = __webpack_require__(38);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return SidebarComponent; });
 var __decorate = (this && this.__decorate) || function (decorators, target, key, desc) {
     var c = arguments.length, r = c < 3 ? target : desc === null ? desc = Object.getOwnPropertyDescriptor(target, key) : desc, d;
@@ -1926,7 +2061,7 @@ var AsideToggleDirective = (function () {
 
 "use strict";
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_0__angular_core__ = __webpack_require__(0);
-/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(56);
+/* harmony import */ var __WEBPACK_IMPORTED_MODULE_1__angular_router__ = __webpack_require__(43);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_filter__ = __webpack_require__(198);
 /* harmony import */ var __WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_filter___default = __webpack_require__.n(__WEBPACK_IMPORTED_MODULE_2_rxjs_add_operator_filter__);
 /* harmony export (binding) */ __webpack_require__.d(exports, "a", function() { return BreadcrumbsComponent; });
@@ -2247,7 +2382,7 @@ var SIDEBAR_TOGGLE_DIRECTIVES = [SidebarToggleDirective, SidebarOffCanvasCloseDi
 /***/ 880:
 /***/ function(module, exports) {
 
-module.exports = ".custom-modal-container {\n  padding: 15px; }\n\n.custom-modal-header {\n  background-color: #219161;\n  color: #fff;\n  box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.75);\n  margin-top: -15px;\n  margin-bottom: 40px; }\n"
+module.exports = ".custom-modal-container {\n  padding: 15px; }\n\n.custom-modal-header {\n  color: #fff;\n  box-shadow: 0px 3px 5px 0px rgba(0, 0, 0, 0.75);\n  margin-top: -15px;\n  margin-bottom: 40px; }\n"
 
 /***/ },
 
@@ -2380,7 +2515,7 @@ module.exports = "<p>\n  create-user-modal works!\n</p>\n"
 /***/ 899:
 /***/ function(module, exports) {
 
-module.exports = "<app-header></app-header>\n\n\n<app-sidebar></app-sidebar>\n\n<!-- Main content -->\n<main class=\"main\">\n  <app-breadcrumb></app-breadcrumb>\n\n  <div class=\"container-fluid\">\n    <div class=\"animated fadeIn\">\n\n      <div class=\"card-columns col-2\">\n        <div class=\"card\">\n          <div class=\"card-header\">\n            {{\"weekly-access\" | translate}}\n          </div>\n          <div class=\"card-block\">\n            <div class=\"chart-wrapper\">\n              <canvas baseChart class=\"chart\" [datasets]=\"barChartData\" [labels]=\"barChartLabels\" [options]=\"barChartOptions\" [legend]=\"barChartLegend\" [chartType]=\"barChartType\" (chartClick)=\"chartClicked($event)\"></canvas>\n            </div>\n          </div>\n        </div>\n      </div>\n\n      <!--/.row-->\n      <div class=\"row\">\n        <div class=\"col-md-12\">\n          <div class=\"card\">\n            <div class=\"card-header\">\n              {{\"logs\" | translate}}\n            </div>\n            <div class=\"card-block\">\n              <!--/.row-->\n              <br>\n              <table class=\"table table-hover table-outline mb-0 hidden-sm-down\">\n                <thead class=\"thead-default\">\n                <tr>\n                  <th class=\"text-xs-center\"><i class=\"icon-people\"></i>\n                  </th>\n                  <th>{{\"user\" | translate}}</th>\n                  <th>{{\"allowed\" | translate}}</th>\n                  <th>{{\"venue\" | translate}}</th>\n                  <th>{{\"activity\" | translate}}</th>\n                </tr>\n                </thead>\n                <tbody>\n\n\n                <tr *ngFor=\"let log of logs\">\n                  <td class=\"text-xs-center\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                      <span class=\"avatar-status tag-success\"></span>\n                    </div>\n                  </td>\n                  <td>\n                    <div>{{log.name}}</div>\n                    <div class=\"small text-muted\">\n                      {{\"registered\" | translate}} Jan 1, 2015\n                    </div>\n                  </td>\n                  <td>\n                    <div class=\"clearfix\">\n                      <div class=\"float-xs-left\">\n                        {{log.allowedBy}}\n                      </div>\n                    </div>\n                  </td>\n                  <td>\n                    <div class=\"clearfix\">\n                      <div class=\"float-xs-left\">\n                        {{log.venue}}\n                      </div>\n                    </div>\n                  </td>\n                  <td>\n                    <div class=\"small text-muted\">Last login</div>\n                    {{log.date.day}}/{{log.date.month}}/{{log.date.year}} at {{log.date.time}}\n                  </td>\n                </tr>\n                </tbody>\n              </table>\n            </div>\n          </div>\n        </div>\n        <!--/.col-->\n      </div>\n\n      <!--/.row-->\n      <div class=\"row\">\n        <div class=\"col-md-12\">\n          <div class=\"card\">\n            <div class=\"container\">\n\n\n\n              <div class=\"panel panel-default panel-table\">\n                <div class=\"panel-heading\">\n                  <div class=\"row\">\n                    <div class=\"col col-xs-6\">\n                      <h3 class=\"panel-title\">Panel Heading</h3>\n                    </div>\n                    <div class=\"col col-xs-6 text-right\">\n                      <button type=\"button\" class=\"btn btn-sm btn-primary btn-create\">Create New</button>\n                    </div>\n                  </div>\n                </div>\n                <div class=\"panel-body\">\n                  <table class=\"table table-striped table-bordered table-list\">\n                    <thead>\n                    <tr>\n                      <th><em class=\"fa fa-cog\"></em></th>\n                      <th class=\"hidden-xs\">ID</th>\n                      <th>Name</th>\n                      <th>Email</th>\n                    </tr>\n                    </thead>\n                    <tbody>\n                    <tr>\n                      <td align=\"center\">\n                        <a class=\"btn btn-default\"><em class=\"fa fa-pencil\"></em></a>\n                        <a class=\"btn btn-danger\"><em class=\"fa fa-trash\"></em></a>\n                      </td>\n                      <td class=\"hidden-xs\">1</td>\n                      <td>John Doe</td>\n                      <td>johndoe@example.com</td>\n                    </tr>\n                    </tbody>\n                  </table>\n\n                </div>\n                <div class=\"panel-footer\">\n                  <div class=\"row\">\n                    <div class=\"col col-xs-4\">Page 1 of 5\n                    </div>\n                    <div class=\"col col-xs-8\">\n                      <ul class=\"pagination hidden-xs pull-right\">\n                        <li><a href=\"#\">1</a></li>\n                        <li><a href=\"#\">2</a></li>\n                        <li><a href=\"#\">3</a></li>\n                        <li><a href=\"#\">4</a></li>\n                        <li><a href=\"#\">5</a></li>\n                      </ul>\n                      <ul class=\"pagination visible-xs pull-right\">\n                        <li><a href=\"#\">«</a></li>\n                        <li><a href=\"#\">»</a></li>\n                      </ul>\n                    </div>\n                  </div>\n                </div>\n              </div>\n\n\n\n\n\n            </div>\n          </div>\n        </div>\n      </div>\n\n\n      <div class=\"row\">\n        <div class=\"col-md-12\">\n          <div class=\"card\">\n            <div class=\"container\">\n\n              <ul class=\"timeline\">\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Leo Silva entered Home</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 12 Jan 2017 at 17:00</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Allowed by Student group.</span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Leo Silva entered Home</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 12 Jan 2017 at 17:00</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Allowed by Student group.</span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Mussum ipsum cacilds</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 11 hours ago via Twitter</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Mussum ipsum cacilds</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 11 hours ago via Twitter</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Mussum ipsum cacilds</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 11 hours ago via Twitter</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Mussum ipsum cacilds</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 11 hours ago via Twitter</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Mussum ipsum cacilds</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 11 hours ago via Twitter</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Mussum ipsum cacilds</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 11 hours ago via Twitter</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Mussum ipsum cacilds</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 11 hours ago via Twitter</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Mussum ipsum cacilds</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 11 hours ago via Twitter</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>\n                    </div>\n                  </div>\n                </li>\n\n              </ul>\n            </div>\n          </div>\n        </div>\n      </div>\n\n    </div>\n\n  </div>\n\n</main>\n\n<app-asidemenu></app-asidemenu>\n\n<app-footer></app-footer>\n"
+module.exports = "<link href=\"assets/spinia/css/bootstrap.min.css\" rel=\"stylesheet\">\n<link href=\"assets/spinia/css/style.css\" rel=\"stylesheet\">\n\n\n<app-header></app-header>\n\n\n<app-sidebar></app-sidebar>\n\n<!-- Main content -->\n<main class=\"main\">\n  <app-breadcrumb></app-breadcrumb>\n\n  <div class=\"container-fluid\">\n    <div class=\"animated fadeIn\">\n\n      <div class=\"card-columns col-2\">\n        <div class=\"card\">\n          <div class=\"card-header\">\n            {{\"weekly-access\" | translate}}\n          </div>\n          <div class=\"card-block\">\n            <div class=\"chart-wrapper\">\n              <canvas baseChart class=\"chart\" [datasets]=\"barChartData\" [labels]=\"barChartLabels\" [options]=\"barChartOptions\" [legend]=\"barChartLegend\" [chartType]=\"barChartType\" (chartClick)=\"chartClicked($event)\"></canvas>\n            </div>\n          </div>\n        </div>\n      </div>\n\n      <!--/.row-->\n      <div class=\"row\">\n        <div class=\"col-md-12\">\n          <div class=\"card\">\n            <div class=\"card-header\">\n              {{\"logs\" | translate}}\n            </div>\n            <div class=\"card-block\">\n              <!--/.row-->\n              <br>\n              <table class=\"table table-hover table-outline mb-0 hidden-sm-down\">\n                <thead class=\"thead-default\">\n                <tr>\n                  <th class=\"text-xs-center\"><i class=\"icon-people\"></i>\n                  </th>\n                  <th>{{\"user\" | translate}}</th>\n                  <th>{{\"allowed\" | translate}}</th>\n                  <th>{{\"venue\" | translate}}</th>\n                  <th>{{\"activity\" | translate}}</th>\n                </tr>\n                </thead>\n                <tbody>\n\n\n                <tr *ngFor=\"let log of logs\">\n                  <td class=\"text-xs-center\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                      <span class=\"avatar-status tag-success\"></span>\n                    </div>\n                  </td>\n                  <td>\n                    <div>{{log.name}}</div>\n                    <div class=\"small text-muted\">\n                      {{\"registered\" | translate}} Jan 1, 2015\n                    </div>\n                  </td>\n                  <td>\n                    <div class=\"clearfix\">\n                      <div class=\"float-xs-left\">\n                        {{log.allowedBy}}\n                      </div>\n                    </div>\n                  </td>\n                  <td>\n                    <div class=\"clearfix\">\n                      <div class=\"float-xs-left\">\n                        {{log.venue}}\n                      </div>\n                    </div>\n                  </td>\n                  <td>\n                    <div class=\"small text-muted\">Last login</div>\n                    {{log.date.day}}/{{log.date.month}}/{{log.date.year}} at {{log.date.time}}\n                  </td>\n                </tr>\n                </tbody>\n              </table>\n            </div>\n          </div>\n        </div>\n        <!--/.col-->\n      </div>\n\n      <!--/.row-->\n      <div class=\"row\">\n        <div class=\"col-md-12\">\n          <div class=\"card\">\n\n            <div class=\"ibox-title\">\n              <h5>{{\"logs\" | translate}}</h5>\n            </div>\n            <div class=\"ibox-content\">\n              <div class=\"row\">\n                <div class=\"col-sm-9 m-b-xs\">\n                  <div data-toggle=\"buttons\" class=\"btn-group\">\n                    <label class=\"btn btn-sm btn-white\"> <input type=\"radio\" id=\"option1\" name=\"options\"> Day </label>\n                    <label class=\"btn btn-sm btn-white active\"> <input type=\"radio\" id=\"option2\" name=\"options\"> Week </label>\n                    <label class=\"btn btn-sm btn-white\"> <input type=\"radio\" id=\"option3\" name=\"options\"> Month </label>\n                  </div>\n                </div>\n                <div class=\"col-sm-3\">\n                  <div class=\"input-group\"><input type=\"text\" placeholder=\"Search\" class=\"input-sm form-control\"> <span class=\"input-group-btn\">\n                                <button type=\"button\" class=\"btn btn-sm btn-primary\"> Go!</button> </span></div>\n                </div>\n              </div>\n              <div class=\"table-responsive\">\n                <table class=\"table table-striped\">\n                  <thead>\n                  <tr>\n\n                    <th>#</th>\n                    <th>Project </th>\n                    <th>Name </th>\n                    <th>Phone </th>\n                    <th>Company </th>\n                    <th>Completed </th>\n                    <th>Task</th>\n                    <th>Date</th>\n                    <th>Action</th>\n                  </tr>\n                  </thead>\n                  <tbody>\n                  <tr>\n                    <td>1</td>\n                    <td>Project <small>This is example of project</small></td>\n                    <td>Patrick Smith</td>\n                    <td>0800 051213</td>\n                    <td>Inceptos Hymenaeos Ltd</td>\n                    <td><span class=\"pie\">0.52/1.561</span></td>\n                    <td>20%</td>\n                    <td>Jul 14, 2013</td>\n                    <td><a href=\"#\"><i class=\"fa fa-check text-navy\"></i></a></td>\n                  </tr>\n                  <tr>\n                    <td>2</td>\n                    <td>Alpha project</td>\n                    <td>Alice Jackson</td>\n                    <td>0500 780909</td>\n                    <td>Nec Euismod In Company</td>\n                    <td><span class=\"pie\">6,9</span></td>\n                    <td>40%</td>\n                    <td>Jul 16, 2013</td>\n                    <td><a href=\"#\"><i class=\"fa fa-check text-navy\"></i></a></td>\n                  </tr>\n                  <tr>\n                    <td>3</td>\n                    <td>Betha project</td>\n                    <td>John Smith</td>\n                    <td>0800 1111</td>\n                    <td>Erat Volutpat</td>\n                    <td><span class=\"pie\">3,1</span></td>\n                    <td>75%</td>\n                    <td>Jul 18, 2013</td>\n                    <td><a href=\"#\"><i class=\"fa fa-check text-navy\"></i></a></td>\n                  </tr>\n                  <tr>\n                    <td>4</td>\n                    <td>Gamma project</td>\n                    <td>Anna Jordan</td>\n                    <td>(016977) 0648</td>\n                    <td>Tellus Ltd</td>\n                    <td><span class=\"pie\">4,9</span></td>\n                    <td>18%</td>\n                    <td>Jul 22, 2013</td>\n                    <td><a href=\"#\"><i class=\"fa fa-check text-navy\"></i></a></td>\n                  </tr>\n                  <tr>\n                    <td>2</td>\n                    <td>Alpha project</td>\n                    <td>Alice Jackson</td>\n                    <td>0500 780909</td>\n                    <td>Nec Euismod In Company</td>\n                    <td><span class=\"pie\">6,9</span></td>\n                    <td>40%</td>\n                    <td>Jul 16, 2013</td>\n                    <td><a href=\"#\"><i class=\"fa fa-check text-navy\"></i></a></td>\n                  </tr>\n                  <tr>\n                    <td>1</td>\n                    <td>Project <small>This is example of project</small></td>\n                    <td>Patrick Smith</td>\n                    <td>0800 051213</td>\n                    <td>Inceptos Hymenaeos Ltd</td>\n                    <td><span class=\"pie\">0.52/1.561</span></td>\n                    <td>20%</td>\n                    <td>Jul 14, 2013</td>\n                    <td><a href=\"#\"><i class=\"fa fa-check text-navy\"></i></a></td>\n                  </tr>\n                  <tr>\n                    <td>4</td>\n                    <td>Gamma project</td>\n                    <td>Anna Jordan</td>\n                    <td>(016977) 0648</td>\n                    <td>Tellus Ltd</td>\n                    <td><span class=\"pie\">4,9</span></td>\n                    <td>18%</td>\n                    <td>Jul 22, 2013</td>\n                    <td><a href=\"#\"><i class=\"fa fa-check text-navy\"></i></a></td>\n                  </tr>\n                  <tr>\n                    <td>1</td>\n                    <td>Project <small>This is example of project</small></td>\n                    <td>Patrick Smith</td>\n                    <td>0800 051213</td>\n                    <td>Inceptos Hymenaeos Ltd</td>\n                    <td><span class=\"pie\">0.52/1.561</span></td>\n                    <td>20%</td>\n                    <td>Jul 14, 2013</td>\n                    <td><a href=\"#\"><i class=\"fa fa-check text-navy\"></i></a></td>\n                  </tr>\n                  <tr>\n                    <td>2</td>\n                    <td>Alpha project</td>\n                    <td>Alice Jackson</td>\n                    <td>0500 780909</td>\n                    <td>Nec Euismod In Company</td>\n                    <td><span class=\"pie\">6,9</span></td>\n                    <td>40%</td>\n                    <td>Jul 16, 2013</td>\n                    <td><a href=\"#\"><i class=\"fa fa-check text-navy\"></i></a></td>\n                  </tr>\n                  <tr>\n                    <td>3</td>\n                    <td>Betha project</td>\n                    <td>John Smith</td>\n                    <td>0800 1111</td>\n                    <td>Erat Volutpat</td>\n                    <td><span class=\"pie\">3,1</span></td>\n                    <td>75%</td>\n                    <td>Jul 18, 2013</td>\n                    <td><a href=\"#\"><i class=\"fa fa-check text-navy\"></i></a></td>\n                  </tr>\n                  <tr>\n                    <td>4</td>\n                    <td>Gamma project</td>\n                    <td>Anna Jordan</td>\n                    <td>(016977) 0648</td>\n                    <td>Tellus Ltd</td>\n                    <td><span class=\"pie\">4,9</span></td>\n                    <td>18%</td>\n                    <td>Jul 22, 2013</td>\n                    <td><a href=\"#\"><i class=\"fa fa-check text-navy\"></i></a></td>\n                  </tr>\n                  <tr>\n                    <td>2</td>\n                    <td>Alpha project</td>\n                    <td>Alice Jackson</td>\n                    <td>0500 780909</td>\n                    <td>Nec Euismod In Company</td>\n                    <td><span class=\"pie\">6,9</span></td>\n                    <td>40%</td>\n                    <td>Jul 16, 2013</td>\n                    <td><a href=\"#\"><i class=\"fa fa-check text-navy\"></i></a></td>\n                  </tr>\n                  <tr>\n                    <td>1</td>\n                    <td>Project <small>This is example of project</small></td>\n                    <td>Patrick Smith</td>\n                    <td>0800 051213</td>\n                    <td>Inceptos Hymenaeos Ltd</td>\n                    <td><span class=\"pie\">0.52/1.561</span></td>\n                    <td>20%</td>\n                    <td>Jul 14, 2013</td>\n                    <td><a href=\"#\"><i class=\"fa fa-check text-navy\"></i></a></td>\n                  </tr>\n                  <tr>\n                    <td>4</td>\n                    <td>Gamma project</td>\n                    <td>Anna Jordan</td>\n                    <td>(016977) 0648</td>\n                    <td>Tellus Ltd</td>\n                    <td><span class=\"pie\">4,9</span></td>\n                    <td>18%</td>\n                    <td>Jul 22, 2013</td>\n                    <td><a href=\"#\"><i class=\"fa fa-check text-navy\"></i></a></td>\n                  </tr>\n                  </tbody>\n                </table>\n              </div>\n\n            </div>\n\n          </div>\n        </div>\n      </div>\n\n\n      <div class=\"row\">\n        <div class=\"col-md-12\">\n          <div class=\"card\">\n            <div class=\"container\">\n\n              <ul class=\"timeline\">\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Leo Silva entered Home</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 12 Jan 2017 at 17:00</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Allowed by Student group.</span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Leo Silva entered Home</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 12 Jan 2017 at 17:00</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Allowed by Student group.</span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Mussum ipsum cacilds</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 11 hours ago via Twitter</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Mussum ipsum cacilds</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 11 hours ago via Twitter</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Mussum ipsum cacilds</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 11 hours ago via Twitter</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Mussum ipsum cacilds</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 11 hours ago via Twitter</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Mussum ipsum cacilds</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 11 hours ago via Twitter</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Mussum ipsum cacilds</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 11 hours ago via Twitter</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Mussum ipsum cacilds</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 11 hours ago via Twitter</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>\n                    </div>\n                  </div>\n                </li>\n                <li class=\"timeline-inverted\">\n                  <div class=\"timeline-badge\">\n                    <div class=\"avatar\">\n                      <img src=\"assets/img/avatars/1.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n                    </div>\n                  </div>\n                  <div class=\"timeline-panel\">\n                    <div class=\"timeline-heading\">\n                      <h6 class=\"timeline-title\">Mussum ipsum cacilds</h6>\n                      <span><small class=\"text-muted\"><i class=\"fa fa-clock-o\"></i> 11 hours ago via Twitter</small></span>\n                    </div>\n                    <div class=\"timeline-body\">\n                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>\n                    </div>\n                  </div>\n                </li>\n\n              </ul>\n            </div>\n          </div>\n        </div>\n      </div>\n\n    </div>\n\n  </div>\n\n</main>\n\n<app-asidemenu></app-asidemenu>\n\n<app-footer></app-footer>\n"
 
 /***/ },
 
@@ -2401,7 +2536,7 @@ module.exports = "<aside class=\"aside-menu\">\n  <tabset>\n    <tab>\n      <te
 /***/ 902:
 /***/ function(module, exports) {
 
-module.exports = "<!-- Breadcrumb -->\n<ol class=\"breadcrumb\">\n  <breadcrumbs></breadcrumbs>\n\n  <!-- Breadcrumb Menu-->\n  <li class=\"breadcrumb-menu\">\n    <div class=\"btn-group\" role=\"group\" aria-label=\"Button group with nested dropdown\">\n      <a class=\"btn btn-secondary\" routerLinkActive=\"active\" [routerLink]=\"['/dashboard/new-venue']\"><i class=\"fa fa-plus-square-o\"></i> &nbsp;{{\"new-venue\" | translate}}</a>\n    </div>\n  </li>\n\n</ol>\n"
+module.exports = "<span defaultOverlayTarget></span>\n\n<!-- Breadcrumb -->\n<ol class=\"breadcrumb\">\n  <breadcrumbs></breadcrumbs>\n\n  <!-- Breadcrumb Menu-->\n  <li class=\"breadcrumb-menu\">\n    <div class=\"btn-group\" role=\"group\" aria-label=\"Button group with nested dropdown\">\n      <a class=\"btn btn-secondary\" routerLinkActive=\"active\" (click)=\"openNewVenueModal()\" ><i class=\"fa fa-plus-square-o\"></i> &nbsp;{{\"new-venue\" | translate}}</a>\n    <!--[routerLink]=\"['/dashboard/new-venue']\"-->\n    </div>\n  </li>\n\n</ol>\n"
 
 /***/ },
 
@@ -2415,7 +2550,7 @@ module.exports = "<footer class=\"footer\">\n    <span class=\"text-left\">\n   
 /***/ 904:
 /***/ function(module, exports) {
 
-module.exports = "<header class=\"navbar\">\n  <div class=\"container-fluid\">\n    <button class=\"navbar-toggler hidden-lg-up\" type=\"button\" mobile-nav-toggle>&#9776;</button>\n    <a class=\"navbar-brand\" href=\"#\"></a>\n\n    <ul class=\"nav navbar-nav float-xs-right hidden-md-down\">\n      <li class=\"nav-item\">\n        <a class=\"nav-link\" href=\"#\"><i class=\"icon-bell\"></i><span class=\"tag tag-pill tag-danger\">5</span></a>\n      </li>\n      <li class=\"nav-item\">\n        <a class=\"nav-link\" href=\"#\"><i class=\"icon-list\"></i></a>\n      </li>\n      <li class=\"nav-item\">\n        <img role=\"button\" (click)=\"changeLanguage('pt')\" src=\"assets/img/flags/Brazil.png\" alt=\"Brazil\" style=\"height:20px;\" src=\"assets/img/flags/Brazil.png\">\n      </li>\n      <li class=\"nav-item\">\n        <img role=\"button\" (click)=\"changeLanguage('en')\" src=\"assets/img/flags/United-Kingdom.png\" alt=\"Brazil\" style=\"height:20px;\" src=\"assets/img/flags/United-Kingdom.png\">\n      </li>\n      <li class=\"nav-item dropdown\" dropdown (onToggle)=\"$event\">\n        <a class=\"nav-link dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\" dropdownToggle>\n          <img src=\"{{userPhoto}}\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n          <span class=\"hidden-md-down\">{{userInfo.displayName}}</span>\n        </a>\n        <div class=\"dropdown-menu dropdown-menu-right\" dropdownMenu aria-labelledby=\"simple-dropdown\">\n\n          <div class=\"dropdown-header text-xs-center\">\n            <strong>Account</strong>\n          </div>\n\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-bell-o\"></i> Updates<span class=\"tag tag-info\">42</span></a>\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-envelope-o\"></i> Messages<span class=\"tag tag-success\">42</span></a>\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-tasks\"></i> Tasks<span class=\"tag tag-danger\">42</span></a>\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-comments\"></i> Comment<span class=\"tag tag-warning\">42</span></a>\n\n          <div class=\"dropdown-header text-xs-center\">\n            <strong>Settings</strong>\n          </div>\n\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-user\"></i> Profile</a>\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-wrench\"></i> Setting</a>\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-usd\"></i> Payments<span class=\"tag tag-default\">42</span></a>\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-file\"></i> Projects<span class=\"tag tag-primary\">42</span></a>\n          <div class=\"divider\"></div>\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-shield\"></i> Lock account</a>\n          <a class=\"dropdown-item\" routerLinkActive=\"active\" [routerLink]=\"['/login']\" (click)=\"logout()\"><i class=\"fa fa-lock\"></i> {{\"logout\"| translate}}</a>\n        </div>\n      </li>\n      <li class=\"nav-item\">\n        <a class=\"nav-link navbar-toggler aside-toggle\" href=\"#\">&#9776;</a>\n      </li>\n    </ul>\n\n  </div>\n</header>\n"
+module.exports = "<header class=\"navbar\">\n  <div class=\"container-fluid\">\n    <button class=\"navbar-toggler hidden-lg-up\" type=\"button\" mobile-nav-toggle>&#9776;</button>\n    <a class=\"navbar-brand\" routerLinkActive=\"active\" [routerLink]=\"['/']\"></a>\n\n    <ul class=\"nav navbar-nav float-xs-right hidden-md-down\">\n      <li class=\"nav-item\">\n        <a class=\"nav-link\" href=\"#\"><i class=\"icon-bell\"></i><span class=\"tag tag-pill tag-danger\">5</span></a>\n      </li>\n      <li class=\"nav-item\">\n        <a class=\"nav-link\" href=\"#\"><i class=\"icon-list\"></i></a>\n      </li>\n      <li class=\"nav-item\">\n        <img role=\"button\" (click)=\"changeLanguage('pt')\" src=\"assets/img/flags/Brazil.png\" alt=\"Brazil\" style=\"height:20px;\" src=\"assets/img/flags/Brazil.png\">\n      </li>\n      <li class=\"nav-item\">\n        <img role=\"button\" (click)=\"changeLanguage('en')\" src=\"assets/img/flags/United-Kingdom.png\" alt=\"Brazil\" style=\"height:20px;\" src=\"assets/img/flags/United-Kingdom.png\">\n      </li>\n      <li class=\"nav-item dropdown\" dropdown (onToggle)=\"$event\">\n        <a class=\"nav-link dropdown-toggle\" data-toggle=\"dropdown\" href=\"#\" role=\"button\" aria-haspopup=\"true\" aria-expanded=\"false\" dropdownToggle>\n          <img src=\"{{userPhoto}}\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">\n          <span class=\"hidden-md-down\">{{userInfo.displayName}}</span>\n        </a>\n        <div class=\"dropdown-menu dropdown-menu-right\" dropdownMenu aria-labelledby=\"simple-dropdown\">\n\n          <div class=\"dropdown-header text-xs-center\">\n            <strong>Account</strong>\n          </div>\n\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-bell-o\"></i> Updates<span class=\"tag tag-info\">42</span></a>\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-envelope-o\"></i> Messages<span class=\"tag tag-success\">42</span></a>\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-tasks\"></i> Tasks<span class=\"tag tag-danger\">42</span></a>\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-comments\"></i> Comment<span class=\"tag tag-warning\">42</span></a>\n\n          <div class=\"dropdown-header text-xs-center\">\n            <strong>Settings</strong>\n          </div>\n\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-user\"></i> Profile</a>\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-wrench\"></i> Setting</a>\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-usd\"></i> Payments<span class=\"tag tag-default\">42</span></a>\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-file\"></i> Projects<span class=\"tag tag-primary\">42</span></a>\n          <div class=\"divider\"></div>\n          <a class=\"dropdown-item\" href=\"#\"><i class=\"fa fa-shield\"></i> Lock account</a>\n          <a class=\"dropdown-item\" routerLinkActive=\"active\" [routerLink]=\"['/login']\" (click)=\"logout()\"><i class=\"fa fa-lock\"></i> {{\"logout\"| translate}}</a>\n        </div>\n      </li>\n      <li class=\"nav-item\">\n        <a class=\"nav-link navbar-toggler aside-toggle\" href=\"#\">&#9776;</a>\n      </li>\n    </ul>\n\n  </div>\n</header>\n"
 
 /***/ },
 
@@ -2436,7 +2571,7 @@ module.exports = "<div class=\"container d-table\">\n  <div class=\"d-100vh-va-m
 /***/ 907:
 /***/ function(module, exports) {
 
-module.exports = "<app-header></app-header>\n\n\n<app-sidebar></app-sidebar>\n\n<!-- Main content -->\n<main class=\"main\">\n  <app-breadcrumb></app-breadcrumb>\n\n  <div class=\"container-fluid\">\n    <div class=\"animated fadeIn\">\n      <div class=\"row\">\n        <div class=\"card\">\n          <div class=\"card-header\">\n            <strong>New Venue</strong>\n          </div>\n          <div class=\"card-block\">\n            <form #form=\"ngForm\" action=\"\" method=\"post\" enctype=\"multipart/form-data\" class=\"form-horizontal \">\n              <div class=\"form-group row\">\n                <label class=\"col-md-3 form-control-label\" for=\"text-input\">Venue Name</label>\n                <div class=\"col-md-9\">\n                  <input type=\"text\" name=\"text-input\" [(ngModel)]=\"venue.name\" class=\"form-control\" placeholder=\"venue name\">\n                  <span style=\"color: red\" class=\"help-block\">{{venue.error}}</span>\n                </div>\n              </div>\n              <br>\n\n              <div class=\"form-group row\" *ngFor=\"let group of groups; let i = index; trackBy:trackByIndex\">\n                <div class=\"card\">\n                  <div class=\"card-header\">\n                    <strong>Group {{i+1}}</strong>\n                    <div class=\"card-actions\">\n                      <a (click)=\"deleteGroup(i)\" class=\"nav-link\">\n                        <i class=\"fa fa-close\"></i>\n                      </a>\n                    </div>\n                  </div>\n                  <div class=\"card-block\">\n                    <label class=\"col-md-3 form-control-label\" for=\"text-input\">Name</label>\n                    <div class=\"col-md-9\">\n                      <input type=\"text\" name=\"group {{i}}\" [(ngModel)]=\"groups[i].name\" class=\"form-control\" placeholder=\"group name\">\n                      <span style=\"color: red\" class=\"help-block\">{{groups[i].error}}</span>\n                    </div>\n\n                    <br><br>\n                    <br>\n                    <label class=\"col-md-3 form-control-label\" for=\"text-input\">Start</label>\n                    <div class=\"col-md-9\">\n                      <input type=\"time\" name=\"start\" [(ngModel)]=\"groups[i].start\"/>\n                    </div>\n                    <br><br>\n                    <label class=\"col-md-3 form-control-label\" for=\"text-input\">Finish</label>\n                    <div class=\"col-md-9\">\n                      <input type=\"time\" name=\"finish\" [(ngModel)]=\"groups[i].end\"/>\n                    </div>\n                  </div>\n                </div>\n              </div>\n\n\n              <button (click)=\"addGroup()\" type=\"submit\" class=\"btn btn-sm btn-primary\"><i class=\"fa fa-plus-square-o\"></i> Add group</button>\n\n\n              <div class=\"form-group row\">\n                <div class=\"col-md-9\">\n                  <p class=\"form-control-static\">You will be added as a member of the groups.\n                    You can delete yourself of them after adding other people to the groups.</p>\n                </div>\n              </div>\n            </form>\n          </div>\n          <div class=\"card-footer\">\n            <button (click)=\"submit()\" type=\"submit\" class=\"btn btn-sm btn-primary\"><i class=\"fa fa-dot-circle-o\"></i> Submit</button>\n            <button type=\"reset\" (click)=\"reset()\" class=\"btn btn-sm btn-danger\"><i class=\"fa fa-ban\"></i> Reset</button>\n          </div>\n        </div>\n        <!--/col-->\n      </div>\n    </div>\n  </div>\n\n</main>\n\n<app-asidemenu></app-asidemenu>\n\n<app-footer></app-footer>\n"
+module.exports = "<div class=\"container-fluid custom-modal-container\">\n  <div class=\"row modal-header\">\n    <div class=\"col-sm-12\" style=\"padding-top: 10px\">\n      <h3>Add new Venue\n        <a (click)=\"closeModal()\" class=\"btn float-xs-right\">\n          <i class=\"fa fa-close\"></i>\n        </a>\n      </h3>\n\n    </div>\n  </div>\n  <div class=\"row\" [ngClass]=\"{'myclass' : shouldUseMyClass}\">\n    <div class=\"col-xs-12\">\n\n\n\n      <div class=\"card-block\">\n        <form #form=\"ngForm\" action=\"\" method=\"post\" enctype=\"multipart/form-data\" class=\"form-horizontal \">\n          <div class=\"form-group row\">\n            <label class=\"col-md-3 form-control-label\" for=\"text-input\">Venue Name</label>\n            <div class=\"col-md-9\">\n              <input type=\"text\" name=\"text-input\" [(ngModel)]=\"venue.name\" class=\"form-control\" placeholder=\"venue name\">\n              <span style=\"color: red\" class=\"help-block\">{{venue.error}}</span>\n            </div>\n          </div>\n          <br>\n\n          <div class=\"form-group row\" *ngFor=\"let group of groups; let i = index; trackBy:trackByIndex\">\n            <div class=\"card\">\n              <div class=\"card-header\">\n                <strong>Group {{i+1}}</strong>\n                <div class=\"card-actions\">\n                  <a (click)=\"deleteGroup(i)\" class=\"nav-link\">\n                    <i class=\"fa fa-close\"></i>\n                  </a>\n                </div>\n              </div>\n              <div class=\"card-block\">\n                <label class=\"col-md-3 form-control-label\" for=\"text-input\">Name</label>\n                <div class=\"col-md-9\">\n                  <input type=\"text\" name=\"group {{i}}\" [(ngModel)]=\"groups[i].name\" class=\"form-control\" placeholder=\"group name\">\n                  <span style=\"color: red\" class=\"help-block\">{{groups[i].error}}</span>\n                </div>\n\n                <br><br>\n                <br>\n                <div class=\"col-md-6\">\n                  <label class=\"form-control-label\" for=\"text-input\">Start</label>\n                  &nbsp;&nbsp;\n                  <input type=\"time\" name=\"start\" [(ngModel)]=\"groups[i].start\"/>\n                </div>\n                <div class=\"col-md-6\">\n                  <label class=\"form-control-label\" for=\"text-input\">Finish</label>\n                  &nbsp;&nbsp;\n                  <input type=\"time\" name=\"finish\" [(ngModel)]=\"groups[i].end\"/>\n                </div>\n              </div>\n            </div>\n          </div>\n\n\n          <button (click)=\"addGroup()\" type=\"submit\" class=\"btn btn-sm btn-primary\"><i class=\"fa fa-plus-square-o\"></i> Add group</button>\n\n\n          <div class=\"form-group row\">\n            <div class=\"col-md-9\">\n              <p class=\"form-control-static\">You will be added as a member of the groups.\n                You can delete yourself of them after adding other people to the groups.</p>\n            </div>\n          </div>\n        </form>\n      </div>\n      <div class=\"card-footer\">\n        <button (click)=\"submit()\" type=\"submit\" class=\"btn btn-sm btn-primary\"><i class=\"fa fa-dot-circle-o\"></i> Submit</button>\n        <button type=\"reset\" (click)=\"reset()\" class=\"btn btn-sm btn-danger\"><i class=\"fa fa-ban\"></i> Reset</button>\n      </div>\n\n\n    </div>\n  </div>\n</div>`\n"
 
 /***/ },
 
@@ -2457,14 +2592,14 @@ module.exports = "<div class=\"container d-table\">\n  <div class=\"d-100vh-va-m
 /***/ 910:
 /***/ function(module, exports) {
 
-module.exports = "<link href=\"assets/spinia/css/bootstrap.min.css\" rel=\"stylesheet\">\n\n<link href=\"assets/spinia/css/style.css\" rel=\"stylesheet\">\n\n<app-header></app-header>\n\n\n<app-sidebar></app-sidebar>\n\n<!-- Main content -->\n<main class=\"main\">\n  <app-breadcrumb></app-breadcrumb>\n\n  <div class=\"container-fluid\">\n    <div class=\"animated fadeIn\">\n\n      <div class=\"container\">\n        <div class=\"row\">\n          <div class=\"col-md-4\">\n            <div class=\"ibox\">\n              <div class=\"ibox-title\">\n                <a (click)=\"test()\"><span class=\"label label-primary pull-right\"><i class=\"fa fa-plus\"></i></span></a>\n                <h5>Student</h5>\n              </div>\n              <div class=\"ibox-content\">\n                <div class=\"team-members\">\n                  <a popover=\"psiasdasdadadsadadasdadslva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psasdadilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n\n                </div>\n                <!--<h4>Info about Design Team</h4>-->\n                <!--<p>-->\n                  <!--Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc.-->\n                <!--</p>-->\n\n                <div class=\"row  m-t-sm\">\n                  <div class=\"col-sm-4\">\n                    <div class=\"font-bold\">START</div>\n                    08:00\n                  </div>\n                  <div class=\"col-sm-4\">\n                    <div class=\"font-bold\">END</div>\n                    18:00\n                  </div>\n                  <div class=\"col-sm-4\">\n                    <div class=\"font-bold\">MEMBERS</div>\n                    8\n                  </div>\n                </div>\n\n              </div>\n            </div>\n          </div>\n          <div class=\"col-md-4\">\n            <div class=\"ibox\">\n              <div class=\"ibox-title\">\n                <a (click)=\"test()\"><span class=\"label label-primary pull-right\"><i class=\"fa fa-plus\"></i></span></a>\n                <h5>Student</h5>\n              </div>\n              <div class=\"ibox-content\">\n                <div class=\"team-members\">\n                  <a popover=\"psiasdasdadadsadadasdadslva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psasdadilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n\n                </div>\n                <!--<h4>Info about Design Team</h4>-->\n                <!--<p>-->\n                <!--Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc.-->\n                <!--</p>-->\n\n                <div class=\"row  m-t-sm\">\n                  <div class=\"col-sm-4\">\n                    <div class=\"font-bold\">START</div>\n                    08:00\n                  </div>\n                  <div class=\"col-sm-4\">\n                    <div class=\"font-bold\">END</div>\n                    18:00\n                  </div>\n                  <div class=\"col-sm-4\">\n                    <div class=\"font-bold\">MEMBERS</div>\n                    8\n                  </div>\n                </div>\n\n              </div>\n            </div>\n          </div>\n          <div class=\"col-md-4\">\n            <div class=\"ibox\">\n              <div class=\"ibox-title\">\n                <a (click)=\"test()\"><span class=\"label label-primary pull-right\"><i class=\"fa fa-plus\"></i></span></a>\n                <h5>Student</h5>\n              </div>\n              <div class=\"ibox-content\">\n                <div class=\"team-members\">\n                  <a popover=\"psiasdasdadadsadadasdadslva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psasdadilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n                  <a popover=\"psilva.leo@gmail.com\" popoverTitle=\"Leonardo Silva\" popoverPlacement=\"auto\"\n                     [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                     [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                    <img alt=\"member\" class=\"img-circle\" src=\"assets/img/avatars/1.jpg\"></a>\n\n                </div>\n                <!--<h4>Info about Design Team</h4>-->\n                <!--<p>-->\n                <!--Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc.-->\n                <!--</p>-->\n\n                <div class=\"row  m-t-sm\">\n                  <div class=\"col-sm-4\">\n                    <div class=\"font-bold\">START</div>\n                    08:00\n                  </div>\n                  <div class=\"col-sm-4\">\n                    <div class=\"font-bold\">END</div>\n                    18:00\n                  </div>\n                  <div class=\"col-sm-4\">\n                    <div class=\"font-bold\">MEMBERS</div>\n                    8\n                  </div>\n                </div>\n\n              </div>\n            </div>\n          </div>\n        </div>\n      </div>\n\n\n\n\n    </div>\n  </div>\n\n\n</main>\n<app-asidemenu></app-asidemenu>\n\n<app-footer></app-footer>\n"
+module.exports = "<div class=\"container-fluid custom-modal-container\">\n  <div class=\"row modal-header\">\n    <div class=\"col-sm-12\" style=\"padding-top: 10px\">\n      <h3>Add new Venue\n        <a (click)=\"closeModal()\" class=\"btn float-xs-right\">\n          <i class=\"fa fa-close\"></i>\n        </a>\n      </h3>\n\n    </div>\n  </div>\n  <div class=\"row\" [ngClass]=\"{'myclass' : shouldUseMyClass}\">\n    <div class=\"col-xs-12\">\n\n\n\n        <div class=\"card-block\">\n          <form #form=\"ngForm\" action=\"\" method=\"post\" enctype=\"multipart/form-data\" class=\"form-horizontal \">\n          <div class=\"form-group row\">\n            <label class=\"col-md-3 form-control-label\" for=\"text-input\">Venue Name</label>\n            <div class=\"col-md-9\">\n              <input type=\"text\" name=\"text-input\" [(ngModel)]=\"venue.name\" class=\"form-control\" placeholder=\"venue name\">\n              <span style=\"color: red\" class=\"help-block\">{{venue.error}}</span>\n            </div>\n          </div>\n          <br>\n\n          <div class=\"form-group row\" *ngFor=\"let group of groups; let i = index; trackBy:trackByIndex\">\n            <div class=\"card\">\n              <div class=\"card-header\">\n                <strong>Group {{i+1}}</strong>\n                <div class=\"card-actions\">\n                  <a (click)=\"deleteGroup(i)\" class=\"nav-link\">\n                    <i class=\"fa fa-close\"></i>\n                  </a>\n                </div>\n              </div>\n              <div class=\"card-block\">\n                <label class=\"col-md-3 form-control-label\" for=\"text-input\">Name</label>\n                <div class=\"col-md-9\">\n                  <input type=\"text\" name=\"group {{i}}\" [(ngModel)]=\"groups[i].name\" class=\"form-control\" placeholder=\"group name\">\n                  <span style=\"color: red\" class=\"help-block\">{{groups[i].error}}</span>\n                </div>\n\n                <br><br>\n                <br>\n                <div class=\"col-md-6\">\n                  <label class=\"form-control-label\" for=\"text-input\">Start</label>\n                  &nbsp;&nbsp;\n                  <input type=\"time\" name=\"start\" [(ngModel)]=\"groups[i].start\"/>\n                </div>\n                <div class=\"col-md-6\">\n                  <label class=\"form-control-label\" for=\"text-input\">Finish</label>\n                  &nbsp;&nbsp;\n                  <input type=\"time\" name=\"finish\" [(ngModel)]=\"groups[i].end\"/>\n                </div>\n              </div>\n            </div>\n          </div>\n\n\n          <button (click)=\"addGroup()\" type=\"submit\" class=\"btn btn-sm btn-primary\"><i class=\"fa fa-plus-square-o\"></i> Add group</button>\n\n\n          <div class=\"form-group row\">\n            <div class=\"col-md-9\">\n              <p class=\"form-control-static\">You will be added as a member of the groups.\n                You can delete yourself of them after adding other people to the groups.</p>\n            </div>\n          </div>\n        </form>\n        </div>\n        <div class=\"card-footer\">\n          <button (click)=\"submit()\" type=\"submit\" class=\"btn btn-sm btn-primary\"><i class=\"fa fa-dot-circle-o\"></i> Submit</button>\n          <button type=\"reset\" (click)=\"reset()\" class=\"btn btn-sm btn-danger\"><i class=\"fa fa-ban\"></i> Reset</button>\n        </div>\n\n\n    </div>\n  </div>\n</div>`\n"
 
 /***/ },
 
 /***/ 911:
 /***/ function(module, exports) {
 
-module.exports = "<link href=\"assets/spinia/css/bootstrap.min.css\" rel=\"stylesheet\">\n<link href=\"assets/spinia/css/style.css\" rel=\"stylesheet\">\n\n<app-header></app-header>\n\n\n<app-sidebar></app-sidebar>\n\n<!-- Main content -->\n<main class=\"main\">\n  <span defaultOverlayTarget></span>\n  <app-breadcrumb></app-breadcrumb>\n\n  <div class=\"container-fluid\">\n    <div class=\"animated fadeIn\">\n\n      <button (click)=\"change()\">{{test$ | async}}</button>\n\n      <span >{{errorMessage$ | async}}</span>\n      <span >{{test$ | async}}</span>\n\n      <div *ngFor=\"let group of groups; let i = index; trackBy:trackByIndex\">\n        <div *ngIf=\"i%3 == 0\" class=\"row\">\n          <div *ngFor=\"let group of groups; let j = index; trackBy:trackByIndex\">\n            <div *ngIf=\"j>=i && j<i+3\" class=\"col-md-4\">\n              <div class=\"ibox\">\n                <div class=\"ibox-title\">\n                  <a (click)=\"openCustom(i)\"><span class=\"label label-primary pull-right\"><i class=\"fa fa-plus\"></i></span></a>\n                  <h5>{{group}}</h5>\n                </div>\n                <div class=\"ibox-content\">\n                  <div class=\"team-members row\">\n                    <span *ngFor=\"let groupMember of groupMembers[group]\">\n                      <a popover=\"{{members[groupMember].email}}\" popoverTitle=\"{{members[groupMember].name}}\" popoverPlacement=\"auto right\"\n                         [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                         [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                        <img alt=\"member\" class=\"img-circle\" src=\"{{members[groupMember].photourl}}\"></a>\n                    </span>\n\n\n                  </div>\n                  <!--<h4>Info about Design Team</h4>-->\n                  <!--<p>-->\n                  <!--Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc.-->\n                  <!--</p>-->\n\n                  <div class=\"row  m-t-sm\">\n                    <div class=\"col-sm-4 col-xs-4\">\n                      <div class=\"font-bold\">START</div>\n                      08:00\n                    </div>\n                    <div class=\"col-sm-4 col-xs-4\">\n                      <div class=\"font-bold\">END</div>\n                      18:00\n                    </div>\n                    <div class=\"col-sm-4 col-xs-4\">\n                      <div class=\"font-bold\">MEMBERS</div>\n                      8\n                    </div>\n                  </div>\n\n                </div>\n              </div>\n            </div>\n          </div>\n        </div>\n      </div>\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n      <!--&lt;!&ndash; All Members &ndash;&gt;-->\n      <!--<div class=\"card\">-->\n        <!--<div class=\"card-header\">-->\n          <!--<strong>All {{venueName}}'s Members</strong>-->\n          <!--<a class=\"btn float-xs-right\"><i class=\"fa fa-plus-square-o\"></i> Add Member</a>-->\n          <!--<a class=\"btn float-xs-right\"><i class=\"fa fa-plus-square-o\"></i> Add Group</a>-->\n        <!--</div>-->\n        <!--<div class=\"card-block\">-->\n          <!--<div class=\"row\">-->\n            <!--<div *ngFor=\"let id of membersId; let i = index; trackBy:trackByIndex\">-->\n              <!--<div class=\"col-sm-4 card\">-->\n                <!--<div class=\"callout callout-info m-0 py-1\">-->\n                  <!--<div class=\"avatar float-xs-right\">-->\n                    <!--<img src=\"assets/img/avatars/7.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">-->\n                  <!--</div>-->\n                  <!--<div>-->\n                    <!--<strong>{{members[id].name}}</strong>-->\n                  <!--</div>-->\n                  <!--<span class=\"text-muted\">{{members[id].email}}</span>-->\n                  <!--<br>-->\n                  <!--<small class=\"text-muted\">registered at</small>-->\n                <!--</div>-->\n              <!--</div>-->\n            <!--</div>-->\n          <!--</div>-->\n        <!--</div>-->\n      <!--</div>-->\n\n      <!--&lt;!&ndash; Groups &ndash;&gt;-->\n      <!--<div *ngFor=\"let group of groups; let i = index; trackBy:trackByIndex\">-->\n        <!--<div class=\"card\">-->\n          <!--<div class=\"card-header\">-->\n            <!--<strong>{{group}}</strong>-->\n            <!--<a (click)=\"openCustom(i)\" class=\"btn float-xs-right\"><i class=\"fa fa-plus-square-o\"></i> Add Member</a>-->\n          <!--</div>-->\n          <!--<div class=\"card-block\">-->\n            <!--<div class=\"row\">-->\n              <!--<div *ngFor=\"let groupMember of groupMembers[group]\">-->\n                <!--<div class=\"col-sm-4 card\">-->\n                  <!--<div class=\"callout callout-warning m-0 py-1\">-->\n                    <!--<div class=\"avatar float-xs-right\">-->\n                      <!--<img src=\"assets/img/avatars/7.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">-->\n                    <!--</div>-->\n                    <!--<div>-->\n                      <!--<strong>{{members[groupMember].name}}</strong>-->\n                    <!--</div>-->\n                    <!--<span class=\"text-muted\">{{members[groupMember].email}}</span>-->\n                    <!--<br>-->\n                    <!--<small class=\"text-muted\">registered at</small>-->\n                  <!--</div>-->\n                <!--</div>-->\n              <!--</div>-->\n            <!--</div>-->\n\n            <!--<br>-->\n            <!--<br>-->\n\n            <!--&lt;!&ndash; Add Member &ndash;&gt;-->\n            <!--<div class=\"col-sm-4\" *ngIf=\"createMember[i]\">-->\n              <!--<div class=\"card\">-->\n                <!--<div class=\"card-header\">-->\n                  <!--New Member-->\n                  <!--<div class=\"card-actions\">-->\n                    <!--<a (click)=\"deleteMember(i)\" class=\"nav-link\">-->\n                      <!--<i class=\"fa fa-close\"></i>-->\n                    <!--</a>-->\n                  <!--</div>-->\n                <!--</div>-->\n                <!--<div class=\"card-block\">-->\n                  <!--<form action=\"\" method=\"post\">-->\n                    <!--<div class=\"form-group\">-->\n                      <!--<div class=\"input-group\">-->\n                              <!--<span class=\"input-group-addon\"><i class=\"fa fa-user\"></i>-->\n                              <!--</span>-->\n                        <!--<input type=\"text\" [(ngModel)]=\"newMember.name\" name=\"username\" class=\"form-control\" placeholder=\"Username\">-->\n                      <!--</div>-->\n                    <!--</div>-->\n                    <!--<div class=\"form-group\">-->\n                      <!--<div class=\"input-group\">-->\n                              <!--<span class=\"input-group-addon\"><i class=\"fa fa-envelope\"></i>-->\n                              <!--</span>-->\n                        <!--<input type=\"email\" [(ngModel)]=\"newMember.email\" name=\"email\" class=\"form-control\" placeholder=\"Email\">-->\n                      <!--</div>-->\n                    <!--</div>-->\n\n                    <!--<div class=\"form-group form-actions\">-->\n                      <!--<button type=\"submit\" (click)=\"submit(i, {name: members[2].name, email: members[2].email, photourl: members[2].photourl, id: 2})\" class=\"btn btn-sm btn-success\">Submit</button>-->\n                    <!--</div>-->\n                  <!--</form>-->\n                <!--</div>-->\n              <!--</div>-->\n            <!--</div>-->\n\n          <!--</div>-->\n        <!--</div>-->\n        <!--&lt;!&ndash;/col&ndash;&gt;-->\n      <!--</div>-->\n\n\n    </div>\n  </div>\n\n</main>\n\n<app-asidemenu></app-asidemenu>\n\n<app-footer></app-footer>\n"
+module.exports = "<link href=\"assets/spinia/css/bootstrap.min.css\" rel=\"stylesheet\">\n<link href=\"assets/spinia/css/style.css\" rel=\"stylesheet\">\n\n<app-header></app-header>\n\n\n<app-sidebar></app-sidebar>\n\n<!-- Main content -->\n<main class=\"main\">\n  <app-breadcrumb></app-breadcrumb>\n\n  <div class=\"container-fluid\">\n    <div class=\"animated fadeIn\">\n\n      <button (click)=\"change()\">{{test$ | async}}</button>\n\n      <span >{{errorMessage$ | async}}</span>\n      <span >{{test$ | async}}</span>\n\n      <div *ngFor=\"let group of groups; let i = index; trackBy:trackByIndex\">\n        <div *ngIf=\"i%3 == 0\" class=\"row\">\n          <div *ngFor=\"let group of groups; let j = index; trackBy:trackByIndex\">\n            <div *ngIf=\"j>=i && j<i+3\" class=\"col-md-4\">\n              <div class=\"ibox\">\n                <div class=\"ibox-title\">\n                  <a (click)=\"openCustom(i)\"><span class=\"label label-primary pull-right\"><i class=\"fa fa-plus\"></i></span></a>\n                  <h5>{{group}}</h5>\n                </div>\n                <div class=\"ibox-content\">\n                  <div class=\"team-members row\">\n                    <span *ngFor=\"let groupMember of groupMembers[group]\">\n                      <a popover=\"{{members[groupMember].email}}\" popoverTitle=\"{{members[groupMember].name}}\" popoverPlacement=\"auto right\"\n                         [popoverOnHover]=\"true\" [popoverCloseOnClickOutside]=\"true\" [popoverCloseOnMouseOutside]=\"false\"\n                         [popoverDisabled]=\"false\" [popoverAnimation]=\"true\">\n                        <img alt=\"member\" class=\"img-circle\" src=\"{{members[groupMember].photourl}}\"></a>\n                    </span>\n\n\n                  </div>\n                  <!--<h4>Info about Design Team</h4>-->\n                  <!--<p>-->\n                  <!--Lorem Ipsum which looks reasonable. The generated Lorem Ipsum is therefore always free from repetition, injected humour, or non-characteristic words etc.-->\n                  <!--</p>-->\n\n                  <div class=\"row  m-t-sm\">\n                    <div class=\"col-sm-4 col-xs-4\">\n                      <div class=\"font-bold\">START</div>\n                      08:00\n                    </div>\n                    <div class=\"col-sm-4 col-xs-4\">\n                      <div class=\"font-bold\">END</div>\n                      18:00\n                    </div>\n                    <div class=\"col-sm-4 col-xs-4\">\n                      <div class=\"font-bold\">MEMBERS</div>\n                      8\n                    </div>\n                  </div>\n\n                </div>\n              </div>\n            </div>\n          </div>\n        </div>\n      </div>\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n\n      <!--&lt;!&ndash; All Members &ndash;&gt;-->\n      <!--<div class=\"card\">-->\n        <!--<div class=\"card-header\">-->\n          <!--<strong>All {{venueName}}'s Members</strong>-->\n          <!--<a class=\"btn float-xs-right\"><i class=\"fa fa-plus-square-o\"></i> Add Member</a>-->\n          <!--<a class=\"btn float-xs-right\"><i class=\"fa fa-plus-square-o\"></i> Add Group</a>-->\n        <!--</div>-->\n        <!--<div class=\"card-block\">-->\n          <!--<div class=\"row\">-->\n            <!--<div *ngFor=\"let id of membersId; let i = index; trackBy:trackByIndex\">-->\n              <!--<div class=\"col-sm-4 card\">-->\n                <!--<div class=\"callout callout-info m-0 py-1\">-->\n                  <!--<div class=\"avatar float-xs-right\">-->\n                    <!--<img src=\"assets/img/avatars/7.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">-->\n                  <!--</div>-->\n                  <!--<div>-->\n                    <!--<strong>{{members[id].name}}</strong>-->\n                  <!--</div>-->\n                  <!--<span class=\"text-muted\">{{members[id].email}}</span>-->\n                  <!--<br>-->\n                  <!--<small class=\"text-muted\">registered at</small>-->\n                <!--</div>-->\n              <!--</div>-->\n            <!--</div>-->\n          <!--</div>-->\n        <!--</div>-->\n      <!--</div>-->\n\n      <!--&lt;!&ndash; Groups &ndash;&gt;-->\n      <!--<div *ngFor=\"let group of groups; let i = index; trackBy:trackByIndex\">-->\n        <!--<div class=\"card\">-->\n          <!--<div class=\"card-header\">-->\n            <!--<strong>{{group}}</strong>-->\n            <!--<a (click)=\"openCustom(i)\" class=\"btn float-xs-right\"><i class=\"fa fa-plus-square-o\"></i> Add Member</a>-->\n          <!--</div>-->\n          <!--<div class=\"card-block\">-->\n            <!--<div class=\"row\">-->\n              <!--<div *ngFor=\"let groupMember of groupMembers[group]\">-->\n                <!--<div class=\"col-sm-4 card\">-->\n                  <!--<div class=\"callout callout-warning m-0 py-1\">-->\n                    <!--<div class=\"avatar float-xs-right\">-->\n                      <!--<img src=\"assets/img/avatars/7.jpg\" class=\"img-avatar\" alt=\"admin@bootstrapmaster.com\">-->\n                    <!--</div>-->\n                    <!--<div>-->\n                      <!--<strong>{{members[groupMember].name}}</strong>-->\n                    <!--</div>-->\n                    <!--<span class=\"text-muted\">{{members[groupMember].email}}</span>-->\n                    <!--<br>-->\n                    <!--<small class=\"text-muted\">registered at</small>-->\n                  <!--</div>-->\n                <!--</div>-->\n              <!--</div>-->\n            <!--</div>-->\n\n            <!--<br>-->\n            <!--<br>-->\n\n            <!--&lt;!&ndash; Add Member &ndash;&gt;-->\n            <!--<div class=\"col-sm-4\" *ngIf=\"createMember[i]\">-->\n              <!--<div class=\"card\">-->\n                <!--<div class=\"card-header\">-->\n                  <!--New Member-->\n                  <!--<div class=\"card-actions\">-->\n                    <!--<a (click)=\"deleteMember(i)\" class=\"nav-link\">-->\n                      <!--<i class=\"fa fa-close\"></i>-->\n                    <!--</a>-->\n                  <!--</div>-->\n                <!--</div>-->\n                <!--<div class=\"card-block\">-->\n                  <!--<form action=\"\" method=\"post\">-->\n                    <!--<div class=\"form-group\">-->\n                      <!--<div class=\"input-group\">-->\n                              <!--<span class=\"input-group-addon\"><i class=\"fa fa-user\"></i>-->\n                              <!--</span>-->\n                        <!--<input type=\"text\" [(ngModel)]=\"newMember.name\" name=\"username\" class=\"form-control\" placeholder=\"Username\">-->\n                      <!--</div>-->\n                    <!--</div>-->\n                    <!--<div class=\"form-group\">-->\n                      <!--<div class=\"input-group\">-->\n                              <!--<span class=\"input-group-addon\"><i class=\"fa fa-envelope\"></i>-->\n                              <!--</span>-->\n                        <!--<input type=\"email\" [(ngModel)]=\"newMember.email\" name=\"email\" class=\"form-control\" placeholder=\"Email\">-->\n                      <!--</div>-->\n                    <!--</div>-->\n\n                    <!--<div class=\"form-group form-actions\">-->\n                      <!--<button type=\"submit\" (click)=\"submit(i, {name: members[2].name, email: members[2].email, photourl: members[2].photourl, id: 2})\" class=\"btn btn-sm btn-success\">Submit</button>-->\n                    <!--</div>-->\n                  <!--</form>-->\n                <!--</div>-->\n              <!--</div>-->\n            <!--</div>-->\n\n          <!--</div>-->\n        <!--</div>-->\n        <!--&lt;!&ndash;/col&ndash;&gt;-->\n      <!--</div>-->\n\n\n    </div>\n  </div>\n\n</main>\n\n<app-asidemenu></app-asidemenu>\n\n<app-footer></app-footer>\n"
 
 /***/ }
 

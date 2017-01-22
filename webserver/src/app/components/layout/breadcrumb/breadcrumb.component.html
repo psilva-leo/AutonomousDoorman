@@ -1,3 +1,5 @@
+<span defaultOverlayTarget></span>
+
 <!-- Breadcrumb -->
 <ol class="breadcrumb">
   <breadcrumbs></breadcrumbs>
@@ -5,7 +7,8 @@
   <!-- Breadcrumb Menu-->
   <li class="breadcrumb-menu">
     <div class="btn-group" role="group" aria-label="Button group with nested dropdown">
-      <a class="btn btn-secondary" routerLinkActive="active" [routerLink]="['/dashboard/new-venue']"><i class="fa fa-plus-square-o"></i> &nbsp;{{"new-venue" | translate}}</a>
+      <a class="btn btn-secondary" routerLinkActive="active" (click)="openNewVenueModal()" ><i class="fa fa-plus-square-o"></i> &nbsp;{{"new-venue" | translate}}</a>
+    <!--[routerLink]="['/dashboard/new-venue']"-->
     </div>
   </li>
 

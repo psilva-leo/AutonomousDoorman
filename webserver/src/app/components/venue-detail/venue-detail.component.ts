@@ -114,7 +114,7 @@ export class VenueDetailComponent implements OnInit{
     }
     console.log(possibleMembers);
 
-    return this.modal.open(AddUserModalComponent,  overlayConfigFactory({ venueName: this.venueName, groupName: this.groups[index],
+    return this.modal.open(AddUserModalComponent, overlayConfigFactory({ venueName: this.venueName, groupName: this.groups[index],
       groupMembers: possibleMembers}, BSModalContext));
   }
 

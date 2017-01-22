@@ -1,18 +1,30 @@
 import { Component, OnInit } from '@angular/core';
+import { DialogRef, ModalComponent, CloseGuard } from 'angular2-modal';
+import { Modal, BSModalContext } from 'angular2-modal/plugins/bootstrap';
 import {FirebaseService, Group} from "../../services/firebase.service";
+import {Router} from "@angular/router";
+
 
 @Component({
   selector: 'app-new-venue',
   templateUrl: './new-venue.component.html',
   styleUrls: ['./new-venue.component.scss']
 })
-export class NewVenueComponent implements OnInit {
+export class NewVenueComponent implements OnInit, CloseGuard, ModalComponent<CustomModalContext> {
+
+  context: CustomModalContext;
 
   venue: Venue;
   groups: Group[];
   venues: string[];
 
-  constructor(private firebaseService: FirebaseService){
+  constructor(public dialog: DialogRef<CustomModalContext>, private firebaseService: FirebaseService,
+              private modal: Modal, private router: Router) {
+
+    this.context = dialog.context;
+    this.context.isBlocking = false;
+    this.context.showClose = true;
+
     this.venue = {name: "", error: ""};
     this.groups = [{name: "", error: "", start: "08:00", end: "18:00"}];
 
@@ -26,11 +38,13 @@ export class NewVenueComponent implements OnInit {
           }
         }
       );
+
   }
 
   trackByIndex(index: number, obj: any): any {
     return index;
   }
+
 
   addGroup(){
     this.groups.push({name: "", error: "", start: "08:00", end: "18:00"});
@@ -94,15 +108,29 @@ export class NewVenueComponent implements OnInit {
     }
   }
 
-  ngOnInit() {
+  closeModal(){
+    this.dialog.dismiss();
   }
 
+  onKeyUp(value) {
+    this.dialog.close();
+  }
+
+  beforeDismiss(): boolean{
+    return true;
+  }
+
+  beforeClose(): boolean{
+    return true;
+  }
+
+  ngOnInit(){ }
+
 }
+
+export class CustomModalContext extends BSModalContext {}
 
 interface Venue{
   name: string;
   error: string;
 }
-
-
-
