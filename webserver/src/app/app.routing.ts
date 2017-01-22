@@ -18,6 +18,10 @@ const appRoutes: Routes = [
     redirectTo: '/dashboard', pathMatch: 'full',
   },
   {
+    path: 'landing',
+    component: LandingPageComponent,
+  },
+  {
     path: 'dashboard',
     canActivate: [AuthGuard],
     children: [
