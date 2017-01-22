@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import {FirebaseService} from "../../../services/firebase.service";
+import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
+import {FirebaseService, UserInfo} from "../../../services/firebase.service";
 import {forEach} from "@angular/router/src/utils/collection";
 
 @Component({
@@ -11,8 +11,10 @@ export class SidebarComponent implements OnInit {
 
   venues: any;
   venuesKeys: string[];
+  userInfo: UserInfo;
+  userPhoto: string;
 
-  constructor(private firebaseService: FirebaseService){
+  constructor(private firebaseService: FirebaseService, private ref: ChangeDetectorRef){
     this.firebaseService.findVenues()
       .subscribe(
         venues => {
@@ -23,6 +25,20 @@ export class SidebarComponent implements OnInit {
           }
         }
       );
+
+    this.getUserInfo();
+  }
+
+  logout() {
+    this.firebaseService.logout();
+  }
+  getUserInfo(){
+    this.userInfo = this.firebaseService.getUserInfo();
+    this.userPhoto = '/assets/img/loading_profile.png';
+    this.firebaseService.getPhotoUrl(this.userInfo.photoURL).then(url => {
+      this.userPhoto = url;
+      this.ref.detectChanges();
+    });
   }
 
   ngOnInit(){ }

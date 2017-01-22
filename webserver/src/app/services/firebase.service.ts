@@ -81,6 +81,8 @@ export class FirebaseService{
     this.auth.login({ email: username, password: password }).then(
         (success) => {
           console.log('Logged in');
+          let body = document.getElementsByTagName('body')[0];
+          body.className = "navbar-fixed sidebar-nav fixed-nav";   // add classes removed from login page
           this.user = success;
           this.router.navigate(['/']);
         }).catch(
@@ -98,6 +100,7 @@ export class FirebaseService{
   logout(){
     console.log('Logged out');
     this.auth.logout();
+    this.router.navigate(['/login']);
   }
 
   isLoggedFunc(){

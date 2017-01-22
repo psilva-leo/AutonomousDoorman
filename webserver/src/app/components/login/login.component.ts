@@ -18,6 +18,7 @@ export class LoginComponent {
 
     let body = document.getElementsByTagName('body')[0];
     body.className = "";   //remove the classes
+
     body.classList.add("login");   //add the class
 
     firebaseService.errorMessage$.subscribe(e => {

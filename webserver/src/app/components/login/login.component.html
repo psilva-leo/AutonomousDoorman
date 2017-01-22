@@ -8,14 +8,12 @@
               <h1>Login {{loggedIn | async}}</h1>
               <p class="text-muted">Sign In to your account</p>
               <div class="input-group mb-1">
-                                <span class="input-group-addon"><i class="icon-user"></i>
-                                </span>
-                <input type="text" class="form-control" placeholder="Username" [(ngModel)]="loginUsername">
+                <span class="input-group-addon"><i class="icon-user"></i></span>
+                <input (keyup.enter)="login()" type="text" class="form-control" placeholder="Username" [(ngModel)]="loginUsername">
               </div>
               <div class="input-group mb-2">
-                                <span class="input-group-addon"><i class="icon-lock"></i>
-                                </span>
-                <input type="password" class="form-control" placeholder="Password" [(ngModel)]="loginPassword">
+                <span class="input-group-addon"><i class="icon-lock"></i></span>
+                <input (keyup.enter)="login()" type="password" class="form-control" placeholder="Password" [(ngModel)]="loginPassword">
               </div>
               <span style="color:red">{{errorMessage}}</span>
               <div class="row">
