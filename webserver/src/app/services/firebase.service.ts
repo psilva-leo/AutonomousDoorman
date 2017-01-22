@@ -289,6 +289,7 @@ export interface Log{
   extra: string;
   venue: string;
   allowedBy: string;
+  success: string;
 }
 
 export interface UserInfo{

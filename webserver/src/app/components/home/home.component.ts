@@ -15,11 +15,16 @@ export class HomeComponent implements OnInit {
   ];
   public barChartLabels:string[] = [];
   logs: Log[];
+  filteredLogs: Log[];
+  logPeriod: string;
 
   constructor(private firebaseService: FirebaseService, private statisticsService: StatisticsService){
 
+    this.logPeriod = "day";
+
     this.firebaseService.findLogs().subscribe(logs => {
       this.logs = logs;
+      this.filterLogs();
       console.log(this.logs);
 
       let timer = Observable.timer(300);
@@ -31,9 +36,114 @@ export class HomeComponent implements OnInit {
         ];
         this.barChartLabels = data.labels;
       });
-
     });
 
+  }
+
+  filterLogs(){
+    this.filteredLogs = this.logs.filter(log => {
+      if(this.logPeriod != 'all') {
+
+        let multiplier: number;
+        switch (this.logPeriod) {
+          case "day":
+            multiplier = 1;
+            break;
+          case "week":
+            multiplier = 7;
+            break;
+          case "month":
+            multiplier = 30;
+            break;
+        }
+        let date = new Date(log.date.year + "-" + log.date.month + "-" + log.date.day + ":" + log.date.time);
+        let diffmill = 24 * 60 * 60 * 1000 * multiplier;
+        let timeDiff = Date.now() - date.getTime();
+        if (timeDiff / diffmill <= 1) {
+          return log;
+        }
+      }else{
+        return log;
+      }
+    }).sort(function(a, b){
+      let adate = new Date(a.date.year+"-"+a.date.month+"-"+a.date.day+":"+a.date.time);
+      let atime = adate.getTime();
+      let bdate = new Date(b.date.year+"-"+b.date.month+"-"+b.date.day+":"+b.date.time);
+      let btime = bdate.getTime();
+      if(atime > btime){
+        return -1;
+      }else{
+        return 1;
+      }
+
+    });
+  }
+
+  choosePeriod(period: string){
+    let dayPeriod = document.getElementById("dayPeriod");
+    dayPeriod.className = "btn btn-sm btn-white";
+    let weekPeriod = document.getElementById("weekPeriod");
+    weekPeriod.className = "btn btn-sm btn-white";
+    let monthPeriod = document.getElementById("monthPeriod");
+    monthPeriod.className = "btn btn-sm btn-white";
+
+    switch(period){
+      case "day":
+        this.logPeriod = "day";
+        dayPeriod.className += "active";
+        break;
+      case "week":
+        this.logPeriod = "week";
+        weekPeriod.className += "active";
+        break;
+      case "month":
+        this.logPeriod = "month";
+        monthPeriod.className += "active";
+        break;
+    }
+    this.filterLogs();
+  }
+
+  getMonth(month: string): string{
+    let monthNum = parseInt(month);
+    switch (monthNum){
+      case 1:
+        return "Jan";
+      case 2:
+        return "Feb";
+      case 3:
+        return "Mar";
+      case 4:
+        return "Apr";
+      case 5:
+        return "May";
+      case 6:
+        return "Jun";
+      case 7:
+        return "Jul";
+      case 8:
+        return "Aug";
+      case 9:
+        return "Sep";
+      case 10:
+        return "Oct";
+      case 11:
+        return "Nov";
+      case 12:
+        return "Dec";
+    }
+  }
+
+  getDateString(year:string, month:string, day:string, time:string): string{
+    console.log(time);
+    console.log(month);
+    let date = new Date(year+"-"+month+"-"+day+"T"+time);
+    let tmp = date.toDateString();
+    console.log(tmp);
+    month = tmp.slice(0,4);
+    console.log(month);
+    let dateString = date.toDateString().slice(7);
+    return dateString;
   }
 
   public barChartOptions:any = {
