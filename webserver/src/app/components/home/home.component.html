@@ -76,8 +76,10 @@
                 <table class="table table-striped">
                   <thead>
                   <tr>
+                    <th></th>
                     <th>{{"date" | translate}}</th>
                     <th>{{"venue" | translate}} </th>
+                    <th>Photo</th>
                     <th>{{"name" | translate}} </th>
                     <th>{{"email" | translate}} </th>
                     <th>{{"permission" | translate}} </th>
@@ -86,8 +88,10 @@
                   </thead>
                   <tbody>
                   <tr *ngFor="let log of filteredLogs ">
+                    <td><img alt="member" class="avatar" src="{{log.attemptPhoto}}"></td>
                     <td>{{getMonth(log.date.month) | translate}} {{log.date.day}} {{log.date.year}}, {{log.date.time}}</td>
                     <td>{{log.venue}}</td>
+                    <td><img alt="member" class="avatar" src="{{log.photourl}}"></td>
                     <td>{{log.name}}</td>
                     <td>{{log.email}}</td>
                     <td>{{log.permission}}</td>

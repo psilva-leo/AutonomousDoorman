@@ -290,6 +290,9 @@ export interface Log{
   venue: string;
   permission: string;
   success: string;
+  photourl: string;
+  attemptPhoto: string;
+  $key;
 }
 
 export interface UserInfo{

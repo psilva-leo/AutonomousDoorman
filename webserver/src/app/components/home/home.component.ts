@@ -1,5 +1,5 @@
-import { Component, OnInit } from '@angular/core';
-import {FirebaseService, Log} from "../../services/firebase.service";
+import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
+import {FirebaseService, Log, UserInfo} from "../../services/firebase.service";
 import {StatisticsService} from "../../services/statistics.service";
 import {Observable} from "rxjs";
 
@@ -18,14 +18,31 @@ export class HomeComponent implements OnInit {
   filteredLogs: Log[];
   logPeriod: string;
   searchInput: string;
+  userInfo: UserInfo;
 
-  constructor(private firebaseService: FirebaseService, private statisticsService: StatisticsService){
+  constructor(private firebaseService: FirebaseService, private statisticsService: StatisticsService,
+              private ref: ChangeDetectorRef){
 
     this.logPeriod = "day";
     this.searchInput = "";
+    this.userInfo = this.firebaseService.getUserInfo();
 
     this.firebaseService.findLogs().subscribe(logs => {
       this.logs = logs;
+      for(let i=0; i<logs.length; i++){
+        let tmpurl = this.logs[i].photourl;
+        this.logs[i].photourl = "assets/img/loading_profile.png";
+        this.logs[i].attemptPhoto = "assets/img/loading_profile.png";
+        this.firebaseService.getPhotoUrl(tmpurl).then(url => {
+          this.logs[i].photourl = url;
+          this.ref.detectChanges();
+        });
+        console.log(this.logs[i].$key);
+        this.firebaseService.getPhotoUrl(this.userInfo.uid+'/Logs/'+this.logs[i].$key+'.jpg').then(url => {
+          this.logs[i].attemptPhoto = url;
+          this.ref.detectChanges();
+        });
+      }
       this.filterLogs();
       console.log(this.logs);
 
