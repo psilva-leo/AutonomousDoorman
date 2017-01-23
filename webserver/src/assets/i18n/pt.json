@@ -11,7 +11,9 @@
   "username": "Usuário",
   "user": "Usuário",
   "weekly-access": "Acessos da semana por localização",
+  "monthly-access": "Acessos do mês por localização",
   "allowed": "Permitido por",
+  "permission": "Permissão",
   "activity": "Atividade",
   "action": "Atividade",
   "group": "Grupo",
@@ -38,5 +40,7 @@
   "Nov": "Nov",
   "Dec": "Dez",
   "search": "Pesquisar",
-  "go": "Ir"
+  "go": "Ir",
+  "start": "Início",
+  "end": "Fim"
 }

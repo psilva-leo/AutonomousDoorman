@@ -14,19 +14,37 @@
   <div class="container-fluid">
     <div class="animated fadeIn">
 
-      <div class="card-columns col-2">
-        <div class="card">
-          <div class="card-header">
-            {{"weekly-access" | translate}}
+
+      <div class="row">
+        <div class="card-columns col-2">
+
+          <div class="col-md-12">
+          <div class="card">
+            <div class="card-header">
+              {{"weekly-access" | translate}}
+            </div>
+            <div class="card-block">
+              <div class="chart-wrapper">
+                <canvas baseChart class="chart" [datasets]="barChartDataWeek" [labels]="barChartLabelsWeek" [options]="barChartOptions" [legend]="barChartLegend" [chartType]="barChartType" (chartClick)="chartClicked($event)"></canvas>
+              </div>
+            </div>
           </div>
-          <div class="card-block">
-            <div class="chart-wrapper">
-              <canvas baseChart class="chart" [datasets]="barChartData" [labels]="barChartLabels" [options]="barChartOptions" [legend]="barChartLegend" [chartType]="barChartType" (chartClick)="chartClicked($event)"></canvas>
+          </div>
+
+          <div class="col-md-12">
+          <div class="card">
+            <div class="card-header">
+              {{"monthly-access" | translate}}
+            </div>
+            <div class="card-block">
+              <div class="chart-wrapper">
+                <canvas baseChart class="chart" [datasets]="barChartDataMonth" [labels]="barChartLabelsMonth" [options]="barChartOptions" [legend]="barChartLegend" [chartType]="barChartType" (chartClick)="chartClicked($event)"></canvas>
+              </div>
             </div>
           </div>
         </div>
+        </div>
       </div>
-
 
 
       <!--/.row-->
@@ -48,8 +66,10 @@
                   </div>
                 </div>
                 <div class="col-sm-3">
-                  <div class="input-group"><input type="text" placeholder="{{'search' | translate}}" class="input-sm form-control"> <span class="input-group-btn">
-                                <button type="button" class="btn btn-sm btn-primary"> {{"go" | translate}}!</button> </span></div>
+                  <div class="input-group">
+                    <input (keyup)="search()" type="text" placeholder="{{'search' | translate}}" class="input-sm form-control" [(ngModel)]="searchInput">
+                    <span class="input-group-btn">
+                    <button type="button" class="btn btn-sm btn-primary"> {{"go" | translate}}!</button> </span></div>
                 </div>
               </div>
               <div class="table-responsive">
@@ -60,7 +80,7 @@
                     <th>{{"venue" | translate}} </th>
                     <th>{{"name" | translate}} </th>
                     <th>{{"email" | translate}} </th>
-                    <th>{{"group" | translate}} </th>
+                    <th>{{"permission" | translate}} </th>
                     <th>{{"action" | translate}}</th>
                   </tr>
                   </thead>
@@ -69,9 +89,9 @@
                     <td>{{getMonth(log.date.month) | translate}} {{log.date.day}} {{log.date.year}}, {{log.date.time}}</td>
                     <td>{{log.venue}}</td>
                     <td>{{log.name}}</td>
-                    <td>log@test.com</td>
-                    <td>{{log.allowedBy}}</td>
-                    <td><a><i [ngClass]="{'fa-check': log.success == true, 'fa-close': log.success == false}" class="fa text-navy"></i></a></td>
+                    <td>{{log.email}}</td>
+                    <td>{{log.permission}}</td>
+                    <td><i [ngClass]="{'fa-check text-success': log.success == true, 'fa-close text-danger': log.success == false}" class="fa"></i></td>
                   </tr>
 
 
@@ -81,180 +101,6 @@
 
             </div>
 
-          </div>
-        </div>
-      </div>
-
-
-      <div class="row">
-        <div class="col-md-12">
-          <div class="card">
-            <div class="container">
-
-              <ul class="timeline">
-                <li class="timeline-inverted">
-                  <div class="timeline-badge">
-                    <div class="avatar">
-                      <img src="assets/img/avatars/1.jpg" class="img-avatar" alt="admin@bootstrapmaster.com">
-                    </div>
-                  </div>
-                  <div class="timeline-panel">
-                    <div class="timeline-heading">
-                      <h6 class="timeline-title">Leo Silva entered Home</h6>
-                      <span><small class="text-muted"><i class="fa fa-clock-o"></i> 12 Jan 2017 at 17:00</small></span>
-                    </div>
-                    <div class="timeline-body">
-                      <span>Allowed by Student group.</span>
-                    </div>
-                  </div>
-                </li>
-                <li class="timeline-inverted">
-                  <div class="timeline-badge">
-                    <div class="avatar">
-                      <img src="assets/img/avatars/1.jpg" class="img-avatar" alt="admin@bootstrapmaster.com">
-                    </div>
-                  </div>
-                  <div class="timeline-panel">
-                    <div class="timeline-heading">
-                      <h6 class="timeline-title">Leo Silva entered Home</h6>
-                      <span><small class="text-muted"><i class="fa fa-clock-o"></i> 12 Jan 2017 at 17:00</small></span>
-                    </div>
-                    <div class="timeline-body">
-                      <span>Allowed by Student group.</span>
-                    </div>
-                  </div>
-                </li>
-                <li class="timeline-inverted">
-                  <div class="timeline-badge">
-                    <div class="avatar">
-                      <img src="assets/img/avatars/1.jpg" class="img-avatar" alt="admin@bootstrapmaster.com">
-                    </div>
-                  </div>
-                  <div class="timeline-panel">
-                    <div class="timeline-heading">
-                      <h6 class="timeline-title">Mussum ipsum cacilds</h6>
-                      <span><small class="text-muted"><i class="fa fa-clock-o"></i> 11 hours ago via Twitter</small></span>
-                    </div>
-                    <div class="timeline-body">
-                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>
-                    </div>
-                  </div>
-                </li>
-                <li class="timeline-inverted">
-                  <div class="timeline-badge">
-                    <div class="avatar">
-                      <img src="assets/img/avatars/1.jpg" class="img-avatar" alt="admin@bootstrapmaster.com">
-                    </div>
-                  </div>
-                  <div class="timeline-panel">
-                    <div class="timeline-heading">
-                      <h6 class="timeline-title">Mussum ipsum cacilds</h6>
-                      <span><small class="text-muted"><i class="fa fa-clock-o"></i> 11 hours ago via Twitter</small></span>
-                    </div>
-                    <div class="timeline-body">
-                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>
-                    </div>
-                  </div>
-                </li>
-                <li class="timeline-inverted">
-                  <div class="timeline-badge">
-                    <div class="avatar">
-                      <img src="assets/img/avatars/1.jpg" class="img-avatar" alt="admin@bootstrapmaster.com">
-                    </div>
-                  </div>
-                  <div class="timeline-panel">
-                    <div class="timeline-heading">
-                      <h6 class="timeline-title">Mussum ipsum cacilds</h6>
-                      <span><small class="text-muted"><i class="fa fa-clock-o"></i> 11 hours ago via Twitter</small></span>
-                    </div>
-                    <div class="timeline-body">
-                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>
-                    </div>
-                  </div>
-                </li>
-                <li class="timeline-inverted">
-                  <div class="timeline-badge">
-                    <div class="avatar">
-                      <img src="assets/img/avatars/1.jpg" class="img-avatar" alt="admin@bootstrapmaster.com">
-                    </div>
-                  </div>
-                  <div class="timeline-panel">
-                    <div class="timeline-heading">
-                      <h6 class="timeline-title">Mussum ipsum cacilds</h6>
-                      <span><small class="text-muted"><i class="fa fa-clock-o"></i> 11 hours ago via Twitter</small></span>
-                    </div>
-                    <div class="timeline-body">
-                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>
-                    </div>
-                  </div>
-                </li>
-                <li class="timeline-inverted">
-                  <div class="timeline-badge">
-                    <div class="avatar">
-                      <img src="assets/img/avatars/1.jpg" class="img-avatar" alt="admin@bootstrapmaster.com">
-                    </div>
-                  </div>
-                  <div class="timeline-panel">
-                    <div class="timeline-heading">
-                      <h6 class="timeline-title">Mussum ipsum cacilds</h6>
-                      <span><small class="text-muted"><i class="fa fa-clock-o"></i> 11 hours ago via Twitter</small></span>
-                    </div>
-                    <div class="timeline-body">
-                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>
-                    </div>
-                  </div>
-                </li>
-                <li class="timeline-inverted">
-                  <div class="timeline-badge">
-                    <div class="avatar">
-                      <img src="assets/img/avatars/1.jpg" class="img-avatar" alt="admin@bootstrapmaster.com">
-                    </div>
-                  </div>
-                  <div class="timeline-panel">
-                    <div class="timeline-heading">
-                      <h6 class="timeline-title">Mussum ipsum cacilds</h6>
-                      <span><small class="text-muted"><i class="fa fa-clock-o"></i> 11 hours ago via Twitter</small></span>
-                    </div>
-                    <div class="timeline-body">
-                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>
-                    </div>
-                  </div>
-                </li>
-                <li class="timeline-inverted">
-                  <div class="timeline-badge">
-                    <div class="avatar">
-                      <img src="assets/img/avatars/1.jpg" class="img-avatar" alt="admin@bootstrapmaster.com">
-                    </div>
-                  </div>
-                  <div class="timeline-panel">
-                    <div class="timeline-heading">
-                      <h6 class="timeline-title">Mussum ipsum cacilds</h6>
-                      <span><small class="text-muted"><i class="fa fa-clock-o"></i> 11 hours ago via Twitter</small></span>
-                    </div>
-                    <div class="timeline-body">
-                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>
-                    </div>
-                  </div>
-                </li>
-                <li class="timeline-inverted">
-                  <div class="timeline-badge">
-                    <div class="avatar">
-                      <img src="assets/img/avatars/1.jpg" class="img-avatar" alt="admin@bootstrapmaster.com">
-                    </div>
-                  </div>
-                  <div class="timeline-panel">
-                    <div class="timeline-heading">
-                      <h6 class="timeline-title">Mussum ipsum cacilds</h6>
-                      <span><small class="text-muted"><i class="fa fa-clock-o"></i> 11 hours ago via Twitter</small></span>
-                    </div>
-                    <div class="timeline-body">
-                      <span>Mussum ipsum cacilds, vidis litro abertis. Consetis adipiscings elitis. Pra lá </span>
-                    </div>
-                  </div>
-                </li>
-
-              </ul>
-            </div>
           </div>
         </div>
       </div>

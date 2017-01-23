@@ -44,6 +44,46 @@ export class StatisticsService{
   }
 
 
+  calculateMonthly(){
+    const count = {};
+    const venuesKeys = [];
+
+    // Setting count to 0 for each venues
+    // console.log('length: '+this.venues.length);
+    for(let i=0; i<this.venues.length; i++){
+      count[this.venues[i].$key] = 0;
+      venuesKeys.push(this.venues[i].$key);
+    }
+
+    for(let i=0; i<this.logs.length; i++){
+      let allowedBy = this.logs[i].permission;
+      let venue = this.logs[i].venue;
+
+      let year = this.logs[i].date.year;
+      let month = this.logs[i].date.month;
+      let day = this.logs[i].date.day;
+      let time = this.logs[i].date.time;
+      let date = new Date(year+"-"+month+"-"+day+":"+time);
+
+      let daymil = 24*60*60*1000*30;
+      let timeDiff = Date.now() - date.getTime();
+      if(timeDiff/daymil <= 1){
+        count[venue] += 1;
+
+        // Check for entrance due to allowed by group membership
+        if(allowedBy.split(' ')[0] == 'Group'){
+          // console.log('Allowed by '+allowedBy.split(' ')[1]);
+        }
+      }
+    }
+    let countArray = [];
+
+    for(let i=0; i<venuesKeys.length; i++){
+      countArray.push(count[venuesKeys[i]]);
+    }
+
+    return {labels: venuesKeys, values: countArray}
+  }
 
   calculateWeekly(){
     const count = {};
@@ -57,7 +97,7 @@ export class StatisticsService{
     }
 
     for(let i=0; i<this.logs.length; i++){
-      let allowedBy = this.logs[i].allowedBy;
+      let allowedBy = this.logs[i].permission;
       let venue = this.logs[i].venue;
 
       let year = this.logs[i].date.year;
@@ -66,9 +106,9 @@ export class StatisticsService{
       let time = this.logs[i].date.time;
       let date = new Date(year+"-"+month+"-"+day+":"+time);
 
-      let daymil = 24*60*60*1000;
+      let daymil = 24*60*60*1000*7;
       let timeDiff = Date.now() - date.getTime();
-      if(timeDiff/daymil <= 7){
+      if(timeDiff/daymil <= 1){
         count[venue] += 1;
 
         // Check for entrance due to allowed by group membership
@@ -101,9 +141,9 @@ export interface Log{
   name: string;
   id: string;
   date: Date;
-  extra: string;
+  email: string;
   venue: string;
-  allowedBy: string;
+  permission: string;
 }
 
 export interface UserInfo{

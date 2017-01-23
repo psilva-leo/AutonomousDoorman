@@ -286,9 +286,9 @@ export interface Log{
   name: string;
   id: string;
   date: Date;
-  extra: string;
+  email: string;
   venue: string;
-  allowedBy: string;
+  permission: string;
   success: string;
 }
 

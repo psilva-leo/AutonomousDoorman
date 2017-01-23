@@ -11,7 +11,9 @@
   "username": "Username",
   "user": "User",
   "weekly-access": "Accessed this week per venue",
+  "monthly-access": "Accessed this month per venue",
   "allowed": "Allowed by",
+  "permission": "Permission",
   "activity": "Activity",
   "action": "Action",
   "group": "Group",
@@ -38,5 +40,7 @@
   "Nov": "Nov",
   "Dec": "Dec",
   "search": "Search",
-  "go": "Go"
+  "go": "Go",
+  "start": "Start",
+  "end": "End"
 }

@@ -1,5 +1,5 @@
 import { Component, OnInit } from '@angular/core';
-import {FirebaseService, Log, Member} from "../../services/firebase.service";
+import {FirebaseService, Log} from "../../services/firebase.service";
 import {StatisticsService} from "../../services/statistics.service";
 import {Observable} from "rxjs";
 
@@ -10,17 +10,19 @@ import {Observable} from "rxjs";
 })
 export class HomeComponent implements OnInit {
 
-  public barChartData:any[] = [
-    {data: []},
-  ];
-  public barChartLabels:string[] = [];
+  public barChartDataWeek:any[] = [{data: []},];
+  public barChartLabelsWeek:string[] = [];
+  public barChartDataMonth:any[] = [{data: []},];
+  public barChartLabelsMonth:string[] = [];
   logs: Log[];
   filteredLogs: Log[];
   logPeriod: string;
+  searchInput: string;
 
   constructor(private firebaseService: FirebaseService, private statisticsService: StatisticsService){
 
     this.logPeriod = "day";
+    this.searchInput = "";
 
     this.firebaseService.findLogs().subscribe(logs => {
       this.logs = logs;
@@ -29,12 +31,19 @@ export class HomeComponent implements OnInit {
 
       let timer = Observable.timer(300);
       timer.subscribe(x => {
+        // Weekly
         let data = this.statisticsService.calculateWeekly();
-        console.log(data);
-        this.barChartData = [
+        this.barChartDataWeek = [
           {data: data.values},
         ];
-        this.barChartLabels = data.labels;
+        this.barChartLabelsWeek = data.labels;
+
+        // Monthly
+        data = this.statisticsService.calculateMonthly();
+        this.barChartDataMonth = [
+          {data: data.values},
+        ];
+        this.barChartLabelsMonth = data.labels;
       });
     });
 
@@ -78,6 +87,20 @@ export class HomeComponent implements OnInit {
     });
   }
 
+  search(){
+    let search = this.searchInput;
+    if(typeof search !== "undefined"){
+      search = search.trim().toLowerCase();
+      this.filterLogs();
+      this.filteredLogs = this.filteredLogs.filter(log => {
+        if(log.permission.toLowerCase().includes(search) || log.email.toLowerCase().includes(search) ||
+          log.name.toLowerCase().includes(search) || log.venue.toLowerCase().includes(search)){
+          return log;
+        }
+      })
+    }
+  }
+
   choosePeriod(period: string){
     let dayPeriod = document.getElementById("dayPeriod");
     dayPeriod.className = "btn btn-sm btn-white";
@@ -106,7 +129,7 @@ export class HomeComponent implements OnInit {
         allPeriod.className += "active";
         break;
     }
-    this.filterLogs();
+    this.search();
   }
 
   getMonth(month: string): string{
