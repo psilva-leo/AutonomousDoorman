@@ -213,7 +213,12 @@ export class HomeComponent implements OnInit {
   }
 
   openModal(imagePath: string){
-    return this.modal.open(ImageModalComponent, overlayConfigFactory({imagePath: imagePath}, BSModalContext));
+    return this.modal.open(ImageModalComponent, overlayConfigFactory({imagePath: imagePath}, BSModalContext))
+      .then((d) => d.result)
+      .then((r) => {
+      console.log(r);
+    }, (error) => { console.log(error); });
+
   }
 
   ngOnInit(): void{}
