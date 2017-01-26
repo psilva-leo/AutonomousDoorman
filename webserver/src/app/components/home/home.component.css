@@ -452,4 +452,10 @@ table {
   line-height: 1 !important;
 }
 
+@media (max-width: 480px) {
+  .form-group {
+    margin-top: 1rem !important;
+  }
+}
+
 
