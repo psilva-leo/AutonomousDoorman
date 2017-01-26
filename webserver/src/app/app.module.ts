@@ -36,6 +36,7 @@ import { AddUserModalComponent } from './components/add-user-modal/add-user-moda
 import { CreateUserModalComponent } from './components/create-user-modal/create-user-modal.component';
 import { LandingPageComponent } from './components/landing-page/landing-page.component';
 import {PopoverModule} from "ng2-popover";
+import { ImageModalComponent } from './components/image-modal/image-modal.component';
 
 const myFirebaseAuthConfig = {
   provider: AuthProviders.Password,
@@ -68,6 +69,7 @@ export function createTranslateLoader(http: Http) {
     AddUserModalComponent,
     CreateUserModalComponent,
     LandingPageComponent,
+    ImageModalComponent,
   ],
   imports: [
     BrowserModule,
@@ -88,7 +90,7 @@ export function createTranslateLoader(http: Http) {
   ],
   providers: [AuthGuard, FirebaseService, StatisticsService],
   bootstrap: [AppComponent],
-  entryComponents: [ AddUserModalComponent, CreateUserModalComponent ],
+  entryComponents: [ AddUserModalComponent, CreateUserModalComponent, ImageModalComponent],
   exports: [TranslateModule],
 })
 export class AppModule { }

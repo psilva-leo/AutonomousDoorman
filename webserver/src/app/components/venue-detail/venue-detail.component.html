@@ -1,8 +1,4 @@
-<link href="assets/spinia/css/bootstrap.min.css" rel="stylesheet">
-<link href="assets/spinia/css/style.css" rel="stylesheet">
-
 <app-header></app-header>
-
 
 <app-sidebar></app-sidebar>
 
@@ -19,7 +15,7 @@
             <div *ngIf="j>=i && j<i+3" class="col-md-4">
               <div class="ibox">
                 <div class="ibox-title">
-                  <a (click)="openCustom(i)"><span class="label label-primary pull-right"><i class="fa fa-plus"></i></span></a>
+                  <a role="button" (click)="openCustom(i)"><span class="label label-primary pull-right"><i class="fa fa-plus"></i></span></a>
                   <h5>{{group}}</h5>
                 </div>
                 <div class="ibox-content">

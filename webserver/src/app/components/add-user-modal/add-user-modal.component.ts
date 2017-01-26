@@ -37,6 +37,16 @@ export class AddUserModalComponent implements OnInit, CloseGuard, ModalComponent
     return index;
   }
 
+  fileChange(event) {
+    let fileList: FileList = event.target.files;
+
+    for(let i=0; i<fileList.length; i++){
+      console.log(fileList[i]);
+      this.firebaseSerice.uploadLogImage(fileList[i], (i+1).toString());
+    }
+
+  }
+
   showCreateBtn(){
     this.showCreate = !this.showCreate;
     if(this.showCreate){
@@ -76,6 +86,7 @@ export class AddUserModalComponent implements OnInit, CloseGuard, ModalComponent
         this.showCreateBtn(); // To close the creation form
         this.confirmationMessage = this.newMember.name + " successfully added to " + this.context.groupName;
         this.newMember = {name: "", email: "", id: "", photourl: "", groups: []};
+        this.dialog.dismiss();
       }
 
     }else{

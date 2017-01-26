@@ -62,6 +62,14 @@ export class FirebaseService{
 
   }
 
+  uploadMemberImage(file: File, venue: string, id: string, fileName: string){
+    this.storage.child(this.userInfo.uid+'/'+venue+'/'+id+'/'+fileName+'.jpg').put(file);
+  }
+
+  uploadLogImage(file: File, id: string){
+    this.storage.child(this.userInfo.uid+'/Logs/'+id+'.jpg').put(file);
+  }
+
   getURL(photourl: string):Observable<string> {
     return this.storage.child(photourl).getDownloadURL();
   }

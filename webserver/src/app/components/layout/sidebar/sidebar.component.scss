@@ -19,7 +19,7 @@ body {
   background: #fff;
 }
 
-.profile-userpic img {
+.profile-userpic{
   float: none;
   margin: 0 auto;
   width: 50%;
@@ -109,4 +109,14 @@ body {
   padding: 20px;
   background: #fff;
   min-height: 460px;
+}
+
+.img-responsive,
+.thumbnail > img,
+.thumbnail a > img,
+.carousel-inner > .item > img,
+.carousel-inner > .item > a > img {
+  display: block;
+  max-width: 100%;
+  height: auto;
 }

@@ -2,6 +2,10 @@ import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
 import {FirebaseService, Log, UserInfo} from "../../services/firebase.service";
 import {StatisticsService} from "../../services/statistics.service";
 import {Observable} from "rxjs";
+import any = jasmine.any;
+import {BSModalContext} from "angular2-modal/plugins/bootstrap";
+import {overlayConfigFactory, Modal} from "angular2-modal";
+import {ImageModalComponent} from "../image-modal/image-modal.component";
 
 @Component({
   selector: 'app-home',
@@ -20,12 +24,15 @@ export class HomeComponent implements OnInit {
   searchInput: string;
   userInfo: UserInfo;
 
+
+
   constructor(private firebaseService: FirebaseService, private statisticsService: StatisticsService,
-              private ref: ChangeDetectorRef){
+              private ref: ChangeDetectorRef, private modal: Modal){
 
     this.logPeriod = "day";
     this.searchInput = "";
     this.userInfo = this.firebaseService.getUserInfo();
+
 
     this.firebaseService.findLogs().subscribe(logs => {
       this.logs = logs;
@@ -131,19 +138,19 @@ export class HomeComponent implements OnInit {
     switch(period){
       case "day":
         this.logPeriod = "day";
-        dayPeriod.className += "active";
+        dayPeriod.className += " active";
         break;
       case "week":
         this.logPeriod = "week";
-        weekPeriod.className += "active";
+        weekPeriod.className += " active";
         break;
       case "month":
         this.logPeriod = "month";
-        monthPeriod.className += "active";
+        monthPeriod.className += " active";
         break;
       case "all":
         this.logPeriod = "all";
-        allPeriod.className += "active";
+        allPeriod.className += " active";
         break;
     }
     this.search();
@@ -205,5 +212,9 @@ export class HomeComponent implements OnInit {
     console.log(e);
   }
 
-  ngOnInit(): void{ }
+  openModal(imagePath: string){
+    return this.modal.open(ImageModalComponent, overlayConfigFactory({imagePath: imagePath}, BSModalContext));
+  }
+
+  ngOnInit(): void{}
 }

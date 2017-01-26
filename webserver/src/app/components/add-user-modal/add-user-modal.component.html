@@ -1,47 +1,29 @@
 <div class="container-fluid custom-modal-container">
-  <div class="row custom-modal-header">
-    <div class="col-sm-12">
-      <h3>Add Member to {{context.groupName}}</h3>
-    </div>
+  <div class="modal-header" style="padding-top: 0; padding-bottom: 0">
+    <h3>Add Member to {{context.groupName}}</h3>
   </div>
-  <div class="row" [ngClass]="{'myclass' : shouldUseMyClass}">
+  <div class="row">
     <div class="col-xs-12">
       <!-- Members -->
       <div style="text-align: center" class="card-block" *ngIf="context.groupMembers.length >= 1">
-        <strong>Add existing members to group</strong>
-        <br>
-        <br>
-        <div *ngFor="let member of context.groupMembers; let i = index; trackBy:trackByIndex">
-          <div class="col-sm-6 card" (click)="addMemberToGroup(member)">
+        <strong>Manage active members from other groups</strong>
+        <br><br>
 
-            <div class="callout callout-warning m-0 py-1 lighten">
-              <div class="avatar float-xs-right">
-                <img src="assets/img/avatars/7.jpg" class="img-avatar" alt="admin@bootstrapmaster.com">
-              </div>
-              <div>
-                <strong>{{member.name}}</strong>
-              </div>
-              <span class="text-muted">{{member.email}}</span>
-              <br>
-              <small class="text-muted">registered at</small>
-            </div>
-          </div>
+        <div class="team-members">
+          <span *ngFor="let member of context.groupMembers">
+            <a popover="{{member.email}}" popoverTitle="{{member.name}}" popoverPlacement="auto right"
+               [popoverOnHover]="true" [popoverCloseOnClickOutside]="true" [popoverCloseOnMouseOutside]="false"
+               [popoverDisabled]="false" [popoverAnimation]="true">
+              <img alt="member" class="img-circle" src="{{member.photourl}}"></a>
+          </span>
         </div>
       </div>
 
-      <div style="text-align: center">
-        <strong>Create a new member to add</strong>
-        <br>
-        <br>
-        <button class="btn btn-primary" (click)="showCreateBtn()" *ngIf="context.groupMembers.length>= 1">{{createBtn}}</button>
-        <br>
-        <br>
-        <span>{{confirmationMessage}}</span>
-      </div>
-
       <!-- User input -->
-      <div style="text-align: center" class="card-block" *ngIf="showCreate || context.groupMembers.length == 0">
-        <form action="" method="post">
+        <form>
+          <div class="form-group" style="text-align: center">
+            <strong>Create new user</strong>
+          </div>
           <div class="form-group">
             <div class="input-group">
               <span class="input-group-addon"><i class="fa fa-user"></i></span>
@@ -54,13 +36,19 @@
               <input type="text" [(ngModel)]="newMember.email" name="email" class="form-control" placeholder="Email">
             </div>
           </div>
-          <!-- Bottom -->
+
+          <div class="form-group">
+            <input type="file" multiple="" (change)="fileChange($event)" placeholder="Upload file" name="file-multiple-input" >
+            <span>{{confirmationMessage}}</span>
+          </div>
+
           <div class="form-group form-actions">
             <button type="button" (click)="submit(groupName, member)" class="btn btn-sm btn-success">Submit</button>
           </div>
+
         </form>
 
-      </div>
+
 
     </div>
   </div>
