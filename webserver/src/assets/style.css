@@ -6412,10 +6412,10 @@ hr.transparent {
 .avatar {
   position: relative;
   display: inline-block;
-  width: 36px; }
+  width: 45px; }
   .avatar .img-avatar {
-    width: 36px;
-    height: 36px; }
+    width: 45px;
+    height: 45px; }
   .avatar .avatar-status {
     position: absolute;
     right: 0;

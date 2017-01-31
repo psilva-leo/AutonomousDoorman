@@ -5,6 +5,7 @@ import 'rxjs/add/operator/catch';
 import {Observable} from "rxjs/Observable";
 import {Router} from "@angular/router";
 import * as firebase from 'firebase';
+import {ResponseContentType, RequestMethod, Http} from "@angular/http";
 
 @Injectable()
 export class FirebaseService{
@@ -21,8 +22,11 @@ export class FirebaseService{
   private groups: any;
   private storage: any;
 
+  private firstFlag: boolean;
 
-  constructor(private db:AngularFireDatabase, private auth: AngularFireAuth, private router:Router){
+
+  constructor(private db:AngularFireDatabase, private auth: AngularFireAuth, private router:Router,
+  private http: Http){
     this.userInfo = {
       displayName: "",
       email: "",
@@ -32,6 +36,7 @@ export class FirebaseService{
 
     this.members = {};
     this.groups = {};
+    this.firstFlag = false;
 
     auth.subscribe(user => {
       this.user = user;
@@ -62,8 +67,14 @@ export class FirebaseService{
 
   }
 
-  uploadMemberImage(file: File, venue: string, id: string, fileName: string){
-    this.storage.child(this.userInfo.uid+'/'+venue+'/'+id+'/'+fileName+'.jpg').put(file);
+  uploadMemberImage(file: File | Blob, venue: string, id: string, fileName: string){
+    this.storage.child(this.userInfo.uid+'/'+venue+'/'+id+'/'+fileName+'.jpg').put(file).then(() => {
+        if(fileName == '1'){
+          console.log('flag up');
+          this.firstFlag = true;
+        }
+      }
+    );
   }
 
   uploadLogImage(file: File, id: string){
@@ -184,53 +195,81 @@ export class FirebaseService{
     }
 
     this.db.object(this.userInfo.uid+'/Venues/'+venue).update(data);
+    this.getPhotoUrl(this.userInfo.uid+'/Profile/1.jpg').then(url => {
+    let self = this;
+      let xhr = new XMLHttpRequest();
+      xhr.responseType = 'blob';
+      xhr.onload = function(event) {
+        let blob = xhr.response;
+        self.uploadMemberImage(blob,venue, '1', '1');
+      };
+      xhr.open('GET', url);
+      xhr.send();
+    });
   }
 
-  createAndAddMember(venue: string, group: string, memberInfo: Member){
+  createAndAddMember(venue: string, group: string, memberInfo: Member, filelist: FileList){
+    this.firstFlag = false;
     let data = { };
     memberInfo.id = this.members[venue].length;
-    data[memberInfo.id] = {
-      Data: {
-        name: memberInfo.name,
-        email: memberInfo.email,
-        photourl: memberInfo.photourl,
-      },
-      Groups: {
-        0: {
-          id: group,
-        }
-      }
-    };
-    console.log(venue);
-    this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Members/').update(data);
 
-    data = { };
-    data[this.groups[venue][group]['Members'].length] = {id: memberInfo.id};
-    this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Groups/'+group+'/Members/').update(data);
+    this.storage.child(this.userInfo.uid+'/'+venue+'/'+memberInfo.id+'/1.jpg').put(filelist[0]).then(() => {
+      data[memberInfo.id] = {
+        Data: {
+          name: memberInfo.name,
+          email: memberInfo.email,
+          photourl: this.userInfo.uid + '/' + venue + '/' + memberInfo.id + '/1.jpg',
+        },
+        Groups: {
+          0: {
+            id: group,
+          }
+        }
+      };
+      console.log(venue);
+      this.db.object(this.userInfo.uid + '/Venues/' + venue + '/Members/').update(data);
+
+      data = {};
+      data[this.groups[venue][group]['Members'].length] = {id: memberInfo.id};
+      this.db.object(this.userInfo.uid + '/Venues/' + venue + '/Groups/' + group + '/Members/').update(data);
+      }
+    );
+    for(let i=1; i<filelist.length; i++){
+      this.uploadMemberImage(filelist[i], venue, memberInfo.id, (i+1).toString());
+    }
+
+
   }
 
   addExistingMemberToGroup(venue: string, group: string, memberInfo: Member){
-    this.findGroups(venue).subscribe(groups => {
-      let data = { };
-      for(let i=0; i<groups.length; i++){
-        if(groups[i].$key == group){
-          data[groups[i]['Members'].length] = {id: memberInfo.id};
-          this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Groups/'+group+'/Members').update(data);
-          break;
-        }
-      }
-    });
+    let data = {};
+    data[this.groups[venue][group]['Members'].length] = {id: memberInfo.id};
+    this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Groups/'+group+'/Members').update(data);
 
-    this.findMembers(venue).subscribe(members => {
-      let data ={ };
-      for(let i=0; i<members.length; i++){
-        if(members[i].$key == memberInfo.id){
-          data[members[i]['Groups'].length] = {id: group};
-          this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Members/'+memberInfo.id+'/Groups').update(data);
-          break;
-        }
+    data = {};
+    data[this.members[venue][memberInfo.id]['Groups'].length] = {id: group};
+    this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Members/'+memberInfo.id+'/Groups').update(data);
+  }
+
+  createGroup(venue:string, name: string, start: string, end:string, memberInfo: Member){
+    let data = {};
+    data[name] = {
+      Time: {}
+    };
+
+    data[name]['Time']['start'] = start;
+    data[name]['Time']['end'] = end;
+
+    data[name]['Members'] = {
+      0: {
+        id: memberInfo.id
       }
-    });
+    };
+    this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Groups').update(data);
+
+    data = {};
+    data[this.members[venue][memberInfo.id]['Groups'].length] = {id: name};
+    this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Members/'+memberInfo.id+'/Groups').update(data);
   }
 
   createvenue(venue: string, groups: Group[]){
@@ -258,7 +297,7 @@ export class FirebaseService{
       name: this.userInfo.displayName,
       email: this.userInfo.email,
       id: "1",
-      photourl: this.userInfo.uid+'/1/1.jpg',
+      photourl: this.userInfo.uid+'/'+venue+'/1/1.jpg',
       groups: [],
     };
 

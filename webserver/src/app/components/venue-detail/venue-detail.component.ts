@@ -1,10 +1,10 @@
 import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
 import {ActivatedRoute} from "@angular/router";
-import {Overlay, overlayConfigFactory} from 'angular2-modal';
+import {overlayConfigFactory} from 'angular2-modal';
 import {Modal, BSModalContext} from 'angular2-modal/plugins/bootstrap';
 import {AddUserModalComponent} from "../add-user-modal/add-user-modal.component";
 import {FirebaseService, Member} from "../../services/firebase.service";
-import {Observable, Subject} from "rxjs";
+import {CreateGroupModalComponent} from "../create-group-modal/create-group-modal.component";
 
 @Component({
   selector: 'app-venue-detail',
@@ -83,39 +83,14 @@ export class VenueDetailComponent implements OnInit{
     return index;
   }
 
-  openCustom(index) {
-    let possibleMembers: Member[];
-    possibleMembers = [];
+  openCreateUser(index) {
+    this.modal.open(AddUserModalComponent, overlayConfigFactory({ venueName: this.venueName, groupName: this.groups[index]},
+      BSModalContext));
+  }
 
-    for(let i=0; i<this.membersId.length; i++){
-      let dontAdd = false;
-      console.log(this.groups[index]);
-      for(let j=0; j<this.members[this.membersId[i]].groups.length; j++){
-        if(this.members[this.membersId[i]].groups[j] == this.groups[index]){
-          dontAdd = true;
-        }
-      }
-      if(!dontAdd){
-        console.log(this.members[this.membersId[i]]);
-        let tmp: Member;
-        tmp = {
-          email: this.members[this.membersId[i]].email,
-          name: this.members[this.membersId[i]].name,
-          id: this.members[this.membersId[i]].id,
-          photourl: this.members[this.membersId[i]].photourl,
-          groups: [],
-        };
-
-        for(let j=0; j<this.members[this.membersId[i]].groups.length; j++){
-          tmp.groups.push(this.members[this.membersId[i]].groups[j]);
-        }
-        possibleMembers.push(tmp);
-      }
-    }
-    console.log(possibleMembers);
-
-    return this.modal.open(AddUserModalComponent, overlayConfigFactory({ venueName: this.venueName, groupName: this.groups[index],
-      groupMembers: possibleMembers}, BSModalContext));
+  openCreateGroup() {
+    this.modal.open(CreateGroupModalComponent, overlayConfigFactory({ venueName: this.venueName, groupName: this.groups[0]},
+      BSModalContext));
   }
 
   addMember(index){
@@ -139,14 +114,10 @@ export class VenueDetailComponent implements OnInit{
     this.firebaseService.addExistingMemberToGroup(this.venueName, this.groups[index], memberInfo);
   }
 
-  reset(){
-
-  }
+  reset(){ }
 
 
-  ngOnInit(){
-
-  }
+  ngOnInit(){ }
 
 
 }

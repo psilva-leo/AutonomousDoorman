@@ -1,3 +1,52 @@
-<p>
-  create-user-modal works!
-</p>
+<div class="container-fluid custom-modal-container">
+  <div class="modal-header" style="padding-top: 0; padding-bottom: 0">
+    <h3>Add Group to {{context.venueName}}</h3>
+  </div>
+  <div class="row">
+    <div class="col-xs-12">
+      <!-- Members -->
+      <div style="text-align: center" class="card-block" *ngIf="members.length >= 1">
+        <strong>Manage active members from other groups</strong>
+        <br><br>
+
+        <div class="team-members">
+          <span *ngFor="let member of members">
+            <a role="button" (click)="addMemberToGroup(member)" popover="{{member.email}}" popoverTitle="{{member.name}}" popoverPlacement="auto right"
+               [popoverOnHover]="true" [popoverCloseOnClickOutside]="true" [popoverCloseOnMouseOutside]="false"
+               [popoverDisabled]="false" [popoverAnimation]="true">
+              <img alt="member" class="img-circle" src="{{member.photourl}}"></a>
+          </span>
+        </div>
+      </div>
+
+      <div class="card-block">
+        <label class="col-md-3 form-control-label" for="text-input">Name</label>
+        <div class="col-md-9">
+          <input type="text" name="group" class="form-control" placeholder="group name">
+          <span style="color: red" class="help-block"></span>
+        </div>
+
+        <br><br>
+        <br>
+        <div class="col-md-6">
+          <label class="form-control-label" for="text-input">Start</label>
+          &nbsp;&nbsp;
+          <input type="time" name="start" />
+        </div>
+        <div class="col-md-6">
+          <label class="form-control-label" for="text-input">Finish</label>
+          &nbsp;&nbsp;
+          <input type="time" name="finish" />
+        </div>
+
+        <div class="row">
+          <button (click)="submit()" type="submit" class="btn btn-sm btn-primary"><i class="fa fa-dot-circle-o"></i> Submit</button>
+          <button type="reset" (click)="reset()" class="btn btn-sm btn-danger"><i class="fa fa-ban"></i> Reset</button>
+        </div>
+      </div>
+
+
+
+    </div>
+  </div>
+</div>`

@@ -23,33 +23,23 @@ export class ImageModalComponent implements OnInit, CloseGuard, ModalComponent<C
     content.style.maxWidth = '300px';
 
     this.context = dialog.context;
-    this.context.isBlocking = true;
-    this.context.showClose = true;
-
-    console.log('open');
+    this.context.isBlocking = false;
 
   }
 
   closeModal(){
-    console.log('close modal');
-    this.dialog.close('hey_close');
     this.dialog.dismiss();
   }
 
   onKeyUp(value) {
-    console.log('onkeyup');
     this.dialog.close('hey');
   }
 
   beforeDismiss(): boolean{
-    console.log('before dismiss');
-    this.dialog.close('hey_close');
     return false;
   }
 
   beforeClose(): boolean{
-    console.log('beforeclose');
-    this.dialog.close('hey_close');
     return true;
   }
 

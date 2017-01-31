@@ -1,6 +1,6 @@
 # Autonomous Doorman
 
-Autnomous Doorman is a face recognition system for controlling access to avenues. It has two major parts system and webserver. System runs on Raspberry Pi 3 while webserver is hosted on heroku, hence it is possible to control the system (e.g. updating (un)authorised people) from anywhere. It also allow to set times for the person to enter.
+Autonomous Doorman is a face recognition system for controlling access to avenues. It has two major parts system and webserver. System runs on Raspberry Pi 3 while webserver is hosted on heroku, hence it is possible to control the system (e.g. updating (un)authorised people) from anywhere. It also allow to set times for the person to enter.
 
 # Setup
 
@@ -29,9 +29,15 @@ Libraries needed:
     ```
 
 - *Installing Heroku*
+    https://devcenter.heroku.com/articles/heroku-cli#getting-started
     ```sh
     $ wget -O- https://toolbelt.heroku.com/install-ubuntu.sh | sh
     ```
+- *Seeting up firebase environment (Configuring CORS on a Bucket)*
+    Install gsutil: https://cloud.google.com/storage/docs/gsutil_install
+    Set up Cors: https://cloud.google.com/storage/docs/cross-origin
+
+    
 **System**
     
 - *Preparing the system*
@@ -153,9 +159,4 @@ Libraries needed:
     ```
 
 # Licensing
-This project is under the MIT license.
-
-    
-    
-
-
+    This project is under the MIT license.

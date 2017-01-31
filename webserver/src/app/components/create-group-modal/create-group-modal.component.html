@@ -1,0 +1,59 @@
+<div class="container-fluid custom-modal-container">
+  <div class="modal-header" style="padding-top: 0; padding-bottom: 0">
+    <h3>Add Group to {{context.venueName}}</h3>
+  </div>
+  <div class="row">
+    <div class="col-xs-12">
+      <!-- Members -->
+      <div style="text-align: center" class="card-block" *ngIf="members.length >= 1">
+        <strong>Manage active members from other groups</strong>
+        <br><br>
+
+        <div class="team-members">
+          <span *ngFor="let member of members; let i = index; trackBy:trackByIndex">
+            <div class="avatar">
+            <a role="button" (click)="addMemberToGroup(i)" popover="{{member.email}}" popoverTitle="{{member.name}}" popoverPlacement="auto right"
+               [popoverOnHover]="true" [popoverCloseOnClickOutside]="true" [popoverCloseOnMouseOutside]="false"
+               [popoverDisabled]="false" [popoverAnimation]="true">
+              <img alt="member" class="img-circle img-avatar" src="{{member.photourl}}"></a>
+              <span *ngIf="addedList[i]" class="avatar-status tag-success"></span>
+            </div>
+          </span>
+
+        </div>
+      </div>
+
+      <div class="card-block">
+        <div class="row">
+          <strong class="col-md-3">Name</strong>
+          <div class="col-md-9">
+            <input type="text" name="group" class="form-control" placeholder="group name" [(ngModel)]="groupName">
+            <span style="color: red" class="help-block"></span>
+          </div>
+        </div>
+
+        <br>
+        <div class="row">
+          <div class="col-md-6">
+            <label class="form-control-label" for="text-input">Start</label>
+            <input type="time" name="start" [(ngModel)]="start"/>
+          </div>
+          <div class="col-md-6">
+            <label class="form-control-label" for="text-input">Finish</label>
+            <input type="time" name="finish" [(ngModel)]="end"/>
+          </div>
+        </div>
+        <div *ngIf="confirmationMessage !== ''" class="alert alert-danger" role="alert">{{confirmationMessage}}</div>
+
+        <br><br>
+        <div class="row">
+          <button (click)="submit()" type="submit" class="btn btn-sm btn-primary"><i class="fa fa-dot-circle-o"></i> Submit</button>
+          <button type="reset" (click)="reset()" class="btn btn-sm btn-danger"><i class="fa fa-ban"></i> Reset</button>
+        </div>
+      </div>
+
+
+
+    </div>
+  </div>
+</div>`

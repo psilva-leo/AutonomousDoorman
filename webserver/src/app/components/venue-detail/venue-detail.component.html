@@ -8,6 +8,7 @@
 
   <div class="container-fluid">
     <div class="animated fadeIn">
+      <div class="row"><button (click)="openCreateGroup()" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Add new Group</button></div>
 
       <div *ngFor="let group of groups; let i = index; trackBy:trackByIndex">
         <div *ngIf="i%3 == 0" class="row">
@@ -15,7 +16,7 @@
             <div *ngIf="j>=i && j<i+3" class="col-md-4">
               <div class="ibox">
                 <div class="ibox-title">
-                  <a role="button" (click)="openCustom(i)"><span class="label label-primary pull-right"><i class="fa fa-plus"></i></span></a>
+                  <a role="button" (click)="openCreateUser(j)"><span class="label label-primary pull-right"><i class="fa fa-plus"></i></span></a>
                   <h5>{{group}}</h5>
                 </div>
                 <div class="ibox-content">
@@ -26,8 +27,6 @@
                          [popoverDisabled]="false" [popoverAnimation]="true">
                         <img alt="member" class="img-circle" src="{{members[groupMember].photourl}}"></a>
                     </span>
-
-
                   </div>
 
                   <div class="row  m-t-sm">

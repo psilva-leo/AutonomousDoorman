@@ -93,6 +93,7 @@ export class NewVenueComponent implements OnInit, CloseGuard, ModalComponent<Cus
       console.log('New venue created');
       alert('Group created!');
       this.reset();
+      this.dialog.dismiss();
     }else{
       console.log('Error creating Venue');
     }

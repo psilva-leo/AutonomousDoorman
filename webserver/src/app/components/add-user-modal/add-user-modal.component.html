@@ -5,13 +5,13 @@
   <div class="row">
     <div class="col-xs-12">
       <!-- Members -->
-      <div style="text-align: center" class="card-block" *ngIf="context.groupMembers.length >= 1">
+      <div style="text-align: center" class="card-block" *ngIf="members.length >= 1">
         <strong>Manage active members from other groups</strong>
         <br><br>
 
         <div class="team-members">
-          <span *ngFor="let member of context.groupMembers">
-            <a popover="{{member.email}}" popoverTitle="{{member.name}}" popoverPlacement="auto right"
+          <span *ngFor="let member of members">
+            <a role="button" (click)="addMemberToGroup(member)" *ngIf="member.groups.indexOf(context.groupName) == -1" popover="{{member.email}}" popoverTitle="{{member.name}}" popoverPlacement="auto right"
                [popoverOnHover]="true" [popoverCloseOnClickOutside]="true" [popoverCloseOnMouseOutside]="false"
                [popoverDisabled]="false" [popoverAnimation]="true">
               <img alt="member" class="img-circle" src="{{member.photourl}}"></a>
@@ -38,9 +38,10 @@
           </div>
 
           <div class="form-group">
-            <input type="file" multiple="" (change)="fileChange($event)" placeholder="Upload file" name="file-multiple-input" >
-            <span>{{confirmationMessage}}</span>
+            <input type="file" multiple="" (change)="fileChange($event)" placeholder="Upload file"
+                   id="input-upload" name="file-multiple-input" accept="image/jpeg">
           </div>
+          <div *ngIf="confirmationMessage !== ''" class="alert alert-danger" role="alert">{{confirmationMessage}}</div>
 
           <div class="form-group form-actions">
             <button type="button" (click)="submit(groupName, member)" class="btn btn-sm btn-success">Submit</button>
