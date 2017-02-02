@@ -4,13 +4,14 @@ from threading import Thread
 from faceRecognition import FaceRecognition
 from firebaseConn import FirebaseConn
 from detectFace import DetectFace
-from movementDetection import MovementDetection
+# from movementDetection import MovementDetection
 
 
 class AutonomousDoorman(Thread):
 
     def __init__(self, debug_flag=False):
-        self.sensor = MovementDetection()
+        # self.sensor = MovementDetection()
+        self.sensor = 1
         self.detect = DetectFace(sensor=self.sensor)
         self.face = FaceRecognition()
         self.running_thread = False
@@ -38,10 +39,17 @@ class AutonomousDoorman(Thread):
                     if predicted is None:
                         print('No match\n')
                     else:
+                        predicted = self.fire.get_name_by_id(predicted)
                         self.times = self.fire.get_time_by_name(predicted)
-                        print(predicted + " with " + precision + " precision. Allowed to enter from "
-                              + str(self.times[0].time()) + " to " + str(self.times[1].time()) + "\n")
-                        recognized = True
+                        if self.times[2]:
+                            print(predicted + " with " + precision + " precision. Allowed to enter from "
+                                  + str(self.times[0].time())[:-3] + " to " + str(self.times[1].time())[:-3] + "\n")
+                            recognized = True
+                        else:
+                            print(predicted + " with " + precision + " precision. Allowed to enter from "
+                                  + str(self.times[0].time())[:-3] + " to " + str(self.times[1].time())[:-3] + "\n"
+                                  + 'Out of allowed time.')
+                            recognized = False
 
             self.delete_images()
             self.detect.save_pictures = True
@@ -62,7 +70,13 @@ class AutonomousDoorman(Thread):
                 os.remove(os.path.join("./", f))
 
     def run(self):
-        self.sensor.start()
+        if self.debug_flag:
+            print('Updating system')
+        self.fire.get_pictures()
+        self.face.delete_classifier()
+        self.face.train()
+
+        # self.sensor.start()
         if self.debug_flag:
             print('Starting movement sensor.')
 
@@ -72,12 +86,14 @@ class AutonomousDoorman(Thread):
         self.save_pictures = True
         self.detect.save_pictures = True
         while True:
-            if self.sensor.getStatus() == 1:
+            # if self.sensor.getStatus() == 1:
+            if self.sensor == 1:
                 access = self.recognize_faces()
 
                 if access:
                     print('AutonomousDoorman: Access granted!')
                     # Call arduino
+                    time.sleep(5)
 
                 time.sleep(0.3)
             else:

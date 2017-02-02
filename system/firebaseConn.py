@@ -1,12 +1,13 @@
 import pyrebase
 from ConfigParser import ConfigParser
 from datetime import datetime
+import os
 
 
 class FirebaseConn:
 
     def __init__(self):
-        email, password, self.location = self.read_config()
+        email, password, self.venue = self.read_config()
 
         # TODO: Change it to the correct project config
         config = {
@@ -35,10 +36,10 @@ class FirebaseConn:
 
     # Verify if the DB exists. If it doesn't it requires the user to create it using the web platform.
     def verify_db_existence(self):
-        db = self.db.child(self.userUID).child(self.location).get(self.user['idToken']).val()
+        db = self.db.child(self.userUID).child('Venues').child(self.venue).get(self.user['idToken']).val()
         if db is None:
             print('System at this location not yet built. Please refer to the web application at '
-                  'https://blooming-castle-12067.herokuapp.com/ to configure it.')
+                  'https://vast-castle-87349.herokuapp.com/ to configure it.')
             return 0
         else:
             return 1
@@ -81,36 +82,87 @@ class FirebaseConn:
         return [email, password, location]
 
     def get_time_by_name(self, name):
-        db_home = self.db.child(self.userUID).child(self.location).get(self.user['idToken']).val()
-        db_users = db_home['Users']
+        db_home = self.db.child(self.userUID).child('Venues').child(self.venue).get(self.user['idToken']).val()
+        db_members = db_home['Members']
         db_groups = db_home['Groups']
         start = None
         end = None
+        in_time = False
 
-        for i in range(1, len(db_users)):
-            if db_users[i]['Data']['name'] == name:
+        for i in range(1, len(db_members)):
+            if db_members[i]['Data']['name'] == name:
+                member = db_members[i]
                 groups = []
-                for j in range(len(db_users[i]['Groups'])):
-                    groups.append(db_users[i]['Groups']['g'+str(j+1)])
-                    start = datetime.strptime('23:59', '%H:%M')
-                    end = datetime.strptime('00:00', '%H:%M')
+                now = datetime.now()
+                for j in range(len(db_members[i]['Groups'])):
+                    groups.append(db_members[i]['Groups'][j]['id'])
+                    start = datetime.strptime(str(now.year) + '-' + str(now.month) + '-' + str(now.day) + 'T'
+                                              + '23:59', '%Y-%m-%dT%H:%M')
+                    end = datetime.strptime(str(now.year) + '-' + str(now.month) + '-' + str(now.day) + 'T'
+                                            + '00:00', '%Y-%m-%dT%H:%M')
                 for j in range(len(groups)):
-                    new_start = datetime.strptime(db_groups[groups[j]]['Time']['start'], '%H:%M')
-                    new_end = datetime.strptime(db_groups[groups[j]]['Time']['end'], '%H:%M')
+                    new_start = datetime.strptime(str(now.year) + '-' + str(now.month) + '-' + str(now.day) + 'T' +
+                                                  db_groups[groups[j]]['Time']['start'], '%Y-%m-%dT%H:%M')
+                    new_end = datetime.strptime(str(now.year) + '-' + str(now.month) + '-' + str(now.day) + 'T' +
+                                                db_groups[groups[j]]['Time']['end'], '%Y-%m-%dT%H:%M')
 
                     if new_start < start:
                         start = new_start
                     if new_end > end:
                         end = new_end
 
-        return [start, end]
+                if start <= now <= end:
+                    permission = "".join(groups)
+                    self.set_log(member=member, member_id=i, success='true', permission=permission)
+                    in_time = True
+                else:
+                    self.set_log(member=member, member_id=i, success='false', permission='Out of time entrance')
+                    in_time = False
 
-    def getPictures(self):
-        print(self.userUID)
-        # self.storage.child("images/example.jpg").put("1.jpg", self.user['idToken'])
-        print(self.storage.child("images/example.jpg").get_url(self.user['idToken']))
-        self.storage.child("images/example.jpg").download(filename='test.jpg', token=self.user['idToken'])
+        return [start, end, in_time]
 
+    def set_log(self, member, member_id, success, permission):
 
+        data = {
+            'email': member['Data']['email'],
+            'name': member['Data']['name'],
+            'id': member_id,
+            'permission': permission,
+            'photourl': member['Data']['photourl'],
+            'success': success,
+            'venue': self.venue,
+            'date': {
+                'day': datetime.now().strftime('%d'),
+                'month': datetime.now().strftime('%m'),
+                'time': datetime.now().strftime('%H') + ':' + datetime.now().strftime('%M'),
+                'year': datetime.now().strftime('%Y')
+            }
+        }
+        self.db.child(self.userUID).child('Logs').push(data, token=self.user['idToken'])
 
+    def get_name_by_id(self, member_id):
+        members = self.get_members()
+        return members[int(member_id)]['Data']['name']
 
+    def get_members(self):
+        db_members = self.db.child(self.userUID).child('Venues').child(self.venue).child('Members').get(self.user['idToken']).val()
+        return db_members
+
+    def get_pictures(self):
+        path = '../../openface/training-images/'
+        members = self.get_members()
+        for i in range(1, len(members)):
+            print('------------------------')
+            print('Downloading images of [' + str(i) + '] ' + members[i]['Data']['name'])
+            filename = 1
+            if not os.path.isdir(path+str(i)):
+                os.makedirs(path+str(i))
+            while True:
+                self.storage.child(self.userUID).child(self.venue).child(str(i)).child(str(filename)+'.jpg').download(
+                    filename=str(filename)+'.jpg', token=self.user['idToken'])
+                if os.path.isfile('./'+str(filename)+'.jpg'):
+                    print('> '+str(filename) + '.jpg downloaded')
+                    os.rename('./'+str(filename)+'.jpg', path+str(i)+'/'+str(filename)+'.jpg')
+                    filename += 1
+                else:
+                    break

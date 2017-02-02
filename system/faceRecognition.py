@@ -1,19 +1,19 @@
-'''
-This class is a wrapper for unix commands to call OpenFace functions.
-'''
 import subprocess
 
-class FaceRecognition:
 
+class FaceRecognition:
+    """
+    This class is a wrapper for unix commands to call OpenFace functions.
+    """
     def __init__(self):
         pass
 
-    '''
-    @:param img name
-    '''
     def predict(self, img):
+        """
+        @:param img name
+        """
         # 2>/dev/null is used to prevent warnings to show.
-        cmd = "~/openface/demos/classifier.py infer ~/openface/generated-embeddings/classifier.pkl " + img +  " 2>/dev/null"
+        cmd = "~/openface/demos/classifier.py infer ~/openface/generated-embeddings/classifier.pkl " + img + " 2>/dev/null"
         pipe = subprocess.Popen(cmd, shell=True, stdout=subprocess.PIPE).stdout
         output = pipe.read()
         predicted = precision = None
@@ -26,11 +26,11 @@ class FaceRecognition:
 
         return [predicted, precision]
 
-    '''
-    Train the classifier with new images. Training images should be in ~/openface/training-images/
-    This process may take a few minutes.
-    '''
     def train(self):
+        """
+        Train the classifier with new images. Training images should be in ~/openface/training-images/
+        This process may take a few minutes.
+        """
         print('>>> Training classifier')
 
         # Pode detectiong and alignment
@@ -49,7 +49,6 @@ class FaceRecognition:
         print('Training')
         train = ["TERM=vt100", "~/openface/demos/classifier.py train ~/openface/generated-embeddings/"]
         subprocess.Popen(rep, shell=True, stdout=subprocess.PIPE)
-
 
     def delete_classifier(self):
         print('Deleting Classifier')
