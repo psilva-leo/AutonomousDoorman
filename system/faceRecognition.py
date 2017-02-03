@@ -18,9 +18,9 @@ class FaceRecognition:
         output = pipe.read()
         predicted = precision = None
         try:
-            prediction = output.split('Predict ',1)[1]
-            precision = prediction.split(' ',4)[2]
-            predicted = prediction.split(' ',1)[0]
+            prediction = output.split('Predict ', 1)[1]
+            precision = float(prediction.split(' ', 4)[2])
+            predicted = prediction.split(' ', 1)[0]
         except IndexError:
             pass
 
@@ -52,6 +52,6 @@ class FaceRecognition:
 
     def delete_classifier(self):
         print('Deleting Classifier')
-        align = ['rm -rf ~/openface/aligned-images/', 'rm -rf ~/openface/generated-embeddings/']
+        align = ['rm -rf ~/openface/aligned-images/', 'rm -rf ~/openface/generated-embeddings/', 'rm -rf ~/openface/training-images/']
         subprocess.Popen(align, shell=True, stdout=subprocess.PIPE)
 

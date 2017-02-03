@@ -38,17 +38,26 @@ class AutonomousDoorman(Thread):
                     [predicted, precision] = self.face.predict(f)
                     if predicted is None:
                         print('No match\n')
+                        permission = "Not registered"
+                        self.fire.set_log_no_match(success=False, permission=permission, file_name=f)
+                    elif precision < 0.7:
+                        print('No match\n')
+                        permission = "No registered"
+                        self.fire.set_log_no_match(success=False, permission=permission, file_name=f)
                     else:
-                        predicted = self.fire.get_name_by_id(predicted)
-                        self.times = self.fire.get_time_by_name(predicted)
-                        if self.times[2]:
-                            print(predicted + " with " + precision + " precision. Allowed to enter from "
-                                  + str(self.times[0].time())[:-3] + " to " + str(self.times[1].time())[:-3] + "\n")
+                        predicted = int(predicted)
+                        predicted_name = self.fire.get_name_by_id(predicted)
+                        in_time, in_time_groups = self.fire.get_in_time_allowance(predicted)
+                        if in_time:
+                            permission = "Allowed by " + "".join(in_time_groups)
+                            print(predicted_name + " with " + str(precision) + " precision. " + permission)
+                            self.fire.set_log(member=self.fire.get_member_by_id(predicted), member_id=predicted, success=True, permission=permission, file_name=f)
                             recognized = True
                         else:
-                            print(predicted + " with " + precision + " precision. Allowed to enter from "
-                                  + str(self.times[0].time())[:-3] + " to " + str(self.times[1].time())[:-3] + "\n"
-                                  + 'Out of allowed time.')
+                            permission = "Not allowed to enter. Out of time"
+                            print(predicted_name + " with " + str(precision) + " precision. " + permission)
+                            self.fire.set_log(member=self.fire.get_member_by_id(predicted), member_id=predicted,
+                                              success=False, permission=permission, file_name=f)
                             recognized = False
 
             self.delete_images()
@@ -72,9 +81,9 @@ class AutonomousDoorman(Thread):
     def run(self):
         if self.debug_flag:
             print('Updating system')
-        self.fire.get_pictures()
-        self.face.delete_classifier()
-        self.face.train()
+        # self.face.delete_classifier()
+        # self.fire.get_pictures()
+        # self.face.train()
 
         # self.sensor.start()
         if self.debug_flag:
