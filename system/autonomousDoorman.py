@@ -17,7 +17,6 @@ class AutonomousDoorman(Thread):
         self.running_thread = False
         self.save_pictures = True
         self.fire = FirebaseConn()
-        self.times = None
         self.debug_flag = debug_flag
         super(AutonomousDoorman, self).__init__()
 
@@ -30,7 +29,6 @@ class AutonomousDoorman(Thread):
         if not self.running_thread:
             self.detect.save_pictures = False
             self.running_thread = True
-            self.times = None
             files = os.listdir("./")
             for f in files:
                 if f.endswith(".jpg"):
@@ -40,7 +38,7 @@ class AutonomousDoorman(Thread):
                         print('No match\n')
                         permission = "Not registered"
                         self.fire.set_log_no_match(success=False, permission=permission, file_name=f)
-                    elif precision < 0.7:
+                    elif precision < 0.8:
                         print('No match\n')
                         permission = "No registered"
                         self.fire.set_log_no_match(success=False, permission=permission, file_name=f)
@@ -51,7 +49,8 @@ class AutonomousDoorman(Thread):
                         if in_time:
                             permission = "Allowed by " + "".join(in_time_groups)
                             print(predicted_name + " with " + str(precision) + " precision. " + permission)
-                            self.fire.set_log(member=self.fire.get_member_by_id(predicted), member_id=predicted, success=True, permission=permission, file_name=f)
+                            self.fire.set_log(member=self.fire.get_member_by_id(predicted), member_id=predicted,
+                                              success=True, permission=permission, file_name=f)
                             recognized = True
                         else:
                             permission = "Not allowed to enter. Out of time"
@@ -81,9 +80,9 @@ class AutonomousDoorman(Thread):
     def run(self):
         if self.debug_flag:
             print('Updating system')
-        # self.face.delete_classifier()
-        # self.fire.get_pictures()
-        # self.face.train()
+        self.face.delete_classifier()
+        self.fire.get_pictures()
+        self.face.train()
 
         # self.sensor.start()
         if self.debug_flag:
