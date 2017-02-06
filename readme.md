@@ -154,8 +154,7 @@ Libraries needed:
 
 - *Installing Pyrebase*
     ```sh
-    $ sudo pip install requests==1.1.0
-    $ sudo pip install python-firebase
+    $ sudo pip install pyrebase
     ```
 
 # Licensing
