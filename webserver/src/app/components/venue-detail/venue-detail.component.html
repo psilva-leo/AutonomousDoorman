@@ -8,7 +8,7 @@
 
   <div class="container-fluid">
     <div class="animated fadeIn">
-      <div class="row"><button (click)="openCreateGroup()" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Add new Group</button></div>
+      <div class="row" style="padding-right: 1rem; padding-bottom: 0.5rem"><button (click)="openCreateGroup()" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Add new Group</button></div>
 
       <div *ngFor="let group of groups; let i = index; trackBy:trackByIndex">
         <div *ngIf="i%3 == 0" class="row">
