@@ -185,3 +185,10 @@ fieldset[disabled] .btn-white.active {
 }
 
 .pull-right{float:right!important}
+
+.delete-position{
+  top: -7px;
+  right: -35px;
+  position: relative;
+  cursor: pointer;
+}

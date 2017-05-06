@@ -22,10 +22,12 @@
                 <div class="ibox-content">
                   <div class="team-members row">
                     <span *ngFor="let groupMember of groupMembers[group]">
+                      <span style="position: absolute" (click)="deleteMember(members[groupMember].id)"><i class="fa fa-times-circle delete-position"></i></span>
                       <a popover="{{members[groupMember].email}}" popoverTitle="{{members[groupMember].name}}" popoverPlacement="auto right"
                          [popoverOnHover]="true" [popoverCloseOnClickOutside]="true" [popoverCloseOnMouseOutside]="false"
                          [popoverDisabled]="false" [popoverAnimation]="true">
-                        <img alt="member" class="img-circle" src="{{members[groupMember].photourl}}"></a>
+                        <img alt="member" class="img-circle" src="{{members[groupMember].photourl}}">
+                        </a>
                     </span>
                   </div>
 

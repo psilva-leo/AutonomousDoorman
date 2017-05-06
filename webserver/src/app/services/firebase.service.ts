@@ -304,6 +304,40 @@ export class FirebaseService{
     this.createInitialMember(venue, groups, memberInfo);
 
   }
+
+  deleteMember(venue, id, groups){
+    console.log(venue +' '+id);
+
+    // Finding user's groups to delete from
+    for (let i=0; i<groups.length; i++){
+      this.db.list(this.userInfo.uid+'/Venues/'+venue+'/Groups/'+groups[i]).subscribe(group => {
+        if(group.length > 0 && typeof group[0] != "undefined") {
+          let members = group[0];
+          for(let j=0; j<members.length; j++){
+            if(members[j]['id'] == id){
+              this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Groups/'+groups[i]+'/Members/'+j).remove();
+            }
+          }
+        }
+      }).unsubscribe();
+    }
+
+    // Deleting photos
+    let i = 1;
+    loop(this);
+    function loop(self){
+      console.log(self.userInfo.uid+'/'+venue+'/'+id+'/'+i+'.jpg');
+      self.storage.child(self.userInfo.uid+'/'+venue+'/'+id+'/'+i+'.jpg').delete()
+        .then(res => {
+          i++;
+          loop(self);
+        });
+    }
+
+    // Deleting member info
+    this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Members/'+id).remove()
+
+  }
 }
 
 export interface Member{

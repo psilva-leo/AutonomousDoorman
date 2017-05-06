@@ -22,6 +22,7 @@ export class VenueDetailComponent implements OnInit{
   members: {};
   membersId: string[];
 
+
   newMember: Member;
   createMember: boolean[];
   constructor(private firebaseService: FirebaseService, private route: ActivatedRoute, private modal: Modal,
@@ -102,8 +103,9 @@ export class VenueDetailComponent implements OnInit{
     }
   }
 
-  deleteMember(index){
-    this.createMember[index] = false;
+  deleteMember(id){
+    this.firebaseService.deleteMember(this.venueName, id, this.members[id].groups);
+    // this.createMember[index] = false;
   }
 
   submit(index, memberInfo){
