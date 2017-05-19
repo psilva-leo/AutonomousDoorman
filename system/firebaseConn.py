@@ -2,11 +2,13 @@ import pyrebase
 from ConfigParser import ConfigParser
 from datetime import datetime
 import os
+from faceRecognition import FaceRecognition
 
 
 class FirebaseConn:
 
     def __init__(self):
+        self.face = FaceRecognition()
         email, password, self.venue = self.read_config()
 
         # TODO: Change it to the correct project config
@@ -35,6 +37,21 @@ class FirebaseConn:
         if self.venue is None:
             self.venue = self.write_config_venue()
 
+        self.posts_stream = self.db.child(self.userUID).child('Venues').child(self.venue).child("Posts").stream(self.stream_handler)
+
+    def stream_handler(self, message):
+        print('>>>>>STREAM')
+        print(message["event"])  # put
+        print(message["path"])  # /-K7yGTTEp7O549EzTYtI
+        print(message["data"])  # {'title': 'Pyrebase', "body": "etc..."}
+
+        if message["data"] == 'new member' or message["data"] == 'deleted member':
+            self.get_pictures()
+            self.face.delete_classifier()
+            self.face.train()
+        elif message["data"] == 'open door':
+            # Open door
+            pass
 
     # Verify if the DB exists. If it doesn't it requires the user to create it using the web platform.
     def verify_db_existence(self):
