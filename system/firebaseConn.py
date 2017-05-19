@@ -107,6 +107,7 @@ class FirebaseConn:
         return choose
 
     def get_in_time_allowance(self, member_id):
+        member_id = int(member_id)
         db_home = self.db.child(self.userUID).child('Venues').child(self.venue).get(self.user['idToken']).val()
         db_members = db_home['Members']
         db_groups = db_home['Groups']
@@ -114,6 +115,7 @@ class FirebaseConn:
         end = None
         in_time = False
 
+        print(member_id)
         member = db_members[member_id]
         groups = []
         in_time_groups = []
@@ -153,7 +155,7 @@ class FirebaseConn:
         #     in_time = False
 
         # return [start, end, in_time, in_time_groups]
-        return [in_time, in_time_groups]
+        return in_time, in_time_groups
 
     def set_log(self, member, member_id, success, permission, file_name):
 
@@ -210,7 +212,7 @@ class FirebaseConn:
         return db_members
 
     def get_pictures(self):
-        path = '../../openface/training-images/'
+        path = '/home/leo/openface/training-images/'
         members = self.get_members()
         for i in range(1, len(members)):
             print('------------------------')

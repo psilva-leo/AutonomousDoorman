@@ -3,7 +3,7 @@ import time
 from threading import Thread
 from faceRecognition import FaceRecognition
 from firebaseConn import FirebaseConn
-from detectFace import DetectFace
+from detectFace2 import DetectFace
 # from movementDetection import MovementDetection
 
 
@@ -62,8 +62,10 @@ class AutonomousDoorman(Thread):
             self.delete_images()
             self.detect.save_pictures = True
 
+            access = True if recognized == True and  self.detect.liveness_prediction > 0.8 else False
+            self.detect.resetLiveness()
             self.running_thread = False
-            return recognized
+            return access
 
     """
         Delete old pictures that were already classified.
@@ -80,9 +82,9 @@ class AutonomousDoorman(Thread):
     def run(self):
         if self.debug_flag:
             print('Updating system')
-        self.face.delete_classifier()
+        #self.face.delete_classifier()
         self.fire.get_pictures()
-        self.face.train()
+        #self.face.train()
 
         # self.sensor.start()
         if self.debug_flag:

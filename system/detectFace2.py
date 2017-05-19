@@ -2,8 +2,13 @@ import numpy as np
 import time
 import cv2
 from threading import Thread
-from picamera.array import PiRGBArray
-from picamera import PiCamera
+#from picamera.array import PiRGBArray
+#from picamera import PiCamera
+import openface
+from sklearn.externals import joblib
+from livenessDetection import colbp, lpq
+import threading
+
 
 class DetectFace(Thread):
 
@@ -13,6 +18,12 @@ class DetectFace(Thread):
         Class constructor. Receives a sensor (MovementDetection)
     """
     def __init__(self, sensor):
+        self.processing = False
+        self.count = 1
+        self.accuracy = 0.0
+        self.predict = 0
+        self.liveness_prediction = 0.0
+
         self.sensor = sensor
         self.save_pictures = True
         super(DetectFace, self).__init__()
@@ -24,38 +35,89 @@ class DetectFace(Thread):
 
     """
     def run(self):
-        face_cascade = cv2.CascadeClassifier('haarcascade_frontalface_default.xml')
-        camera = PiCamera()
-        camera.resolution = (640, 480)
-        camera.framerate = 32
-        camera.brightness = 70
-        rawCapture = PiRGBArray(camera, size=(640, 480))
+        def liveness_detection(frame):
 
-        time.sleep(0.1)
+            if not self.processing:
+                start = time.time()
+                threads = []
+                self.processing = True
+                # cv2.imwrite('frame'+str(count)+'.png', frame)
+                frame_hsv = cv2.cvtColor(frame, cv2.COLOR_BGR2HSV)
+                frame_ycrcb = cv2.cvtColor(frame, cv2.COLOR_BGR2YCrCb)
 
-        for frame in camera.capture_continuous(rawCapture, format="bgr", use_video_port=True):
-            if self.sensor == 1:
-                img = frame.array
+                #print('Worker')
+                deltas = [1, 2, 4]
+                ases = [2, 4, 8]
 
-                gray = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-                faces = face_cascade.detectMultiScale(gray, 1.3, 5)
+                lpq_res = lpq(frame_ycrcb[:, :, 0])
+                lpq_res += lpq(frame_ycrcb[:, :, 1])
+                lpq_res += lpq(frame_ycrcb[:, :, 2])
 
-                count = 0
-                for (x, y, w, h) in faces:
-                    cv2.rectangle(img, (x, y), (x + w, y + h), (255, 0, 0), 2)
-                    roi_gray = gray[y:y + h, x:x + w]
-                    roi_color = img[y:y + h, x:x + h]
-                    # print('DetectFace: '+str(self.save_pictures))
-                    if self.save_pictures:
-                        cv2.imwrite('fig' + str(count) + '.jpg', img[y:y + h, x: x + w])
-                        count += 1
+                lpq_res = np.append(lpq_res, colbp(frame_hsv[:, :, 0], 1, 2))
+                lpq_res = np.append(lpq_res, colbp(frame_hsv[:, :, 1], 2, 4))
+                lpq_res = np.append(lpq_res, colbp(frame_hsv[:, :, 2], 4, 8))
 
-                cv2.imshow('img', img)
-                k = cv2.waitKey(30) & 0xff
-                rawCapture.truncate(0)
-                if k == 27:
-                    break
-            else:
-                time.sleep(1)
+                predict = clf.predict([lpq_res])
+                prediction = 'person' if predict[0] == 0.0 else 'fake'
 
+                print('prediction: ' + prediction)
+                self.accuracy += (predict[0] == 0)
+
+                # accuracy /= 100.
+                self.liveness_prediction = self.accuracy / (self.count * 1.0)
+                #print(self.liveness_prediction)
+               # print('accuracy {} | {}'.format(self.accuracy / self.count * 1.0, self.liveness_prediction))
+                self.count += 1
+
+                end = time.time()
+                #print('Worker out {}'.format(end - start))
+                self.processing = False
+
+            return
+
+        cap = cv2.VideoCapture(0)
+        dLibFacePredictor = '/home/leo/openface/models/dlib/shape_predictor_68_face_landmarks.dat'
+        align = openface.AlignDlib(dLibFacePredictor)
+        m = n = imgDim = 96
+        time.sleep(0.02)
+        threads = []
+        clf = joblib.load('svm.pkl')
+
+        while (True):
+            # Capture frame-by-frame
+            ret, frame = cap.read(0)
+            cv2.imshow('frame', frame)
+
+            if not self.processing:
+                # buf = np.asarray(frame)
+                # rgbFrame = np.zeros((480, 640, 3), dtype=np.uint8)
+                # rgbFrame[:, :, 0] = buf[:, :, 2]
+                # rgbFrame[:, :, 1] = buf[:, :, 1]
+                # rgbFrame[:, :, 2] = buf[:, :, 0]
+                rgbFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+
+                bbs = align.getAllFaceBoundingBoxes(rgbFrame)
+
+                print('number of faces: %s' % len(bbs))
+
+                face_number = 0
+                for bb in bbs:
+                    if bb.bottom() - bb.top() > m and bb.right() - bb.left() > n:
+                        cropped_frame = frame[bb.top(): bb.bottom(), bb.left(): bb.right()].copy()
+
+                        if self.save_pictures:
+                            cv2.imshow('saved img', cropped_frame)
+                            cv2.imwrite('face' + str(face_number) + '.jpg', cropped_frame)
+                        cropped_frame = cv2.resize(cropped_frame, (imgDim, imgDim), interpolation=cv2.INTER_CUBIC)
+                        face_number += 1
+
+                        t = threading.Thread(target=liveness_detection, args=(cropped_frame,))
+                        threads.append(t)
+                        t.start()
+
+            if cv2.waitKey(1) & 0xFF == ord('q'):
+                break
+
+        cap.release()
         cv2.destroyAllWindows()
+

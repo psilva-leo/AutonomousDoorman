@@ -126,6 +126,7 @@ Libraries needed:
     $ source ~/.bashrc
     
     # Packages for Torch
+    $ luarocks install torch
     $ luarocks install dpnn 
     $ luarocks install nn
     $ luarocks install optim

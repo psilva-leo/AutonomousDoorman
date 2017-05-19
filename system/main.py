@@ -1,5 +1,5 @@
 import argparse
-from autonomousDoorman import AutonomousDoorman
+from autonomousDoorman2 import AutonomousDoorman
 
 debug_flag = False
 
