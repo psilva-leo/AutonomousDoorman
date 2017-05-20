@@ -86,6 +86,7 @@ export class FirebaseService{
   }
 
   getPhotoUrl(photourl: string){
+    console.log(photourl);
     return this.storage.child(photourl).getDownloadURL();
   }
 
@@ -206,6 +207,8 @@ export class FirebaseService{
       xhr.open('GET', url);
       xhr.send();
     });
+
+    this.notifyNewMember(venue);
   }
 
   createAndAddMember(venue: string, group: string, memberInfo: Member, filelist: FileList){
@@ -226,7 +229,7 @@ export class FirebaseService{
           }
         }
       };
-      console.log(venue);
+
       this.db.object(this.userInfo.uid + '/Venues/' + venue + '/Members/').update(data);
 
       data = {};
@@ -237,6 +240,8 @@ export class FirebaseService{
     for(let i=1; i<filelist.length; i++){
       this.uploadMemberImage(filelist[i], venue, memberInfo.id, (i+1).toString());
     }
+
+    this.notifyNewMember(venue);
 
 
   }
@@ -305,26 +310,11 @@ export class FirebaseService{
 
   }
 
-  deleteMember(venue, id, groups){
+  deleteMember(venue: string, id: string, group: string){
     console.log(venue +' '+id);
+    console.log(this.members[venue][id]['Groups'].length);
 
-    // Finding user's groups to delete from
-    for (let i=0; i<groups.length; i++){
-      this.db.list(this.userInfo.uid+'/Venues/'+venue+'/Groups/'+groups[i]).subscribe(group => {
-        if(group.length > 0 && typeof group[0] != "undefined") {
-          let members = group[0];
-          for(let j=0; j<members.length; j++){
-            if(members[j]['id'] == id){
-              this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Groups/'+groups[i]+'/Members/'+j).remove();
-            }
-          }
-        }
-      }).unsubscribe();
-    }
-
-    // Deleting photos
     let i = 1;
-    loop(this);
     function loop(self){
       console.log(self.userInfo.uid+'/'+venue+'/'+id+'/'+i+'.jpg');
       self.storage.child(self.userInfo.uid+'/'+venue+'/'+id+'/'+i+'.jpg').delete()
@@ -334,9 +324,83 @@ export class FirebaseService{
         });
     }
 
-    // Deleting member info
-    this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Members/'+id).remove()
+    // If group has just one member delete group
+    if(this.groups[venue][group]['Members'].length == 1){
+      this.deleteGroup(group, venue); // Delete members included in delete group
+    }else {
+      for (let m in this.groups[venue][group]['Members']) {
+        let memberID = this.groups[venue][group]['Members'][m]['id'];
+        if (memberID == id) {
+          this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Groups/'+group+'/Members/'+m).remove();
+        }
+      }
 
+      for (let g in this.members[venue]['Groups']) {
+        if (this.members[venue]['Groups'][g]['id'] == group) {
+          this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Members/'+id+'/Groups/'+g).remove();
+        }
+      }
+    }
+
+    if (this.members[venue][id]['Groups'].length == 1){
+      // Deleting photos
+      loop(this);
+
+      // Deleting member info
+      this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Members/'+id).remove();
+      this.notifyDeletedMember(venue);
+    }
+
+
+  }
+
+  deleteGroup(group: string, venue: string){
+    for(let member in this.groups[venue][group]['Members']){
+      let memberID = this.groups[venue][group]['Members'][member]['id'];
+      console.log(this.groups[venue][group]['Members'][member]['id']);
+
+      for(let i in this.members[venue][memberID]['Groups']){
+        if(this.members[venue][memberID]['Groups'][i]['id'] == group){
+          if(this.members[venue][memberID]['Groups'].length == 1){
+            this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Members/'+memberID).remove();
+            this.notifyDeletedMember(venue);
+          }else{
+            this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Members/'+memberID+'/Groups/'+i).remove()
+          }
+        }
+      }
+    }
+
+    this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Groups/'+group).remove()
+  }
+
+  editGroup(group: string, venue: string, start: string, end: string){
+    let edit = {};
+    edit['start'] = start;
+    edit['end'] = end;
+
+    this.db.object(this.userInfo.uid+'/Venues/'+venue+'/Groups/'+group+'/Time/').set(edit);
+  }
+
+  notifyNewMember(venue: string){
+    let timestamp = Math.floor(Date.now() / 1000);
+    let data = {};
+    data[timestamp] = 'New Member';
+    this.db.object(this.userInfo.uid+'/Venues/'+venue+'/CrossConnection').set(data);
+  }
+
+  notifyDeletedMember(venue: string){
+    let timestamp = Math.floor(Date.now() / 1000);
+    let data = {};
+    data[timestamp] = 'Deleted Member';
+    this.db.object(this.userInfo.uid+'/Venues/'+venue+'/CrossConnection').set(data);
+  }
+
+  openDoor(venue: string){
+    let timestamp = Math.floor(Date.now() / 1000);
+    let data = {};
+    data[timestamp] = 'Open Door';
+    this.db.object(this.userInfo.uid+'/Venues/'+venue+'/CrossConnection').set(data);
   }
 }
 

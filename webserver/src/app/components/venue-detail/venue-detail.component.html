@@ -8,7 +8,10 @@
 
   <div class="container-fluid">
     <div class="animated fadeIn">
-      <div class="row" style="padding-right: 1rem; padding-bottom: 0.5rem"><button (click)="openCreateGroup()" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Add new Group</button></div>
+      <div class="row" style="padding-right: 1rem; padding-bottom: 0.5rem">
+        <button (click)="openDoor()" class="btn btn-success">Open Door</button>
+        <button (click)="openCreateGroup()" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Add new Group</button>
+      </div>
 
       <div *ngFor="let group of groups; let i = index; trackBy:trackByIndex">
         <div *ngIf="i%3 == 0" class="row">
@@ -16,13 +19,24 @@
             <div *ngIf="j>=i && j<i+3" class="col-md-4">
               <div class="ibox">
                 <div class="ibox-title">
-                  <a role="button" (click)="openCreateUser(j)"><span class="label label-primary pull-right"><i class="fa fa-plus"></i></span></a>
-                  <h5>{{group}}</h5>
+                  <a role="button" (click)="openCreateUser(j)">
+                    <span class="label label-primary pull-right"><i class="fa fa-plus"></i></span>
+                  </a>
+                  <a role="button" (click)="editGroup(j)">
+                    <span class="label label-primary pull-right"><i class="fa fa-pencil-square-o"></i></span>
+                  </a>
+
+                  <h5>
+                    <a role="button" (click)="deleteGroup(group.id)">
+                      <span class="label label-primary"><i class="fa fa-trash-o"></i></span>
+                    </a><span>&nbsp; &nbsp;</span>
+                    {{group.id}}
+                  </h5>
                 </div>
                 <div class="ibox-content">
                   <div class="team-members row">
-                    <span *ngFor="let groupMember of groupMembers[group]">
-                      <span style="position: absolute" (click)="deleteMember(members[groupMember].id)"><i class="fa fa-times-circle delete-position"></i></span>
+                    <span *ngFor="let groupMember of groupMembers[group.id]">
+                      <span style="position: absolute" (click)="deleteMember(members[groupMember].id, group.id)"><i class="fa fa-times-circle delete-position"></i></span>
                       <a popover="{{members[groupMember].email}}" popoverTitle="{{members[groupMember].name}}" popoverPlacement="auto right"
                          [popoverOnHover]="true" [popoverCloseOnClickOutside]="true" [popoverCloseOnMouseOutside]="false"
                          [popoverDisabled]="false" [popoverAnimation]="true">
@@ -34,15 +48,15 @@
                   <div class="row  m-t-sm">
                     <div class="col-sm-4 col-xs-4">
                       <div class="font-bold">{{"start" | translate | uppercase}}</div>
-                      08:00
+                      {{group.start}}
                     </div>
                     <div class="col-sm-4 col-xs-4">
                       <div class="font-bold">{{"end" | translate | uppercase}}</div>
-                      18:00
+                      {{group.end}}
                     </div>
                     <div class="col-sm-4 col-xs-4">
                       <div class="font-bold">{{"members" | translate | uppercase}}</div>
-                      {{groupMembers[group].length}}
+                      {{groupMembers[group.id].length}}
                     </div>
                   </div>
 
