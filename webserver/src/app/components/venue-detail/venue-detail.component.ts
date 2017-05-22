@@ -76,9 +76,8 @@ export class VenueDetailComponent implements OnInit{
         // Get group's groupMembers id
         for (let i = 0; i < groups.length; i++){
           this.groupMembers[this.groups[i].id] = [];
-          for(let j=0; j<groups[i]['Members'].length; j++){
-            if(!isUndefined(groups[i]['Members'][j]))
-              this.groupMembers[this.groups[i].id].push(groups[i]['Members'][j]['id']);
+          for(let j in groups[i]['Members']){
+            this.groupMembers[this.groups[i].id].push(groups[i]['Members'][j]['id']);
           }
         }
         console.log(this.groupMembers);
