@@ -114,6 +114,11 @@ export class VenueDetailComponent implements OnInit{
     }
   }
 
+  deleteVenue(){
+    this.firebaseService.deleteVenue(this.venueName);
+  }
+
+
   deleteMember(id, group){
     console.log(id);
     console.log(group);

@@ -1,4 +1,4 @@
-import {Component, OnInit, ChangeDetectorRef} from '@angular/core';
+import {Component, OnInit, ChangeDetectorRef, ViewChild} from '@angular/core';
 import { DialogRef, ModalComponent, CloseGuard } from 'angular2-modal';
 import { Modal, BSModalContext } from 'angular2-modal/plugins/bootstrap';
 import {FirebaseService, Member} from "../../services/firebase.service";
@@ -19,6 +19,8 @@ export class AddUserModalComponent implements OnInit, CloseGuard, ModalComponent
   members: Member[];
   membersId: string[];
   fileList: FileList;
+  showCam: string;
+  streaming: any;
 
   constructor(public dialog: DialogRef<CustomModalContext>, private firebaseService: FirebaseService,
               private modal: Modal, private router: Router, private ref: ChangeDetectorRef) {
@@ -28,6 +30,7 @@ export class AddUserModalComponent implements OnInit, CloseGuard, ModalComponent
     this.context.isBlocking = false;
     this.confirmationMessage = "";
     this.fileList = null;
+    this.showCam = "none";
 
     this.firebaseService.findMembers(this.context.venueName).subscribe(members => {
       this.membersId = [];
@@ -122,14 +125,44 @@ export class AddUserModalComponent implements OnInit, CloseGuard, ModalComponent
     }else{
       this.confirmationMessage = "Error: Could mot create member because the name or email are blank or no photo were added.";
     }
-
   }
 
+  openCamera(){
+    if(this.showCam == "none"){
+      this.showCam = "block";
+      let _video = this.video.nativeElement;
+      if(navigator.mediaDevices && navigator.mediaDevices.getUserMedia) {
+        navigator.mediaDevices.getUserMedia({ video: true })
+          .then(stream => {
+            this.streaming = stream;
+            _video.src = window.URL.createObjectURL(stream);
+            _video.play();
+          })
+      }
+    }else{
+      this.showCam = "none";
+      this.streaming.getVideoTracks()[0].stop();
+    }
+  }
+
+  takePicture(){
+    let canvas = <HTMLCanvasElement> document.getElementById('canvas');
+    let image = new Image();
+    image.src = canvas.toDataURL("image/png");
+    console.log(image.src);
+    return image;
+  }
+
+  @ViewChild('video') video:any;
+
+
   beforeDismiss(): boolean{
+    this.streaming.getVideoTracks()[0].stop();
     return true;
   }
 
   beforeClose(): boolean{
+    this.streaming.getVideoTracks()[0].stop();
     return true;
   }
 

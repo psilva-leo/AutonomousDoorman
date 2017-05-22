@@ -38,9 +38,15 @@
           </div>
 
           <div class="form-group">
+            <button type="button" (click)="openCamera()" class="btn btn-sm btn-primary">Open Camera</button>
             <input type="file" multiple="" (change)="fileChange($event)" placeholder="Upload file"
                    id="input-upload" name="file-multiple-input" accept="image/jpeg">
           </div>
+
+          <video #video width="320" height="240" [style.display]="showCam" style="margin: 0 auto;"></video>
+          <canvas id="canvas" width="320" height="240" [style.display]="showCam" style="margin: 0 auto;"></canvas>
+          <button type="button" (click)="takePicture()" class="btn btn-sm btn-primary">Take Picture</button>
+
           <div *ngIf="confirmationMessage !== ''" class="alert alert-danger" role="alert">{{confirmationMessage}}</div>
 
           <div class="form-group form-actions">

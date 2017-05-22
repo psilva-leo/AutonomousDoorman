@@ -310,6 +310,12 @@ export class FirebaseService{
 
   }
 
+  deleteVenue(venue: string){
+    this.router.navigate(['/']);
+    this.db.object(this.userInfo.uid+'/Venues/'+venue).remove();
+    console.log(venue);
+  }
+
   deleteMember(venue: string, id: string, group: string){
     console.log(venue +' '+id);
     console.log(this.members[venue][id]['Groups'].length);
