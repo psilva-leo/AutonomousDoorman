@@ -17,8 +17,9 @@ class DetectFace(Thread):
     """
         Class constructor. Receives a sensor (MovementDetection)
     """
-    def __init__(self, sensor):
+    def __init__(self, sensor, Autonomous):
         self.processing = False
+        self.autonomous = Autonomous
         self.count = 1
         self.accuracy = 0.0
         self.predict = 0
@@ -88,7 +89,7 @@ class DetectFace(Thread):
             ret, frame = cap.read(0)
             cv2.imshow('frame', frame)
 
-            if not self.processing:
+            if not self.processing and self.autonomous.training is False:
                 # buf = np.asarray(frame)
                 # rgbFrame = np.zeros((480, 640, 3), dtype=np.uint8)
                 # rgbFrame[:, :, 0] = buf[:, :, 2]

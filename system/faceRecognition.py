@@ -1,8 +1,6 @@
 import subprocess
 import openface
-import time
 import pickle
-from sklearn.mixture import GMM
 import cv2
 import numpy as np
 
@@ -15,7 +13,6 @@ class FaceRecognition:
         self.classifier_path = '/home/leo/openface/generated-embeddings/classifier.pkl'
         self.predictor_path = '/home/leo/openface/models/dlib/shape_predictor_68_face_landmarks.dat'
         self.model_path = '/home/leo/openface/models/openface/nn4.small2.v1.t7'
-        pass
 
     def predict(self, img):
         person = -1
@@ -93,6 +90,8 @@ class FaceRecognition:
         print('Training')
         train = "TERM=vt100; ~/openface/demos/classifier.py train ~/openface/generated-embeddings"
         subprocess.Popen(train, shell=True, stdout=subprocess.PIPE, stderr=subprocess.STDOUT).communicate()
+
+        print('Finished Training')
 
     def delete_classifier(self):
         print('Deleting Classifier')

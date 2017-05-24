@@ -14,11 +14,11 @@ class AutonomousDoorman(Thread):
     def __init__(self, debug_flag=False):
         # self.sensor = MovementDetection()
         self.sensor = 1
-        self.detect = DetectFace(sensor=self.sensor)
+        self.detect = DetectFace(sensor=self.sensor, Autonomous=self)
         self.face = FaceRecognition()
-        self.running_thread = False
+        self.training = False
         self.save_pictures = True
-        self.fire = FirebaseConn()
+        self.fire = FirebaseConn(Autonomous=self)
         self.debug_flag = debug_flag
         super(AutonomousDoorman, self).__init__()
 
@@ -35,7 +35,8 @@ class AutonomousDoorman(Thread):
             if f.endswith(".jpg"):
                 print('>>Predicting ' + f)
                 person, confidence = self.face.predict(f)
-                if confidence > 0.8:
+                print('predicted person: {} | confidence: {}'.format(person, confidence))
+                if confidence > 0.7:
                     recognized_faces = [[person, confidence]] if not recognized_faces \
                         else np.vstack((recognized_faces, (person, confidence)))
 
@@ -75,7 +76,7 @@ class AutonomousDoorman(Thread):
         self.detect.save_pictures = True
         while True:
             # if self.sensor.getStatus() == 1:
-            if self.sensor == 1:
+            if self.sensor == 1 and self.training is False:
                 recognized_faces = self.recognize_faces()
                 print(recognized_faces)
 
@@ -90,7 +91,7 @@ class AutonomousDoorman(Thread):
 
                 print('In time: {}'.format(in_time))
 
-                if recognized_faces and in_time and liveness > 0.8:
+                if recognized_faces and in_time and liveness > 0.7:
                     print('ACCESS GRANTED!!')
                 else:
                     print('ACCESS DENIED!')

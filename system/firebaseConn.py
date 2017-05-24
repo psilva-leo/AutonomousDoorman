@@ -3,13 +3,16 @@ from ConfigParser import ConfigParser
 from datetime import datetime
 import os
 from faceRecognition import FaceRecognition
+import json
 
 
 class FirebaseConn:
 
-    def __init__(self):
+    def __init__(self, Autonomous):
+        self.autonomous = Autonomous
         self.face = FaceRecognition()
-        email, password, self.venue = self.read_config()
+
+        email, password, self.venue, self.update = self.read_config()
 
         # TODO: Change it to the correct project config
         config = {
@@ -37,21 +40,55 @@ class FirebaseConn:
         if self.venue is None:
             self.venue = self.write_config_venue()
 
-        self.posts_stream = self.db.child(self.userUID).child('Venues').child(self.venue).child("Posts").stream(self.stream_handler)
+        self.posts_stream = self.db.child(self.userUID).child('Venues').child(self.venue).child("CrossConnection").stream(self.stream_handler)
+
+
 
     def stream_handler(self, message):
         print('>>>>>STREAM')
-        print(message["event"])  # put
+        print(message["event"])
         print(message["path"])  # /-K7yGTTEp7O549EzTYtI
         print(message["data"])  # {'title': 'Pyrebase', "body": "etc..."}
 
-        if message["data"] == 'new member' or message["data"] == 'deleted member':
-            self.get_pictures()
+        keys = message["data"].keys()
+        for key in keys:
+            print(key)
+
+        try:
+            index = keys.index(self.update)
+
+            if index == len(keys) - 2:
+                if message["data"][-1] == u'New Member' or message["data"][-1] == u'Deleted Member':
+                    self.autonomous.training = True
+                    self.face.delete_classifier()
+                    self.get_pictures()
+                    self.face.train()
+                    self.autonomous.training = False
+                elif message["data"][-1] == 'Open Door':
+                    # Open door
+                    pass
+            elif index != len(keys) - 1:
+                self.autonomous.training = True
+                self.face.delete_classifier()
+                self.get_pictures()
+                self.face.train()
+                self.autonomous.training = False
+
+        except: # First time. Configuring
+            cfg = ConfigParser()
+            cfg.read('config.ini')
+
+            cfg.set('User', 'update', keys[-1])
+
+            with open('config.ini', 'wb') as configfile:
+                cfg.write(configfile)
+
+            self.autonomous.training = True
             self.face.delete_classifier()
+            self.get_pictures()
             self.face.train()
-        elif message["data"] == 'open door':
-            # Open door
-            pass
+            self.autonomous.training = False
+
 
     # Verify if the DB exists. If it doesn't it requires the user to create it using the web platform.
     def verify_db_existence(self):
@@ -74,30 +111,33 @@ class FirebaseConn:
         cfg.read('config.ini')
         sections = cfg.sections()
         if len(sections) == 0:
-            email, password = self.write_config()
+            email, password, update = self.write_config()
             location = None
         else:
             email = cfg.get('User', 'email')
             password = cfg.get('User', 'password')
             location = cfg.get('User', 'venue')
+            update = cfg.get('User', 'update')
 
-        return [email, password, location]
+        return [email, password, location, update]
 
     def write_config(self):
         print('CONFIGURING SYSTEM\nLogin in with your email and password. If you are not yet registered '
               'go to https://vast-castle-87349.herokuapp.com/ first and create an account.\n')
         email = raw_input('email: ')
         password = raw_input('password: ')
+        update = 0
 
         # Creating config.ini
         cfg = ConfigParser()
         cfg.add_section('User')
         cfg.set('User', 'email', email)
         cfg.set('User', 'password', password)
+        cfg.set('User', 'update', update)
         config_file = open('config.ini', 'w')
         cfg.write(config_file)
 
-        return [email, password]
+        return [email, password, update]
 
     def write_config_venue(self):
         print('Choose one of the venues: ')
@@ -231,18 +271,20 @@ class FirebaseConn:
     def get_pictures(self):
         path = '/home/leo/openface/training-images/'
         members = self.get_members()
+        print(members)
         for i in range(1, len(members)):
-            print('------------------------')
-            print('Downloading images of [' + str(i) + '] ' + members[i]['Data']['name'])
-            filename = 1
-            if not os.path.isdir(path+str(i)):
-                os.makedirs(path+str(i))
-            while True:
-                self.storage.child(self.userUID).child(self.venue).child(str(i)).child(str(filename)+'.jpg').download(
-                    filename=str(filename)+'.jpg', token=self.user['idToken'])
-                if os.path.isfile('./'+str(filename)+'.jpg'):
-                    print('> '+str(filename) + '.jpg downloaded')
-                    os.rename('./'+str(filename)+'.jpg', path+str(i)+'/'+str(filename)+'.jpg')
-                    filename += 1
-                else:
-                    break
+            if members[i] is not None:
+                print('------------------------')
+                print('Downloading images of [' + str(i) + '] ' + members[i]['Data']['name'])
+                filename = 1
+                if not os.path.isdir(path+str(i)):
+                    os.makedirs(path+str(i))
+                while True:
+                    self.storage.child(self.userUID).child(self.venue).child(str(i)).child(str(filename)+'.jpg').download(
+                        filename=str(filename)+'.jpg', token=self.user['idToken'])
+                    if os.path.isfile('./'+str(filename)+'.jpg'):
+                        print('> '+str(filename) + '.jpg downloaded')
+                        os.rename('./'+str(filename)+'.jpg', path+str(i)+'/'+str(filename)+'.jpg')
+                        filename += 1
+                    else:
+                        break
