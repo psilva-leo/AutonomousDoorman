@@ -7,6 +7,7 @@ import {FirebaseService, Member} from "../../services/firebase.service";
 import {CreateGroupModalComponent} from "../create-group-modal/create-group-modal.component";
 import {EditGroupModalComponent} from "../edit-group-modal/edit-group-modal.component";
 import {isUndefined} from "util";
+import {TranslateService} from "ng2-translate";
 
 @Component({
   selector: 'app-venue-detail',
@@ -28,7 +29,7 @@ export class VenueDetailComponent implements OnInit{
   newMember: Member;
   createMember: boolean[];
   constructor(private firebaseService: FirebaseService, private route: ActivatedRoute, private modal: Modal,
-              private ref: ChangeDetectorRef) {
+              private ref: ChangeDetectorRef, private translate: TranslateService) {
     this.createMember = [];
     this.newMember = {name: "", email: "", id: "", photourl: "", groups: []};
     this.groups = [];
@@ -114,7 +115,20 @@ export class VenueDetailComponent implements OnInit{
   }
 
   deleteVenue(){
-    this.firebaseService.deleteVenue(this.venueName);
+    this.modal.confirm()
+      .size('sm')
+      .isBlocking(true)
+      .showClose(true)
+      .keyboard(27)
+      .title(this.translate.instant("delete_confirmation"))
+      .body(this.translate.instant("delete_question")+ this.venueName)
+      .open()
+      .then(dialog => dialog.result)
+      .then(result => {
+        this.firebaseService.deleteVenue(this.venueName);
+        console.log('confirmed');
+      })
+      .catch(err => {});
   }
 
 
@@ -131,8 +145,8 @@ export class VenueDetailComponent implements OnInit{
       .isBlocking(true)
       .showClose(true)
       .keyboard(27)
-      .title('Delete Confirmation')
-      .body('Are you sure you want to delete: '+ group)
+      .title(this.translate.instant("delete_confirmation"))
+      .body(this.translate.instant("delete_question")+ group)
       .open()
       .then(dialog => dialog.result)
       .then(result => {

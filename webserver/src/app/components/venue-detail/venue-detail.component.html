@@ -9,9 +9,9 @@
   <div class="container-fluid">
     <div class="animated fadeIn">
       <div class="row" style="padding-right: 1rem; padding-bottom: 0.5rem">
-        <button (click)="openDoor()" class="btn btn-success">Open Door</button>
-        <button (click)="deleteVenue()" class="btn btn-danger pull-right" style="margin-left: 10px;">Delete Venue</button>
-        <button (click)="openCreateGroup()" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> Add new Group</button>
+        <button (click)="openDoor()" class="btn btn-success">{{"open_door" | translate}}</button>
+        <button (click)="deleteVenue()" class="btn btn-danger pull-right" style="margin-left: 10px;">{{"delete_venue" | translate}}</button>
+        <button (click)="openCreateGroup()" class="btn btn-primary pull-right"><i class="fa fa-plus"></i> {{"add_group" | translate}}</button>
       </div>
 
       <div *ngFor="let group of groups; let i = index; trackBy:trackByIndex">

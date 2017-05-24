@@ -42,5 +42,22 @@
   "search": "Pesquisar",
   "go": "Ir",
   "start": "Início",
-  "end": "Fim"
+  "end": "Fim",
+  "open_door": "Abrir Porta",
+  "add_group": "Adicionar Novo Grupo",
+  "delete_venue": "Remover Localização",
+  "register_text": "Se você ainda não possui uma conta você pode se registrar agora.",
+  "signup": "Cadastre-se",
+  "signin": "Acesse sua conta",
+  "create_new_user": "Crie um novo usuário",
+  "manage_existing_users": "Gerencie usuários de outros grupos",
+  "open_camera": "Abrir Câmera",
+  "take_picture": "Tirar Foto",
+  "submit": "Submiter",
+  "add_member_to": "Adicionar membro a ",
+  "add_group_to": "Adicionar Grupo a ",
+  "reset": "Resetar",
+  "edit": "Editar ",
+  "delete_confirmation": "Confirmar a remoção",
+  "delete_question": "'Tem certeza que deseja remover: "
 }

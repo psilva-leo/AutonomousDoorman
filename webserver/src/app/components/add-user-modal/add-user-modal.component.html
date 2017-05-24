@@ -1,12 +1,12 @@
 <div class="container-fluid custom-modal-container">
   <div class="modal-header" style="padding-top: 0; padding-bottom: 0">
-    <h3>Add Member to {{context.groupName}}</h3>
+    <h3>{{"add_member_to" | translate}} {{context.groupName}}</h3>
   </div>
   <div class="row">
     <div class="col-xs-12">
       <!-- Members -->
       <div style="text-align: center" class="card-block" *ngIf="members.length >= 1">
-        <strong>Manage active members from other groups</strong>
+        <strong>{{"manage_existing_users" | translate}}</strong>
         <br><br>
 
         <div class="team-members">
@@ -22,7 +22,7 @@
       <!-- User input -->
         <form>
           <div class="form-group" style="text-align: center">
-            <strong>Create new user</strong>
+            <strong>{{"create_new_user" | translate}}</strong>
           </div>
           <div class="form-group">
             <div class="input-group">
@@ -38,19 +38,19 @@
           </div>
 
           <div class="form-group">
-            <button type="button" (click)="openCamera()" class="btn btn-sm btn-primary">Open Camera</button>
+            <button type="button" (click)="openCamera()" class="btn btn-sm btn-primary">{{"open_camera" | translate}}</button>
             <input type="file" multiple="" (change)="fileChange($event)" placeholder="Upload file"
                    id="input-upload" name="file-multiple-input" accept="image/jpeg">
           </div>
 
           <video #video width="320" height="240" [style.display]="showCam" style="margin: 0 auto;"></video>
           <canvas id="canvas" width="320" height="240" [style.display]="showCam" style="margin: 0 auto;"></canvas>
-          <button type="button" (click)="takePicture()" class="btn btn-sm btn-primary">Take Picture</button>
+          <button type="button" (click)="takePicture()" class="btn btn-sm btn-primary">{{"take_picture" | translate}}</button>
 
           <div *ngIf="confirmationMessage !== ''" class="alert alert-danger" role="alert">{{confirmationMessage}}</div>
 
           <div class="form-group form-actions">
-            <button type="button" (click)="submit(groupName, member)" class="btn btn-sm btn-success">Submit</button>
+            <button type="button" (click)="submit(groupName, member)" class="btn btn-sm btn-success">{{"submit" | translate}}</button>
           </div>
 
         </form>

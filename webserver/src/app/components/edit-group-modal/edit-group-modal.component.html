@@ -1,6 +1,6 @@
 <div class="container-fluid custom-modal-container">
   <div class="modal-header" style="padding-top: 0; padding-bottom: 0">
-    <h3>Edit {{context.groupName}}</h3>
+    <h3>{{"edit" | translate}} {{context.groupName}}</h3>
   </div>
   <div class="row">
     <div class="col-xs-12">
@@ -8,19 +8,19 @@
       <div class="card-block">
         <br>
         <div class="col-md-6">
-          <label class="form-control-label" for="text-input">Start</label>
+          <label class="form-control-label" for="text-input">{{"start" | translate}}</label>
           &nbsp;&nbsp;
           <input type="time" [(ngModel)]="start" />
         </div>
         <div class="col-md-6">
-          <label class="form-control-label" for="text-input">Finish</label>
+          <label class="form-control-label" for="text-input">{{"end" | translate}}</label>
           &nbsp;&nbsp;
           <input type="time" [(ngModel)]="end" />
         </div>
         <br><br>
         <div class="row">
-          <button (click)="submit()" type="submit" class="btn btn-sm btn-primary"><i class="fa fa-dot-circle-o"></i> Submit</button>
-          <button type="reset" (click)="reset()" class="btn btn-sm btn-danger"><i class="fa fa-ban"></i> Reset</button>
+          <button (click)="submit()" type="submit" class="btn btn-sm btn-primary"><i class="fa fa-dot-circle-o"></i> {{"submit" | translate}}</button>
+          <button type="reset" (click)="reset()" class="btn btn-sm btn-danger"><i class="fa fa-ban"></i> {{"reset" | translate}}</button>
         </div>
       </div>
 

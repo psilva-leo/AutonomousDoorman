@@ -1,12 +1,12 @@
 <div class="container-fluid custom-modal-container">
   <div class="modal-header" style="padding-top: 0; padding-bottom: 0">
-    <h3>Add Group to {{context.venueName}}</h3>
+    <h3>{{"add_group_to" | translate}} {{context.venueName}}</h3>
   </div>
   <div class="row">
     <div class="col-xs-12">
       <!-- Members -->
       <div style="text-align: center" class="card-block" *ngIf="members.length >= 1">
-        <strong>Manage active members from other groups</strong>
+        <strong>{{"manage_existing_users" | translate}}</strong>
         <br><br>
 
         <div class="team-members">
@@ -25,7 +25,7 @@
 
       <div class="card-block">
         <div class="row">
-          <strong class="col-md-3">Name</strong>
+          <strong class="col-md-3">{{"name" | translate}}</strong>
           <div class="col-md-9">
             <input type="text" name="group" class="form-control" placeholder="group name" [(ngModel)]="groupName">
             <span style="color: red" class="help-block"></span>
@@ -35,11 +35,11 @@
         <br>
         <div class="row">
           <div class="col-md-6">
-            <label class="form-control-label" for="text-input">Start</label>
+            <label class="form-control-label" for="text-input">{{"start" | translate}}</label>
             <input type="time" name="start" [(ngModel)]="start"/>
           </div>
           <div class="col-md-6">
-            <label class="form-control-label" for="text-input">Finish</label>
+            <label class="form-control-label" for="text-input">{{"end" | translate}}</label>
             <input type="time" name="finish" [(ngModel)]="end"/>
           </div>
         </div>
@@ -47,8 +47,8 @@
 
         <br><br>
         <div class="row">
-          <button (click)="submit()" type="submit" class="btn btn-sm btn-primary"><i class="fa fa-dot-circle-o"></i> Submit</button>
-          <button type="reset" (click)="reset()" class="btn btn-sm btn-danger"><i class="fa fa-ban"></i> Reset</button>
+          <button (click)="submit()" type="submit" class="btn btn-sm btn-primary"><i class="fa fa-dot-circle-o"></i> {{"submit" | translate}}</button>
+          <button type="reset" (click)="reset()" class="btn btn-sm btn-danger"><i class="fa fa-ban"></i> {{"reset" | translate}}</button>
         </div>
       </div>
 

@@ -6,7 +6,7 @@
           <div class="card p-2">
             <div class="card-block">
               <h1>Login {{loggedIn | async}}</h1>
-              <p class="text-muted">Sign In to your account</p>
+              <p class="text-muted">{{"signin" | translate}}</p>
               <div class="input-group mb-1">
                 <span class="input-group-addon"><i class="icon-user"></i></span>
                 <input (keyup.enter)="login()" type="text" class="form-control" placeholder="Username" [(ngModel)]="loginUsername">
@@ -29,8 +29,8 @@
           <div class="card card-inverse card-primary py-3 " style="width:44%">
             <div class="card-block text-xs-center">
               <div>
-                <h2>Sign up</h2>
-                <p>If you don't have an account yet you can register now.</p>
+                <h2>{{"signup" | translate}}</h2>
+                <p>{{"register_text" | translate}}</p>
                 <button type="button" class="btn btn-primary active mt-1" (click)="register()">Register Now!</button>
               </div>
             </div>
