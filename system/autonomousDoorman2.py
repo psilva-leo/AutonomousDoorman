@@ -14,7 +14,7 @@ import numpy as np
 class AutonomousDoorman(Thread):
     def __init__(self, debug_flag=False):
         self.hard_control = HardwareControl()
-        self.detect = DetectFace(sensor=self.hard_control, Autonomous=self)
+        self.detect = DetectFace(hard_control=self.hard_control, Autonomous=self)
         self.face = FaceRecognition()
         self.training = False
         self.save_pictures = True
