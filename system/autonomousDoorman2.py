@@ -18,7 +18,7 @@ class AutonomousDoorman(Thread):
         self.face = FaceRecognition()
         self.training = False
         self.save_pictures = True
-        self.fire = FirebaseConn(Autonomous=self)
+        self.fire = FirebaseConn(Autonomous=self, hardware_control=self.hardware_control)
         self.debug_flag = debug_flag
         super(AutonomousDoorman, self).__init__()
 
