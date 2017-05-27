@@ -12,12 +12,10 @@ import threading
 
 class DetectFace(Thread):
 
-    sensor = None
-
     """
         Class constructor. Receives a sensor (MovementDetection)
     """
-    def __init__(self, sensor, Autonomous):
+    def __init__(self, hard_control, Autonomous):
         self.processing = False
         self.autonomous = Autonomous
         self.count = 1
@@ -25,7 +23,7 @@ class DetectFace(Thread):
         self.predict = 0
         self.liveness_prediction = 0.0
 
-        self.sensor = sensor
+        self.hard_control = hard_control
         self.save_pictures = True
         super(DetectFace, self).__init__()
 
@@ -84,40 +82,41 @@ class DetectFace(Thread):
         threads = []
         clf = joblib.load('svm.pkl')
 
-        while (True):
-            # Capture frame-by-frame
-            ret, frame = cap.read(0)
-            cv2.imshow('frame', frame)
+        while True:
+            if self.hard_control.sensorStatus == 1:
+                # Capture frame-by-frame
+                ret, frame = cap.read(0)
+                cv2.imshow('frame', frame)
 
-            if not self.processing and self.autonomous.training is False:
-                # buf = np.asarray(frame)
-                # rgbFrame = np.zeros((480, 640, 3), dtype=np.uint8)
-                # rgbFrame[:, :, 0] = buf[:, :, 2]
-                # rgbFrame[:, :, 1] = buf[:, :, 1]
-                # rgbFrame[:, :, 2] = buf[:, :, 0]
-                rgbFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
+                if not self.processing and self.autonomous.training is False:
+                    # buf = np.asarray(frame)
+                    # rgbFrame = np.zeros((480, 640, 3), dtype=np.uint8)
+                    # rgbFrame[:, :, 0] = buf[:, :, 2]
+                    # rgbFrame[:, :, 1] = buf[:, :, 1]
+                    # rgbFrame[:, :, 2] = buf[:, :, 0]
+                    rgbFrame = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
-                bbs = align.getAllFaceBoundingBoxes(rgbFrame)
+                    bbs = align.getAllFaceBoundingBoxes(rgbFrame)
 
-                print('number of faces: %s' % len(bbs))
+                    print('number of faces: %s' % len(bbs))
 
-                face_number = 0
-                for bb in bbs:
-                    if bb.bottom() - bb.top() > m and bb.right() - bb.left() > n:
-                        cropped_frame = frame[bb.top(): bb.bottom(), bb.left(): bb.right()].copy()
+                    face_number = 0
+                    for bb in bbs:
+                        if bb.bottom() - bb.top() > m and bb.right() - bb.left() > n:
+                            cropped_frame = frame[bb.top(): bb.bottom(), bb.left(): bb.right()].copy()
 
-                        if self.save_pictures:
-                            cv2.imshow('saved img', cropped_frame)
-                            cv2.imwrite('face' + str(face_number) + '.jpg', cropped_frame)
-                        cropped_frame = cv2.resize(cropped_frame, (imgDim, imgDim), interpolation=cv2.INTER_CUBIC)
-                        face_number += 1
+                            if self.save_pictures:
+                                cv2.imshow('saved img', cropped_frame)
+                                cv2.imwrite('face' + str(face_number) + '.jpg', cropped_frame)
+                            cropped_frame = cv2.resize(cropped_frame, (imgDim, imgDim), interpolation=cv2.INTER_CUBIC)
+                            face_number += 1
 
-                        t = threading.Thread(target=liveness_detection, args=(cropped_frame,))
-                        threads.append(t)
-                        t.start()
+                            t = threading.Thread(target=liveness_detection, args=(cropped_frame,))
+                            threads.append(t)
+                            t.start()
 
-            if cv2.waitKey(1) & 0xFF == ord('q'):
-                break
+                if cv2.waitKey(1) & 0xFF == ord('q'):
+                    break
 
         cap.release()
         cv2.destroyAllWindows()

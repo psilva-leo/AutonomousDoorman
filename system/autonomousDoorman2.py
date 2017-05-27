@@ -4,6 +4,7 @@ from threading import Thread
 from faceRecognition import FaceRecognition
 from firebaseConn import FirebaseConn
 from detectFace2 import DetectFace
+from hardwareControl import HardwareControl
 import numpy as np
 
 
@@ -12,9 +13,8 @@ import numpy as np
 
 class AutonomousDoorman(Thread):
     def __init__(self, debug_flag=False):
-        # self.sensor = MovementDetection()
-        self.sensor = 1
-        self.detect = DetectFace(sensor=self.sensor, Autonomous=self)
+        self.hard_control = HardwareControl()
+        self.detect = DetectFace(sensor=self.hard_control, Autonomous=self)
         self.face = FaceRecognition()
         self.training = False
         self.save_pictures = True
@@ -65,18 +65,19 @@ class AutonomousDoorman(Thread):
         # self.fire.get_pictures()
         # self.face.train()
 
-        # self.sensor.start()
         if self.debug_flag:
             print('Starting movement sensor.')
 
+        self.hard_control.start()
         self.detect.start()
+
         if self.debug_flag:
             print('Starting camera and detecting faces.')
         self.save_pictures = True
         self.detect.save_pictures = True
         while True:
             # if self.sensor.getStatus() == 1:
-            if self.sensor == 1 and self.training is False:
+            if self.hard_control.sensorStatus == 1 and self.training is False:
                 recognized_faces = self.recognize_faces()
                 print(recognized_faces)
 
@@ -93,6 +94,7 @@ class AutonomousDoorman(Thread):
 
                 if recognized_faces and in_time and liveness > 0.7:
                     print('ACCESS GRANTED!!')
+                    self.hard_control.open_door()
                 else:
                     print('ACCESS DENIED!')
 
