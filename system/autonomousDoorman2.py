@@ -13,8 +13,8 @@ import numpy as np
 
 class AutonomousDoorman(Thread):
     def __init__(self, debug_flag=False):
-        self.hard_control = HardwareControl()
-        self.detect = DetectFace(hard_control=self.hard_control, Autonomous=self)
+        self.hardware_control = HardwareControl()
+        self.detect = DetectFace(hardware_control=self.hardware_control, Autonomous=self)
         self.face = FaceRecognition()
         self.training = False
         self.save_pictures = True
@@ -61,14 +61,11 @@ class AutonomousDoorman(Thread):
     def run(self):
         if self.debug_flag:
             print('Updating system')
-        # self.face.delete_classifier()
-        # self.fire.get_pictures()
-        # self.face.train()
 
         if self.debug_flag:
             print('Starting movement sensor.')
 
-        self.hard_control.start()
+        self.hardware_control.start()
         self.detect.start()
 
         if self.debug_flag:
@@ -77,7 +74,7 @@ class AutonomousDoorman(Thread):
         self.detect.save_pictures = True
         while True:
             # if self.sensor.getStatus() == 1:
-            if self.hard_control.sensorStatus == 1 and self.training is False:
+            if self.hardware_control.sensorStatus == 1 and self.training is False:
                 recognized_faces = self.recognize_faces()
                 print(recognized_faces)
 
@@ -85,18 +82,40 @@ class AutonomousDoorman(Thread):
                 print('liveness: {}'.format(liveness))
 
                 in_time = False
+                who = ""
                 for face in recognized_faces:
                     time_allowed, in_time_groups = self.fire.get_in_time_allowance(face[0])
                     if time_allowed:
+                        who = face[0]
                         in_time = True
 
                 print('In time: {}'.format(in_time))
 
                 if recognized_faces and in_time and liveness > 0.7:
                     print('ACCESS GRANTED!!')
-                    self.hard_control.open_door()
+                    self.hardware_control.open_door()
+                    i = 0
+                    for face in recognized_faces:
+                        permission = "({}) Allowed by {}".format(who, in_time_groups)
+                        self.fire.set_log(member=self.fire.get_member_by_id(face[0]), member_id=face[0],
+                                          success=True, permission=permission,
+                                          file_name='face' + str(i) + '.jpg')
+                        i += 1
                 else:
                     print('ACCESS DENIED!')
+
+                    if recognized_faces:
+                        i = 0
+                        for face in recognized_faces:
+                            permission = "Not allowed. Out of time"
+                            self.fire.set_log(member=self.fire.get_member_by_id(face[0]), member_id=face[0],
+                                              success=False, permission=permission,
+                                              file_name='face' + str(i) + '.jpg')
+                    else:
+                        permission = "Not Registered."
+                        files = os.listdir("./")
+                        for f in files:
+                            self.fire.set_log_no_match(success=False, permission=permission, file_name=f)
 
                 self.detect.liveness_prediction = 0.0
 

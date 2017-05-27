@@ -8,9 +8,10 @@ import json
 
 class FirebaseConn:
 
-    def __init__(self, Autonomous):
+    def __init__(self, Autonomous, hardware_control):
         self.autonomous = Autonomous
         self.face = FaceRecognition()
+        self.hardware_control = hardware_control
 
         email, password, self.venue, self.update = self.read_config()
 
@@ -42,8 +43,6 @@ class FirebaseConn:
 
         self.posts_stream = self.db.child(self.userUID).child('Venues').child(self.venue).child("CrossConnection").stream(self.stream_handler)
 
-
-
     def stream_handler(self, message):
         print('>>>>>STREAM')
         print(message["event"])
@@ -65,8 +64,9 @@ class FirebaseConn:
                     self.face.train()
                     self.autonomous.training = False
                 elif message["data"][-1] == 'Open Door':
-                    # Open door
-                    pass
+                    self.hardware_control.open_door()
+                    self.set_log_opened_from_web()
+
             elif index != len(keys) - 1:
                 self.autonomous.training = True
                 self.face.delete_classifier()
@@ -74,7 +74,7 @@ class FirebaseConn:
                 self.face.train()
                 self.autonomous.training = False
 
-        except: # First time. Configuring
+        except:  # First time. Configuring
             cfg = ConfigParser()
             cfg.read('config.ini')
 
@@ -255,6 +255,27 @@ class FirebaseConn:
         key = self.db.child(self.userUID).child('Logs').push(data, token=self.user['idToken'])['name']
 
         self.storage.child(self.userUID).child('Logs').child(key+'.jpg').put(file_name, self.user['idToken'])
+
+    def set_log_opened_from_web(self):
+
+        data = {
+            'email': "-",
+            'name': "Administrator",
+            'id': "",
+            'permission': "Opened from web by the administrator",
+            'photourl': "assets/"+self.userUID+"/Profile/1.jpg",
+            'success': True,
+            'venue': self.venue,
+            'date': {
+                'day': datetime.now().strftime('%d'),
+                'month': datetime.now().strftime('%m'),
+                'time': datetime.now().strftime('%H') + ':' + datetime.now().strftime('%M'),
+                'year': datetime.now().strftime('%Y')
+            }
+        }
+        key = self.db.child(self.userUID).child('Logs').push(data, token=self.user['idToken'])['name']
+
+        self.storage.child(self.userUID).child('Logs').child(key + '.jpg').put("adm.jpg", self.user['idToken'])
 
     def get_name_by_id(self, member_id):
         members = self.get_members()

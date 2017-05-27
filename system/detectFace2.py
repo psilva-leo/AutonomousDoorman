@@ -15,7 +15,7 @@ class DetectFace(Thread):
     """
         Class constructor. Receives a sensor (MovementDetection)
     """
-    def __init__(self, hard_control, Autonomous):
+    def __init__(self, hardware_control, Autonomous):
         self.processing = False
         self.autonomous = Autonomous
         self.count = 1
@@ -23,7 +23,7 @@ class DetectFace(Thread):
         self.predict = 0
         self.liveness_prediction = 0.0
 
-        self.hard_control = hard_control
+        self.hardware_control = hardware_control
         self.save_pictures = True
         super(DetectFace, self).__init__()
 
@@ -83,7 +83,7 @@ class DetectFace(Thread):
         clf = joblib.load('svm.pkl')
 
         while True:
-            if self.hard_control.sensorStatus == 1:
+            if self.hardware_control.sensorStatus == 1:
                 # Capture frame-by-frame
                 ret, frame = cap.read(0)
                 cv2.imshow('frame', frame)
