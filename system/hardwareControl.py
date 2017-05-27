@@ -28,9 +28,3 @@ class HardwareControl(Thread):
     def run(self):
         while True:
             self.sensorStatus = GPIO.input(self.sensorPin)
-
-
-control = HardwareControl()
-control.start()
-time.sleep(5)
-control.open_door()
