@@ -38,14 +38,14 @@
           </div>
 
           <div class="form-group">
-            <button type="button" (click)="openCamera()" class="btn btn-sm btn-primary">{{"open_camera" | translate}}</button>
+            <!--<button type="button" (click)="openCamera()" class="btn btn-sm btn-primary">{{"open_camera" | translate}}</button>-->
             <input type="file" multiple="" (change)="fileChange($event)" placeholder="Upload file"
                    id="input-upload" name="file-multiple-input" accept="image/jpeg">
           </div>
 
-          <video #video width="320" height="240" [style.display]="showCam" style="margin: 0 auto;"></video>
-          <canvas id="canvas" width="320" height="240" [style.display]="showCam" style="margin: 0 auto;"></canvas>
-          <button type="button" (click)="takePicture()" class="btn btn-sm btn-primary">{{"take_picture" | translate}}</button>
+          <!--<video #video width="320" height="240" [style.display]="showCam" style="margin: 0 auto;"></video>-->
+          <!--<canvas id="canvas" width="320" height="240" [style.display]="showCam" style="margin: 0 auto;"></canvas>-->
+          <!--<button type="button" (click)="takePicture()" class="btn btn-sm btn-primary">{{"take_picture" | translate}}</button>-->
 
           <div *ngIf="confirmationMessage !== ''" class="alert alert-danger" role="alert">{{confirmationMessage}}</div>
 

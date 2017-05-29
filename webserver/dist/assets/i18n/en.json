@@ -42,5 +42,22 @@
   "search": "Search",
   "go": "Go",
   "start": "Start",
-  "end": "End"
+  "end": "End",
+  "open_door": "Open Door",
+  "add_group": "Add New Group",
+  "delete_venue": "Delete Venue",
+  "register_text": "If you don't have an account yet you can register now.",
+  "signup": "Sign Up",
+  "signin": "Sign In to your account",
+  "create_new_user": "Create New User",
+  "manage_existing_users": "Manage active members from other groups",
+  "open_camera": "Open Camera",
+  "take_picture": "Take Picture",
+  "submit": "Submit",
+  "add_member_to": "Add Member to ",
+  "add_group_to": "Add Group to ",
+  "reset": "Reset",
+  "edit": "Edit ",
+  "delete_confirmation": "Delete Confirmation",
+  "delete_question": "'Are you sure you want to delete: "
 }
