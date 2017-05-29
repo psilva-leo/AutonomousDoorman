@@ -51,38 +51,36 @@ class FirebaseConn:
 
         keys = message["data"].keys()
         for key in keys:
-            print(key)
+            print("key: {}".format(key))
 
-        try:
-            index = keys.index(self.update)
+        if self.update != 0:
+            print(self.update)
+            print(message["data"][key])
 
-            if index == len(keys) - 2:
-                if message["data"][-1] == u'New Member' or message["data"][-1] == u'Deleted Member':
-                    self.autonomous.training = True
-                    self.face.delete_classifier()
-                    self.get_pictures()
-                    self.face.train()
-                    self.autonomous.training = False
-                elif message["data"][-1] == 'Open Door':
-                    self.hardware_control.open_door()
-                    self.set_log_opened_from_web()
-
-            elif index != len(keys) - 1:
+            if message["data"][key] == "Open Door":
+                print("> OpenDoor")
+                self.hardware_control.open_door()
+                self.set_log_opened_from_web()
+            elif message["data"][key] == "New Member" or message["data"][key] == "Deleted Member":
+                print("Retrain network")
                 self.autonomous.training = True
                 self.face.delete_classifier()
                 self.get_pictures()
                 self.face.train()
                 self.autonomous.training = False
 
-        except:  # First time. Configuring
+        else:  # First time. Configuring
+            print('first time')
             cfg = ConfigParser()
             cfg.read('config.ini')
 
-            cfg.set('User', 'update', keys[-1])
+            cfg.set('User', 'update', key)
+            self.update = key
 
             with open('config.ini', 'wb') as configfile:
                 cfg.write(configfile)
 
+            print('Train network')
             self.autonomous.training = True
             self.face.delete_classifier()
             self.get_pictures()

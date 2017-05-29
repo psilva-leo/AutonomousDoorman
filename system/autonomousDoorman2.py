@@ -32,7 +32,7 @@ class AutonomousDoorman(Thread):
         self.detect.save_pictures = False
         files = os.listdir("./")
         for f in files:
-            if f.endswith(".jpg"):
+            if f.endswith(".jpg") and f != "adm.jpg":
                 print('>>Predicting ' + f)
                 person, confidence = self.face.predict(f)
                 print('predicted person: {} | confidence: {}'.format(person, confidence))
@@ -55,7 +55,7 @@ class AutonomousDoorman(Thread):
 
         files = os.listdir("./")
         for f in files:
-            if f.endswith(".jpg"):
+            if f.endswith(".jpg") and f != "adm.jpg":
                 os.remove(os.path.join("./", f))
 
     def run(self):
