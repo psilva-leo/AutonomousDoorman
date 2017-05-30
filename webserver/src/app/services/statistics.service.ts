@@ -40,6 +40,7 @@ export class StatisticsService{
 
   findVenues():Observable<string[]> {
     let userInfo = this.firebaseService.getUserInfo();
+    console.log('>>>>>'+userInfo.uid);
     return  this.db.list(userInfo.uid+'/Venues');
   }
 

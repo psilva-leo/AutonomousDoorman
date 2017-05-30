@@ -29,6 +29,15 @@ export class SidebarComponent implements OnInit {
     this.getUserInfo();
   }
 
+  fileChange(event) {
+    let file = event.target.files[0];
+    console.log(file);
+    console.log(file.name);
+    let input = <HTMLInputElement> document.getElementById('input-upload');
+    input.value = "";
+    this.firebaseService.uploadProfile(file)
+  }
+
   logout() {
     this.firebaseService.logout();
   }

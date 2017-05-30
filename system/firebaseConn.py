@@ -60,7 +60,7 @@ class FirebaseConn:
             if message["data"][key] == "Open Door":
                 print("> OpenDoor")
                 self.hardware_control.open_door()
-                self.set_log_opened_from_web()
+                # self.set_log_opened_from_web()
             elif message["data"][key] == "New Member" or message["data"][key] == "Deleted Member":
                 print("Retrain network")
                 self.autonomous.training = True

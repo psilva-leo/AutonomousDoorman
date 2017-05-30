@@ -67,6 +67,15 @@ export class FirebaseService{
 
   }
 
+
+  uploadProfile(file: File | Blob){
+    this.storage.child(this.userInfo.uid+'/Profile/1.jpg').put(file);
+    let timer = Observable.timer(1000);
+    timer.subscribe(x => {
+      location.reload();
+    });
+  }
+
   uploadMemberImage(file: File | Blob, venue: string, id: string, fileName: string){
     this.storage.child(this.userInfo.uid+'/'+venue+'/'+id+'/'+fileName+'.jpg').put(file).then(() => {
         if(fileName == '1'){
@@ -77,8 +86,9 @@ export class FirebaseService{
     );
   }
 
-  uploadLogImage(file: File, id: string){
-    this.storage.child(this.userInfo.uid+'/Logs/'+id+'.jpg').put(file);
+  uploadLogImage(file: File|Blob, id: string){
+    this.storage.child(this.userInfo.uid+'/Logs/'+id+'.jpg').put(file).then(res =>
+    console.log(res));
   }
 
   getURL(photourl: string):Observable<string> {
@@ -403,10 +413,37 @@ export class FirebaseService{
   }
 
   openDoor(venue: string){
-    let timestamp = Math.floor(Date.now() / 1000);
+    let date = new Date();
+    let timestamp = Math.floor(Date.now()/ 1000);
     let data = {};
     data[timestamp] = 'Open Door';
     this.db.object(this.userInfo.uid+'/Venues/'+venue+'/CrossConnection').set(data);
+    data = {};
+    data["email"] = this.userInfo.email;
+    data["id"] = 1;
+    data["name"] = this.userInfo.displayName;
+    data["permission"] = "Opened by administrator";
+    data["photourl"] = this.userInfo.uid+"/Profile/1.jpg";
+    data["sucess"] = true;
+    data["venue"] = venue;
+    data["date"] = {};
+    data["date"]["day"] = ("0" + date.getDate()).slice(-2);
+    data["date"]["month"] = ("0" + (date.getMonth() + 1)).slice(-2);
+    data["date"]["time"] = date.getHours()+":"+date.getMinutes();
+    data["date"]["year"] = date.getFullYear()+"";
+    this.db.list(this.userInfo.uid+'/Logs').push(data).then(res => {
+      console.log(res.key);
+      let self = this;
+      let xhr = new XMLHttpRequest();
+      xhr.responseType = 'blob';
+      xhr.onload = function(event) {
+        let blob = xhr.response;
+        self.uploadLogImage(blob, res.key);
+      };
+      xhr.open('GET', "https://firebasestorage.googleapis.com/v0/b/weather-5ed3c.appspot.com/o/assets%2Fadm.jpg?alt=media&token=da198268-2155-42c5-8a8c-eb6a0e4d9d9f");
+      xhr.send();
+
+    });
   }
 }
 

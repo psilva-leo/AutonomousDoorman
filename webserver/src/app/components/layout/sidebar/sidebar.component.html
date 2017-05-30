@@ -5,6 +5,17 @@
       <li class="divider"></li>
       <li class="nav-item">
         <img src="{{userPhoto}}" class="profile-userpic img-responsive" alt="">
+
+
+        <div class="image-upload">
+          <label for="input-upload">
+            <img src="http://us-east.ln.thebrazilbusiness.com/www/v5/img/icon_footer_edit_white.png"/>
+          </label>
+
+          <input type="file" (change)="fileChange($event)"
+                 id="input-upload" name="file-multiple-input" accept="image/jpeg">
+        </div>
+
         <div class="profile-usertitle">
           <div class="profile-usertitle-job">
             {{userInfo.displayName}}

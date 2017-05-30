@@ -59,5 +59,7 @@
   "reset": "Reset",
   "edit": "Edit ",
   "delete_confirmation": "Delete Confirmation",
-  "delete_question": "'Are you sure you want to delete: "
+  "delete_question": "'Are you sure you want to delete: ",
+  "door-open": "Door Open",
+  "door-open-sucess": "Door successfully opened!"
 }

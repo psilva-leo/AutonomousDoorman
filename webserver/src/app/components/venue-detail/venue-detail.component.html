@@ -37,6 +37,7 @@
                 <div class="ibox-content">
                   <div class="team-members row">
                     <span *ngFor="let groupMember of groupMembers[group.id]">
+
                       <span style="position: absolute" (click)="deleteMember(members[groupMember].id, group.id)"><i class="fa fa-times-circle delete-position"></i></span>
                       <a popover="{{members[groupMember].email}}" popoverTitle="{{members[groupMember].name}}" popoverPlacement="auto right"
                          [popoverOnHover]="true" [popoverCloseOnClickOutside]="true" [popoverCloseOnMouseOutside]="false"

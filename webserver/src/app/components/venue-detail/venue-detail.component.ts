@@ -171,6 +171,19 @@ export class VenueDetailComponent implements OnInit{
   openDoor(){
     console.log('open door');
     this.firebaseService.openDoor(this.venueName);
+
+    this.modal.confirm()
+      .size('sm')
+      .isBlocking(true)
+      .showClose(true)
+      .keyboard(27)
+      .title(this.translate.instant("door-open"))
+      .body(this.translate.instant("door-open-sucess"))
+      .open()
+      .then(dialog => dialog.result)
+      .then(result => {
+      })
+      .catch(err => {});
   }
 
   ngOnInit(){ }

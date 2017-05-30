@@ -59,5 +59,7 @@
   "reset": "Resetar",
   "edit": "Editar ",
   "delete_confirmation": "Confirmar a remoção",
-  "delete_question": "'Tem certeza que deseja remover: "
+  "delete_question": "'Tem certeza que deseja remover: ",
+  "door-open": "Porta Aberta",
+  "door-open-sucess": "A porta foi aberta com sucesso!"
 }
