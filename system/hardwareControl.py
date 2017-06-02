@@ -28,3 +28,5 @@ class HardwareControl(Thread):
     def run(self):
         while True:
             self.sensorStatus = GPIO.input(self.sensorPin)
+            if self.sensorStatus == 1:
+                time.sleep(300)

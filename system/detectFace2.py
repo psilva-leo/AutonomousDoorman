@@ -74,8 +74,9 @@ class DetectFace(Thread):
 
             return
 
+      
         cap = cv2.VideoCapture(0)
-        dLibFacePredictor = '/home/leo/openface/models/dlib/shape_predictor_68_face_landmarks.dat'
+        dLibFacePredictor = '/home/pi/openface/models/dlib/shape_predictor_68_face_landmarks.dat'
         align = openface.AlignDlib(dLibFacePredictor)
         m = n = imgDim = 96
         time.sleep(0.02)
@@ -86,7 +87,9 @@ class DetectFace(Thread):
             if self.hardware_control.sensorStatus == 1:
                 # Capture frame-by-frame
                 ret, frame = cap.read(0)
-                cv2.imshow('frame', frame)
+                if frame is not None:
+                    cv2.imshow('frame', frame)
+
 
                 if not self.processing and self.autonomous.training is False:
                     # buf = np.asarray(frame)
@@ -102,19 +105,20 @@ class DetectFace(Thread):
 
                     face_number = 0
                     for bb in bbs:
-                        if bb.bottom() - bb.top() > m and bb.right() - bb.left() > n:
-                            cropped_frame = frame[bb.top(): bb.bottom(), bb.left(): bb.right()].copy()
+                        try:
+                            if bb.bottom() - bb.top() > m and bb.right() - bb.left() > n:
+                                cropped_frame = frame[bb.top(): bb.bottom(), bb.left(): bb.right()].copy()
+                                if self.save_pictures:
+                                    cv2.imshow('saved img', cropped_frame)
+                                    cv2.imwrite('face' + str(face_number) + '.jpg', cropped_frame)
+                                cropped_frame = cv2.resize(cropped_frame, (imgDim, imgDim), interpolation=cv2.INTER_CUBIC)
+                                face_number += 1
 
-                            if self.save_pictures:
-                                cv2.imshow('saved img', cropped_frame)
-                                cv2.imwrite('face' + str(face_number) + '.jpg', cropped_frame)
-                            cropped_frame = cv2.resize(cropped_frame, (imgDim, imgDim), interpolation=cv2.INTER_CUBIC)
-                            face_number += 1
-
-                            t = threading.Thread(target=liveness_detection, args=(cropped_frame,))
-                            threads.append(t)
-                            t.start()
-
+                                t = threading.Thread(target=liveness_detection, args=(cropped_frame,))
+                                threads.append(t)
+                                t.start()
+                        except:
+                            pass
                 if cv2.waitKey(1) & 0xFF == ord('q'):
                     break
 

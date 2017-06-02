@@ -28,22 +28,22 @@ class AutonomousDoorman(Thread):
 
     def recognize_faces(self):
         recognized_faces = []
+        control = False
 
         self.detect.save_pictures = False
         files = os.listdir("./")
         for f in files:
             if f.endswith(".jpg") and f != "adm.jpg":
+                control = True
                 print('>>Predicting ' + f)
                 person, confidence = self.face.predict(f)
                 print('predicted person: {} | confidence: {}'.format(person, confidence))
-                if confidence > 0.7:
+                if confidence > 0.5:
                     recognized_faces = [[person, confidence]] if not recognized_faces \
                         else np.vstack((recognized_faces, (person, confidence)))
 
-        self.delete_images()
-        self.detect.save_pictures = True
 
-        return recognized_faces
+        return recognized_faces, control
 
     """
         Delete old pictures that were already classified.
@@ -67,6 +67,7 @@ class AutonomousDoorman(Thread):
 
         self.hardware_control.start()
         self.detect.start()
+        self.delete_images()
 
         if self.debug_flag:
             print('Starting camera and detecting faces.')
@@ -75,49 +76,53 @@ class AutonomousDoorman(Thread):
         while True:
             # if self.sensor.getStatus() == 1:
             if self.hardware_control.sensorStatus == 1 and self.training is False:
-                recognized_faces = self.recognize_faces()
-                print(recognized_faces)
+                recognized_faces, control = self.recognize_faces()
 
-                liveness = self.detect.liveness_prediction
-                print('liveness: {}'.format(liveness))
+                if control:
+                    print(recognized_faces)
 
-                in_time = False
-                who = ""
-                for face in recognized_faces:
-                    time_allowed, in_time_groups = self.fire.get_in_time_allowance(face[0])
-                    if time_allowed:
-                        who = face[0]
-                        in_time = True
+                    liveness = self.detect.liveness_prediction
+                    print('liveness: {}'.format(liveness))
 
-                print('In time: {}'.format(in_time))
-
-                if recognized_faces and in_time and liveness > 0.7:
-                    print('ACCESS GRANTED!!')
-                    self.hardware_control.open_door()
-                    i = 0
+                    in_time = False
+                    who = ""
                     for face in recognized_faces:
-                        permission = "({}) Allowed by {}".format(who, in_time_groups)
-                        self.fire.set_log(member=self.fire.get_member_by_id(face[0]), member_id=face[0],
-                                          success=True, permission=permission,
-                                          file_name='face' + str(i) + '.jpg')
-                        i += 1
-                else:
-                    print('ACCESS DENIED!')
+                        time_allowed, in_time_groups = self.fire.get_in_time_allowance(face[0])
+                        if time_allowed:
+                            who = face[0]
+                            in_time = True
 
-                    if recognized_faces:
+                    print('In time: {}'.format(in_time))
+
+                    if recognized_faces and in_time and liveness > 0.7:
+                        print('ACCESS GRANTED!!')
+                        self.hardware_control.open_door()
                         i = 0
                         for face in recognized_faces:
-                            permission = "Not allowed. Out of time"
+                            permission = "({}) Allowed by {}".format(who, in_time_groups)
                             self.fire.set_log(member=self.fire.get_member_by_id(face[0]), member_id=face[0],
-                                              success=False, permission=permission,
+                                              success=True, permission=permission,
                                               file_name='face' + str(i) + '.jpg')
+                            i += 1
                     else:
-                        permission = "Not Registered."
-                        files = os.listdir("./")
-                        for f in files:
-                            self.fire.set_log_no_match(success=False, permission=permission, file_name=f)
+                        print('ACCESS DENIED!')
 
-                self.detect.liveness_prediction = 0.0
+                        if recognized_faces:
+                            i = 0
+                            for face in recognized_faces:
+                                permission = "Not allowed. Out of time"
+                                self.fire.set_log(member=self.fire.get_member_by_id(face[0]), member_id=face[0],
+                                                  success=False, permission=permission,
+                                                  file_name='face' + str(i) + '.jpg')
+                        else:
+                            permission = "Not Registered."
+                            files = os.listdir("./")
+                            for f in files:
+                                self.fire.set_log_no_match(success=False, permission=permission, file_name=f)
+
+                    self.delete_images()
+                    self.detect.save_pictures = True
+                    self.detect.liveness_prediction = 0.0
 
                 time.sleep(1)
             else:

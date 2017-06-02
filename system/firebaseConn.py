@@ -44,41 +44,36 @@ class FirebaseConn:
         self.posts_stream = self.db.child(self.userUID).child('Venues').child(self.venue).child("CrossConnection").stream(self.stream_handler)
 
     def stream_handler(self, message):
-        print('>>>>>STREAM')
-        print(message["event"])
-        print(message["path"])  # /-K7yGTTEp7O549EzTYtI
-        print(message["data"])  # {'title': 'Pyrebase', "body": "etc..."}
+        #print('>>>>>STREAM')
+        #print(message["event"])
+        #print(message["path"])  # /-K7yGTTEp7O549EzTYtI
+        #print(message["data"])  # {'title': 'Pyrebase', "body": "etc..."}
 
         keys = message["data"].keys()
         for key in keys:
-            print("key: {}".format(key))
+            #print("key: {}".format(key))
+            pass
 
         if self.update != 0:
-            print(self.update)
-            print(message["data"][key])
+        #    print(self.update)
+        #    print(message["data"][key])
 
-            if message["data"][key] == "Open Door":
-                print("> OpenDoor")
-                self.hardware_control.open_door()
-                # self.set_log_opened_from_web()
-            elif message["data"][key] == "New Member" or message["data"][key] == "Deleted Member":
-                print("Retrain network")
-                self.autonomous.training = True
-                self.face.delete_classifier()
-                self.get_pictures()
-                self.face.train()
-                self.autonomous.training = False
+            if key != self.update:
+                self.update_crossConnection(key)
+                if message["data"][key] == "Open Door":
+                    print("> OpenDoor")
+                    self.hardware_control.open_door()
+                elif message["data"][key] == "New Member" or message["data"][key] == "Deleted Member":
+                    print(message["data"][key])
+                    self.autonomous.training = True
+                    self.face.delete_classifier()
+                    self.get_pictures()
+                    self.face.train()
+                    self.autonomous.training = False
 
         else:  # First time. Configuring
             print('first time')
-            cfg = ConfigParser()
-            cfg.read('config.ini')
-
-            cfg.set('User', 'update', key)
-            self.update = key
-
-            with open('config.ini', 'wb') as configfile:
-                cfg.write(configfile)
+            self.update_crossConnection(key)
 
             print('Train network')
             self.autonomous.training = True
@@ -87,6 +82,15 @@ class FirebaseConn:
             self.face.train()
             self.autonomous.training = False
 
+    def update_crossConnection(self, key):
+        cfg = ConfigParser()
+        cfg.read('config.ini')
+
+        cfg.set('User', 'update', key)
+        self.update = key
+
+        with open('config.ini', 'wb') as configfile:
+             cfg.write(configfile)
 
     # Verify if the DB exists. If it doesn't it requires the user to create it using the web platform.
     def verify_db_existence(self):
@@ -288,7 +292,7 @@ class FirebaseConn:
         return db_members
 
     def get_pictures(self):
-        path = '/home/leo/openface/training-images/'
+        path = '/home/pi/openface/training-images/'
         members = self.get_members()
         print(members)
         for i in range(1, len(members)):

@@ -10,9 +10,9 @@ class FaceRecognition:
     This class is a wrapper for unix commands to call OpenFace functions.
     """
     def __init__(self):
-        self.classifier_path = '/home/leo/openface/generated-embeddings/classifier.pkl'
-        self.predictor_path = '/home/leo/openface/models/dlib/shape_predictor_68_face_landmarks.dat'
-        self.model_path = '/home/leo/openface/models/openface/nn4.small2.v1.t7'
+        self.classifier_path = '/home/pi/openface/generated-embeddings/classifier.pkl'
+        self.predictor_path = '/home/pi/openface/models/dlib/shape_predictor_68_face_landmarks.dat'
+        self.model_path = '/home/pi/openface/models/openface/nn4.small2.v1.ascii.t7'
 
     def predict(self, img):
         person = -1
